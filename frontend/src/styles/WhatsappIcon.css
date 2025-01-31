@@ -1,0 +1,82 @@
+/* WhatsApp Icon Container */
+.whatsapp-icon-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: #25d366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: bounce 2s infinite;
+    cursor: pointer;
+  }
+  
+  /* Icon Styling */
+  .whatsapp-icon {
+    font-size: 2rem;
+    color: #ffffff;
+  }
+  
+  /* Hover Effect */
+  .whatsapp-icon-container:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Chat Bubble Styling */
+  .chat-bubble {
+    position: absolute;
+    bottom: 75px;
+    right: 0;
+    background: #ffffff;
+    color: #25d366;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease-in-out;
+    pointer-events: none;
+  }
+  
+  /* Reveal Bubble on Hover */
+  .whatsapp-icon-container:hover .chat-bubble {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Bounce Animation */
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .whatsapp-icon-container {
+      width: 50px;
+      height: 50px;
+    }
+  
+    .whatsapp-icon {
+      font-size: 1.8rem;
+    }
+  
+    .chat-bubble {
+      font-size: 0.8rem;
+    }
+  }
+  

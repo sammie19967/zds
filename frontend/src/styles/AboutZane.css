@@ -1,0 +1,148 @@
+/* General container styles */
+.about-zane-container {
+    position: relative;
+    width: 100vw;
+    min-height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(to bottom, #f9f9f9, #e3f2fd);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  
+  /* Background Cars */
+  .background-cars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: hidden;
+  }
+  
+  .background-cars img {
+    position: absolute;
+    opacity: 0.2;
+    width: 150px;
+    animation: moveRandomly 20s infinite;
+  }
+  
+  .car1 {
+    top: 10%;
+    left: 5%;
+  }
+  
+  .car2 {
+    top: 50%;
+    left: 70%;
+  }
+  
+  .car3 {
+    top: 80%;
+    left: 30%;
+  }
+  
+  @keyframes moveRandomly {
+    0% {
+      transform: translate(0, 0);
+    }
+    25% {
+      transform: translate(-20px, 30px);
+    }
+    50% {
+      transform: translate(30px, -20px);
+    }
+    75% {
+      transform: translate(-30px, -10px);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+  
+  /* Content Section */
+  .about-zane-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    width: 100%;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  
+  .about-zane-text {
+    flex: 1;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+  }
+  
+  .about-zane-title {
+    font-size: 2.5rem;
+    color: #0044cc;
+    margin-bottom: 20px;
+  }
+  
+  .about-zane-description {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #444;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(to right, #ffffff, #f3f3f3);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+  }
+  
+  .about-zane-description:hover {
+    transform: scale(1.02);
+    background-color: #e6f7ff;
+  }
+  
+  .about-zane-image {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .about-zane-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .about-zane-content {
+      flex-direction: column;
+      gap: 20px;
+    }
+  
+    .about-zane-title {
+      font-size: 2rem;
+    }
+  
+    .about-zane-description {
+      font-size: 1rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .background-cars img {
+      width: 100px;
+    }
+  
+    .about-zane-title {
+      font-size: 1.8rem;
+    }
+  
+    .about-zane-description {
+      font-size: 0.9rem;
+    }
+  }
+  

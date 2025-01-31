@@ -1,0 +1,44 @@
+:root {
+  --text-color: #000000;
+  --text-color-2: gray;
+  --background-color: #ffffff;
+  --accent-color: #0044cc;
+  --accent-color-light: hsla(220, 57%, 58%, 0.769);
+  --button-color: #28a745;
+  --button-color-hover: #6fd46f91;
+  --font-title: 'Poppins', sans-serif;
+  --font-body: 'Roboto', sans-serif;
+
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--text-color);
+  background-color: var(--background-color);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 600; 
+}
+
+p {
+  font-family: var(--font-body);
+  font-weight: 400; 
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+}

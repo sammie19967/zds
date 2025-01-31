@@ -1,0 +1,213 @@
+/* Root Presets */
+:root {
+  --text-color: #000000;
+  --text-color-2: gray;
+  --background-color: #ffffff;
+  --accent-color: #0044cc;
+  --accent-color-light: hsla(220, 57%, 58%, 0.769);
+  --button-color: #28a745;
+  --button-color-hover: #6fd46f91;
+  --font-title: 'Poppins', sans-serif;
+  --font-body: 'Roboto', sans-serif;
+}
+
+/* General Styling */
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.parallax-offers-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+/* Parallax Container */
+.parallax-container {
+  position: relative;
+}
+
+.parallax-image {
+  position: relative;
+  height: 400px;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  transition: background-position 0.3s ease;
+  overflow: hidden;
+}
+
+.image-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+  padding: 1rem;
+}
+
+/* Title Styling */
+.offer-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  font-family: var(--font-title);
+  text-transform: uppercase;
+  line-height: 1.2;
+  margin: 0;
+}
+
+/* Price Styling */
+.offer-price {
+  font-size: 2rem;
+  margin: 0.5rem 0;
+  font-weight: bold;
+  color: var(--accent-color);
+  background: linear-gradient(90deg, #ffe680, #ffaf40);
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  display: inline-block;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+
+.offer-price:hover {
+  transform: scale(1.1);
+  color: var(--accent-color);
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--accent-color);
+}
+
+/* Buttons Styling */
+.offer-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.join-us-button,
+.learn-more-button {
+  padding: 0.75rem 2rem;
+  border: 2px solid var(--button-color);
+  background-color: var(--button-color);
+  color: var(--background-color);
+  font-family: var(--font-body);
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.join-us-button:hover,
+.learn-more-button:hover {
+  background-color: var(--button-color-hover);
+  color: var(--text-color);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+.learn-more-button {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.learn-more-button:hover {
+  background-color: var(--accent-color-light);
+}
+
+/* Description Styling */
+.description-divider {
+  padding: 1.5rem;
+  font-size: 1.2rem;
+  text-align: center;
+  background-color: white;
+  border: 1px solid var(--accent-color-light);
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.description-divider p {
+  margin: 0;
+  color: var(--text-color-2);
+  line-height: 1.6;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-style: italic;
+}
+
+.description-divider p span {
+  font-weight: bold;
+  color: var(--accent-color);
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .parallax-image {
+    height: 300px;
+  }
+
+  .offer-title {
+    font-size: 2rem;
+  }
+
+  .offer-price {
+    font-size: 1.5rem;
+  }
+
+  .join-us-button,
+  .learn-more-button {
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .description-divider {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .parallax-image {
+    height: 250px;
+  }
+
+  .offer-title {
+    font-size: 1.8rem;
+  }
+
+  .offer-price {
+    font-size: 1.2rem;
+  }
+
+  .join-us-button,
+  .learn-more-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .description-divider {
+    font-size: 0.9rem;
+  }
+}

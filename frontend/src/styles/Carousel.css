@@ -1,0 +1,96 @@
+.carousel-container {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff; /* Fallback background */
+    margin-top: 1px;
+  }
+  
+  .carousel-image-container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  .carousel-image {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+    transition: transform 1s ease-in-out;
+    animation: scaleEffect 4s infinite alternate;
+  }
+  
+  @keyframes scaleEffect {
+    0% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1.1);
+    }
+  }
+  
+  .carousel-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.8));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    color: #fff;
+  }
+  
+  .carousel-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    animation: fadeIn 1.5s ease-in-out;
+  }
+  
+  .carousel-description {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    max-width: 600px;
+    line-height: 1.6;
+    animation: fadeIn 1.5s ease-in-out;
+  }
+  
+  .join-btn {
+    padding: 10px 30px;
+    font-size: 1.1rem;
+    color: #fff;
+    background: linear-gradient(90deg, #ff7f50, #ff4500);
+    border: none;
+    border-radius: 50px;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out, transform 0.3s ease-in-out;
+  }
+  
+  .join-btn:hover {
+    background: linear-gradient(90deg, #ff4500, #ff7f50);
+    transform: scale(1.1);
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  

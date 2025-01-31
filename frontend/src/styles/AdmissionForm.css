@@ -1,0 +1,130 @@
+/* Base styling for the form */
+.multi-form-container {
+    background-color: #ccc5f1;
+    color: #3a26ac;
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 600px;
+    margin: 50px auto;
+    
+  }
+  
+  .form-logo {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .logo-img {
+    width: 100px;
+    height: auto;
+    animation: fadeIn 1s ease-out;
+  }
+  
+  /* Progress Bar */
+  .multi-progress-bar {
+    background-color: #fff;
+    height: 10px;
+    border-radius: 5px;
+    margin-bottom: 30px;
+    overflow: hidden;
+  }
+  
+  .multi-progress {
+    height: 100%;
+    background-color: #3b82f6;
+    transition: width 0.3s ease-in-out;
+  }
+  
+  /* Form Step Styling */
+  .multi-form-step {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+  }
+  
+  .multi-form-step.active {
+    display: block;
+    opacity: 1;
+  }
+  
+  /* Input and Select Styling */
+  input,
+  select {
+    width: 95%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: none;
+    margin: 10px 0;
+    background: #f1f5f9;
+    color: #333;
+    font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+  }
+  
+  input:focus,
+  select:focus {
+    outline: none;
+    background: #3b82f6;
+    color: #fff;
+  }
+  
+  /* Buttons */
+  .multi-button {
+    padding: 12px 20px;
+    background: #10b981;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+  }
+  
+  .multi-button:hover {
+    background: #059669;
+    transform: scale(1.05);
+  }
+  
+  .multi-button:disabled {
+    background: #ddd;
+    cursor: not-allowed;
+  }
+  
+  .multi-button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  /* Summary Section */
+  .summary-section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    color: #333;
+  }
+  
+  .summary-section p {
+    margin: 8px 0;
+  }
+  
+  .right {
+    background: #3b82f6;
+  }
+  
+  .right:hover {
+    background: #1e40af;
+  }
+  
+  /* Animation for the logo */
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  

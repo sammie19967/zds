@@ -1,0 +1,156 @@
+/* About Intro Section */
+.about-intro {
+    position: relative;
+    height: 100vh;
+    background-image: url("../assets/brian.jpg"); /* Replace with your image */
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-family: 'Roboto', sans-serif;
+    
+    overflow: hidden;
+  }
+  
+  /* Overlay for Background Dimming */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7); /* Dark overlay */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1;
+  }
+  
+  /* Typewriter Effect */
+  .typewriter {
+    font-size: 3.5rem;
+    font-weight: bold;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 3px solid #ffffff;
+    animation: blink 0.7s step-end infinite;
+  }
+  
+  /* Intro Text */
+  .intro-text {
+    margin-top: 20px;
+    font-size: 1.5rem;
+    font-family: 'Open Sans', sans-serif;
+    color: #dcdcdc;
+    line-height: 1.8;
+    max-width: 800px;
+    animation: fadeIn 2s ease-in-out 1.5s both;
+  }
+  
+  .intro-text .highlight {
+    color: #ffcc00;
+    font-weight: bold;
+  }
+  
+  /* Button Container */
+  .button-container {
+    margin-top: 30px;
+    display: flex;
+    gap: 20px;
+  }
+  
+  /* Action Buttons */
+  .action-button {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffffff;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .action-button .button-icon {
+    font-size: 1.2rem;
+  }
+  
+  /* Individual Button Colors */
+  .join-us {
+    background: linear-gradient(135deg, #4caf50, #66bb6a);
+  }
+  
+  .catalogue {
+    background: linear-gradient(135deg, #2196f3, #64b5f6);
+  }
+  
+  .fees-structure {
+    background: linear-gradient(135deg, #ff9800, #ffb74d);
+  }
+  
+  /* Hover Effects */
+  .action-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .join-us:hover {
+    background: linear-gradient(135deg, #388e3c, #81c784);
+  }
+  
+  .catalogue:hover {
+    background: linear-gradient(135deg, #1976d2, #90caf9);
+  }
+  
+  .fees-structure:hover {
+    background: linear-gradient(135deg, #f57c00, #ffe0b2);
+  }
+  
+  /* Fade-In Animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Cursor Blinking Effect */
+  @keyframes blink {
+    from, to {
+      border-color: transparent;
+    }
+    50% {
+      border-color: #ffffff;
+    }
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .typewriter {
+      font-size: 2.5rem;
+    }
+  
+    .intro-text {
+      font-size: 1.2rem;
+    }
+  
+    .action-button {
+      font-size: 0.9rem;
+      padding: 10px 15px;
+    }
+  
+    .action-button .button-icon {
+      font-size: 1rem;
+    }
+  }
+  
