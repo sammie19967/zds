@@ -1,0 +1,44 @@
+.card {
+    padding: 20px;
+    border-radius: 8px;
+    color: white;
+    margin: 10px 0;
+    text-align: left;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card h2 {
+    margin-bottom: 10px;
+  }
+  
+  .card-content ul {
+    padding-left: 20px;
+  }
+  
+  
+  
+  .dot-list li {
+    list-style-type: disc;
+    margin-left: 20px;
+  }
+  
+  p {
+    margin: 10px 0;
+  }
+
+  
+  .cards-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap; /* This will allow the cards to wrap on smaller screens */
+    text-align: center;
+  }
+  
+  .card {
+    flex: 1;
+    min-width: 250px; /* Ensure cards don't get too small on smaller screens */
+    margin: 10px;
+    padding: 20px;
+  }
+  

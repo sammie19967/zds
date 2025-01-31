@@ -4,6 +4,7 @@ import NewStudentOffer from '../components/NewStudentOffer'
 import ComputerPackages from '../components/ComputerPackages'
 import Refresher from '../components/Refresher'
 import ComputingCatalog from './ComputingCatalog'
+import DrivingCatalog from './DrivingCatalog'
 
 const Courses = () => {
   return (
@@ -13,6 +14,7 @@ const Courses = () => {
       <ComputerPackages/>
       <Refresher/>
       <ComputingCatalog/>
+      <DrivingCatalog/>
     </div>
   )
 }

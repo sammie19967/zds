@@ -1,0 +1,62 @@
+.table-container {
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  table {
+    width: 95%;
+    border-collapse: collapse;
+    margin: 20px 20px;
+  }
+  
+  th, td {
+    border: 1px solid #4469cf70;
+    padding: 12px;
+    text-align: center;
+  }
+  
+  thead {
+    background-color: #f4f4f4;
+  }
+  
+  tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  h2 {
+    margin-bottom: 10px;
+  }
+  .table-container p{
+    text-align: center;
+    color: crimson;
+    font-size: larger;
+  }
+
+  .download-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+    text-decoration: none;
+  }
+  
+  .download-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .contact-section {
+    margin-top: 20px;
+  }
+  
+  .contact-section a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .contact-section a:hover {
+    text-decoration: underline;
+  }

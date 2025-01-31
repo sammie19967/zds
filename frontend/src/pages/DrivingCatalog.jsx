@@ -28,7 +28,9 @@ const Catalogue = () => {
 
   return (
     <div className="catalogue-container">
-      <h2>Driving Courses</h2>
+      <div className="catalog-title"><h1>Driving Courses</h1></div>
+      <div className="catalog-description">Explore what we offer for New drivers, Endorsers and Refreshers </div>
+      
       <div className="catalogue-grid">
         {vehicles.map((vehicle) => (
           <div key={vehicle.id} className="catalogue-item" style={{ backgroundColor: vehicle.bgColor }}>

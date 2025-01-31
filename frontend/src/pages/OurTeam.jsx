@@ -1,9 +1,10 @@
 import React from 'react'
+import FeesStructure from './FeesStructure'
 
 const OurTeam = () => {
   return (
     <div>
-      team work pays
+      <FeesStructure/>
     </div>
   )
 }
