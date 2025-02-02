@@ -1,0 +1,89 @@
+.fees-structure-container {
+    text-align: center;
+    padding: 20px;
+}
+
+.fees-logo img {
+    width: 150px;
+    margin-bottom: 10px;
+}
+
+/* Fees Overview */
+.fees-overview {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 5px 0;
+}
+
+.fees-date {
+    font-size: 18px;
+    color: gray;
+    margin-bottom: 15px;
+}
+
+/* Table Styles */
+.fees-table {
+    width: 80vw;
+    max-width: 100%;
+    border-collapse: collapse;
+    margin: 20px auto;
+}
+
+.fees-table th, .fees-table td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: left;
+    font-size: 16px;
+    word-wrap: break-word;
+}
+
+/* Header Background */
+.fees-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+/* Button Styles */
+.download-btn {
+    margin-top: 20px;
+    padding: 12px 18px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+.download-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+    .fees-table {
+        width: 100%;
+    }
+
+    .fees-table th, .fees-table td {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .fees-table {
+        width: 100%;
+        font-size: 12px;
+    }
+
+    .fees-table th, .fees-table td {
+        font-size: 12px;
+        padding: 6px;
+    }
+
+    .download-btn {
+        font-size: 14px;
+        padding: 10px 15px;
+    }
+}

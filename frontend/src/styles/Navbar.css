@@ -38,6 +38,20 @@
   gap: 2rem;
   transition: all 0.3s ease-in-out;
 }
+.navbar-links a,
+.navbar-dropdown-link {
+  text-decoration: none;
+  color: #fff;
+  padding: 10px 15px;
+  transition: 0.3s;
+}
+
+.navbar-links .active-link {
+  background-color: #ffcc00; /* Change this to your preferred active color */
+  color: #333;
+  border-radius: 5px;
+}
+
 
 .navbar-links a {
   color: var(--text-color);

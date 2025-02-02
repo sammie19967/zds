@@ -1,0 +1,101 @@
+/* Base Container Styling */
+.payment-info-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    background-color: #f4f9fd; /* Light blue-gray background */
+    justify-content: center; /* Center the grid items */
+}
+
+/* Card Styling */
+.card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2); /* Soft blue shadow */
+    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #e0e0e0;
+    min-width: 180px; /* Allow shrinking */
+    flex: 1 1 45%; /* Flex-grow, shrink, and basis */
+}
+
+/* Hover Effect */
+.card:hover {
+    background-color: #e6f2ff; /* Light blue hover effect */
+    transform: translateY(-8px);
+    box-shadow: 0 8px 16px rgba(0, 123, 255, 0.4);
+}
+
+/* Card Headings */
+.card h3 {
+    font-size: 1.5rem;
+    color: #0056b3; /* Dark blue */
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* List Styling */
+.card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.card li {
+    font-size: 1rem;
+    padding: 8px 0;
+    color: #333;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* Bold Text for Emphasis */
+.card li strong {
+    color: #007bff;
+}
+
+/* Last Item Without Border */
+.card li:last-child {
+    border-bottom: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .payment-info-container {
+        grid-template-columns: repeat(2, 1fr); /* Ensure at least 2 cards visible */
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .card {
+        padding: 12px;
+        min-width: 150px; /* Allow cards to shrink more */
+    }
+
+    .card h3 {
+        font-size: 1.2rem;
+    }
+
+    .card li {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .payment-info-container {
+        grid-template-columns: repeat(2, minmax(140px, 1fr)); /* Keep 2 cards even on very small screens */
+    }
+
+    .card {
+        padding: 10px;
+        min-width: 120px;
+    }
+
+    .card h3 {
+        font-size: 1rem;
+    }
+
+    .card li {
+        font-size: 0.75rem;
+    }
+}

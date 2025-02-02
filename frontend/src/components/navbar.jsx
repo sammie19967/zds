@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import '../styles/navbar.css';  // Importing the navbar styles
+import { NavLink } from 'react-router-dom'; // Import NavLink
+import '../styles/Navbar.css'; // Import styles
 import logo from '../assets/logo.png'; // Import the logo
 
 const Navbar = () => {
@@ -17,23 +18,26 @@ const Navbar = () => {
           <img src={logo} alt="Zane Driving School Logo" className="navbar-logo-img" />
           <span className="navbar-logo-text">Zane Driving School</span>
         </div>
+        
+        {/* Navigation Links */}
         <div className={`navbar-links ${isMenuOpen ? 'active' : ''}`}>
-          <a href="/">Home</a>
-          <a href="/about-us">About Us</a>
-          <a href="/enroll">Admission</a>
-          
+          <NavLink to="/" className={({ isActive }) => isActive ? "active-link" : ""}>Home</NavLink>
+          <NavLink to="/about-us" className={({ isActive }) => isActive ? "active-link" : ""}>About Us</NavLink>
+          <NavLink to="/enroll" className={({ isActive }) => isActive ? "active-link" : ""}>Admission</NavLink>
+
           {/* Courses Dropdown */}
           <div className="navbar-dropdown">
-            <a href="/courses" className="navbar-dropdown-link">Courses</a>
+            <NavLink to="/courses" className={({ isActive }) => isActive ? "active-link navbar-dropdown-link" : "navbar-dropdown-link"}>Courses</NavLink>
             <div className="navbar-dropdown-content">
-              <a href="/courses/computer-courses">Computing</a>
-              <a href="/courses/driving-courses">Driving Courses</a>
+              <NavLink to="/courses/computer-courses" className={({ isActive }) => isActive ? "active-link" : ""}>Computing</NavLink>
+              <NavLink to="/courses/driving-courses" className={({ isActive }) => isActive ? "active-link" : ""}>Driving Courses</NavLink>
             </div>
           </div>
 
-          <a href="/our-team">Our Team</a>
-          <a href="/contact-us">Contact Us</a>
+          <NavLink to="/our-team" className={({ isActive }) => isActive ? "active-link" : ""}>Our Team</NavLink>
+          <NavLink to="/contact-us" className={({ isActive }) => isActive ? "active-link" : ""}>Contact Us</NavLink>
         </div>
+
         <button className="menu-toggle" onClick={toggleMenu}>
           ☰
         </button>

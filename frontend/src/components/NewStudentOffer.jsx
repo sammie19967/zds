@@ -1,6 +1,6 @@
 import React from "react";
 import "../styles/NewStudentOffer.css"; // Import the CSS file
-import offerImage from "../assets/Newstudent.jpeg"; // Replace with actual image path
+import offerImage from "../assets/newstudent.jpeg"; // Replace with actual image path
 
 const NewStudentOffer = () => {
   return (
