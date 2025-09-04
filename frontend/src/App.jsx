@@ -12,7 +12,7 @@ import ComputingCatalog from './pages/ComputingCatalog';
 import DrivingCatalog from './pages/DrivingCatalog';
 import AdmissionForm from './components/AdmissionForm';
 import WhatsAppIcon from './components/WhatsappIcon';
-
+import FeesStructure from './pages/FeesStructure';
 
 const App = () => {
   return (
@@ -30,6 +30,7 @@ const App = () => {
         <Route path="/computing" element={<ComputingCatalog />} />
         <Route path="/driving" element={<DrivingCatalog />} />
         <Route path="/admission-form" element={<AdmissionForm />} />
+        <Route path="/feesStructure" element={<FeesStructure />} />
         
         {/* Catch-all route for undefined paths */}
         <Route path="*" element={<NotFound />} />
