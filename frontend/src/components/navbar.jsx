@@ -85,15 +85,21 @@ const Navbar = () => {
             <div className="navbar-dropdown-content">
               <a 
                 href="/courses/computer-courses"
-                onClick={() => handleLinkClick('/courses/computer-courses')}
+                onClick={() => handleLinkClick('/courses/computing')}
               >
                 Computing
               </a>
               <a 
-                href="/courses/driving-courses"
-                onClick={() => handleLinkClick('/courses/driving-courses')}
+                href="/courses/driving"
+                onClick={() => handleLinkClick('/courses/driving')}
               >
                 Driving Courses
+              </a>
+              <a 
+                href="/courses/feesStructure"
+                onClick={() => handleLinkClick('/courses/feesStructure')}
+              >
+                Fees Structure
               </a>
             </div>
           </div>
