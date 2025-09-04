@@ -84,19 +84,19 @@ const Navbar = () => {
             </a>
             <div className="navbar-dropdown-content">
               <a 
-                href="/courses/computer-courses"
+                href="/computing"
                 onClick={() => handleLinkClick('/courses/computing')}
               >
                 Computing
               </a>
               <a 
-                href="/courses/driving"
+                href="/driving"
                 onClick={() => handleLinkClick('/courses/driving')}
               >
                 Driving Courses
               </a>
               <a 
-                href="/courses/feesStructure"
+                href="/feesStructure"
                 onClick={() => handleLinkClick('/courses/feesStructure')}
               >
                 Fees Structure
