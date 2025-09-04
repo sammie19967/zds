@@ -1,24 +1,70 @@
-import React from "react";
-import "../styles/FormMessage.css"; // Import CSS file
+import React, { useState } from "react";
+import "../styles/CatalogMessage.css";
+import { FaCar, FaLaptopCode, FaChevronRight } from "react-icons/fa";
 
 const CatalogMessage = () => {
+  const [activeCategory, setActiveCategory] = useState(null);
+
+  const handleCategorySelect = (category) => {
+    setActiveCategory(category);
+    // Scroll to the selected category section
+    const section = document.getElementById(`${category}-courses`);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <div className="catalog-container">
       <div className="content">
-        <h2>Welcome to Zane Driving School's Course Catalog</h2>
-        <p>
-          We offer a range of courses to help you enhance your skills. Choose
-          the category below to view more details.
-        </p>
-        <div className="category-buttons">
-          <button className="cta-button driving">Driving Courses</button>
-          <button className="cta-button computing">Computing Courses</button>
+        <div className="catalog-header">
+          <div className="icon-container">
+            <div className="icon-circle">
+              <FaCar className="icon driving-icon" />
+              <FaLaptopCode className="icon computing-icon" />
+            </div>
+          </div>
+          <h2>Welcome to Zane Driving School's Course Catalog</h2>
+          <p>
+            Discover our comprehensive range of courses designed to enhance your skills. 
+            Select a category below to explore our offerings in detail.
+          </p>
+        </div>
+
+        <div className="category-selection">
+          <div className="category-card driving-card">
+            <div className="category-icon">
+              <FaCar />
+            </div>
+            <h3>Driving Courses</h3>
+            <p>Professional driving lessons for all license categories</p>
+            <button 
+              className={`category-button driving-btn ${activeCategory === 'driving' ? 'active' : ''}`}
+              onClick={() => handleCategorySelect('driving')}
+            >
+              Explore Driving Courses
+              <FaChevronRight className="button-arrow" />
+            </button>
+          </div>
+
+          <div className="category-card computing-card">
+            <div className="category-icon">
+              <FaLaptopCode />
+            </div>
+            <h3>Computing Courses</h3>
+            <p>Essential computer skills for the digital world</p>
+            <button 
+              className={`category-button computing-btn ${activeCategory === 'computing' ? 'active' : ''}`}
+              onClick={() => handleCategorySelect('computing')}
+            >
+              Explore Computing Courses
+              <FaChevronRight className="button-arrow" />
+            </button>
+          </div>
         </div>
       </div>
 
-      <svg className="wave-bottom" viewBox="0 0 120 28" preserveAspectRatio="none">
-        <path d="M0 0 Q 30 25, 60 5 Q 90 25, 120 0 L 120 28 L 0 28 Z" fill="#ffffff"></path>
-      </svg>
+      <div className="diagonal-divider"></div>
     </div>
   );
 };

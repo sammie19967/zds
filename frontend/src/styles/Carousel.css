@@ -1,96 +1,307 @@
+/* styles/carousel.css */
 .carousel-container {
-    position: relative;
-    width: 100%;
-    height: 500px;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #fff; /* Fallback background */
-    margin-top: 1px;
+  position: relative;
+  width: 100%;
+  max-width: 1800px;
+  height: 70vh;
+  max-height: 700px;
+  min-height: 500px;
+  margin: 5px auto;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.carousel-wrapper {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s ease-in-out;
+}
+
+.carousel-slide {
+  flex: 0 0 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.slide-content {
+  display: flex;
+  width: 90%;
+  max-width: 1200px;
+  height: 80%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem;
+}
+
+.text-content {
+  flex: 1;
+  max-width: 50%;
+  padding-right: 2rem;
+  z-index: 2;
+}
+
+.slide-title {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.slide-description {
+  font-size: 1.3rem;
+  margin-bottom: 2.5rem;
+  line-height: 1.6;
+  opacity: 0.95;
+}
+
+.join-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #ff6b6b, #ff5252);
+  color: white;
+  padding: 15px 40px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 20px rgba(255, 107, 107, 0.5);
+  border: none;
+  cursor: pointer;
+}
+
+.join-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.6);
+}
+
+.image-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.slide-image {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.carousel-nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  color: #3498db;
+  font-size: 2.5rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  z-index: 20;
+}
+
+.carousel-nav-button:hover {
+  background-color: white;
+  transform: translateY(-50%) scale(1.1);
+  color: #ff6b6b;
+}
+
+.carousel-nav-button.prev {
+  left: 25px;
+}
+
+.carousel-nav-button.next {
+  right: 25px;
+}
+
+.carousel-indicators {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 15px;
+  z-index: 10;
+}
+
+.carousel-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid white;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.carousel-indicator.active {
+  background-color: white;
+  transform: scale(1.3);
+}
+
+.carousel-indicator:hover {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+/* Responsive design */
+@media (min-width: 1920px) {
+  .carousel-container {
+    max-width: 90%;
+    height: 75vh;
+    max-height: 800px;
   }
   
-  .carousel-image-container {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+  .slide-title {
+    font-size: 3.5rem;
   }
   
-  .carousel-image {
-    width: 100%;
-    height: 100vh;
-    object-fit: cover;
-    transition: transform 1s ease-in-out;
-    animation: scaleEffect 4s infinite alternate;
-  }
-  
-  @keyframes scaleEffect {
-    0% {
-      transform: scale(1.05);
-    }
-    100% {
-      transform: scale(1.1);
-    }
-  }
-  
-  .carousel-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.8));
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 20px;
-    color: #fff;
-  }
-  
-  .carousel-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    animation: fadeIn 1.5s ease-in-out;
-  }
-  
-  .carousel-description {
-    font-size: 1.2rem;
-    margin-bottom: 20px;
-    max-width: 600px;
-    line-height: 1.6;
-    animation: fadeIn 1.5s ease-in-out;
+  .slide-description {
+    font-size: 1.5rem;
   }
   
   .join-btn {
-    padding: 10px 30px;
+    padding: 18px 45px;
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .carousel-container {
+    height: 60vh;
+    max-height: 600px;
+  }
+  
+  .slide-content {
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+  }
+  
+  .text-content {
+    max-width: 80%;
+    padding-right: 0;
+    margin-bottom: 2rem;
+  }
+  
+  .image-container {
+    max-height: 40%;
+  }
+}
+
+@media (max-width: 768px) {
+  .carousel-container {
+    height: 70vh;
+    min-height: 450px;
+    border-radius: 12px;
+  }
+  
+  .slide-content {
+    width: 95%;
+    padding: 1rem;
+  }
+  
+  .text-content {
+    max-width: 90%;
+  }
+  
+  .slide-title {
+    font-size: 2.2rem;
+  }
+  
+  .slide-description {
     font-size: 1.1rem;
-    color: #fff;
-    background: linear-gradient(90deg, #ff7f50, #ff4500);
-    border: none;
-    border-radius: 50px;
-    text-transform: uppercase;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background 0.3s ease-in-out, transform 0.3s ease-in-out;
   }
   
-  .join-btn:hover {
-    background: linear-gradient(90deg, #ff4500, #ff7f50);
-    transform: scale(1.1);
+  .join-btn {
+    padding: 12px 30px;
+    font-size: 1.1rem;
   }
   
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  .carousel-nav-button {
+    width: 50px;
+    height: 50px;
+    font-size: 2rem;
   }
   
+  .carousel-indicators {
+    bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-container {
+    height: 65vh;
+    min-height: 400px;
+  }
+  
+  .slide-title {
+    font-size: 1.8rem;
+  }
+  
+  .slide-description {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .carousel-nav-button {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+  
+  .carousel-indicators {
+    gap: 10px;
+  }
+  
+  .carousel-indicator {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+/* Animation for active slide */
+@keyframes fadeIn {
+  from { opacity: 0.8; transform: scale(1.02); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.carousel-slide.active {
+  animation: fadeIn 0.7s ease forwards;
+}
+
+/* Focus styles for accessibility */
+.carousel-nav-button:focus,
+.carousel-indicator:focus,
+.join-btn:focus {
+  outline: 3px solid #3498db;
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .carousel-wrapper,
+  .carousel-nav-button,
+  .join-btn {
+    transition: none;
+  }
+  
+  .carousel-slide.active {
+    animation: none;
+  }
+}

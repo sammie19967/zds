@@ -1,4 +1,4 @@
-import React from "react";
+
 import "../styles/Reviews.css";
 import aliceIcon from "../assets/alice.jpg"; 
 import brianIcon from "../assets/brian.jpg";

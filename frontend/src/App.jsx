@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
@@ -12,13 +11,14 @@ import Footer from './components/Footer';
 import ComputingCatalog from './pages/ComputingCatalog';
 import DrivingCatalog from './pages/DrivingCatalog';
 import AdmissionForm from './components/AdmissionForm';
-
+import WhatsAppIcon from './components/WhatsappIcon';
 
 
 const App = () => {
   return (
     <Router>
       <Navbar/>
+      <WhatsAppIcon/>
       <Routes>
         {/* Main routes */}
         <Route path="/" element={<Home />} />

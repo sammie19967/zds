@@ -1,156 +1,510 @@
-/* About Intro Section */
+/* Import Google Fonts for consistency */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+/* About Intro Container */
 .about-intro {
-    position: relative;
-    height: 100vh;
-    background-image: url("../assets/brian.jpg"); /* Replace with your image */
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ffffff;
-    font-family: 'Roboto', sans-serif;
-    
-    overflow: hidden;
+  position: relative;
+  width: 100%;
+  height: 50vh;
+  min-height: 400px;
+  background: linear-gradient(135deg, 
+    rgba(52, 152, 219, 0.85) 0%, 
+    rgba(44, 62, 80, 0.9) 50%, 
+    rgba(52, 152, 219, 0.85) 100%
+  ),
+  url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover;
+  background-attachment: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Dynamic overlay with animated gradient */
+.about-intro::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    rgba(52, 152, 219, 0.1) 0%,
+    rgba(44, 62, 80, 0.2) 25%,
+    rgba(52, 152, 219, 0.15) 50%,
+    rgba(44, 62, 80, 0.1) 75%,
+    rgba(52, 152, 219, 0.2) 100%
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes gradientShift {
+  0%, 100% { 
+    background-position: 0% 50%; 
   }
-  
-  /* Overlay for Background Dimming */
+  50% { 
+    background-position: 100% 50%; 
+  }
+}
+
+/* Floating particles effect */
+.about-intro::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.15) 2px, transparent 2px),
+    radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 40% 70%, rgba(255, 255, 255, 0.12) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.08) 2px, transparent 2px),
+    radial-gradient(circle at 10% 90%, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 200px 200px, 150px 150px, 180px 180px, 220px 220px, 160px 160px;
+  animation: floatParticles 15s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.6;
+}
+
+@keyframes floatParticles {
+  0% { 
+    transform: translateY(0px) translateX(0px); 
+  }
+  25% { 
+    transform: translateY(-20px) translateX(10px); 
+  }
+  50% { 
+    transform: translateY(-10px) translateX(-15px); 
+  }
+  75% { 
+    transform: translateY(-30px) translateX(5px); 
+  }
+  100% { 
+    transform: translateY(0px) translateX(0px); 
+  }
+}
+
+/* Content Overlay */
+.overlay {
+  position: relative;
+  z-index: 2;
+  max-width: 1000px;
+  width: 90%;
+  padding: 2rem 1.5rem;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(25px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 24px;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  animation: slideInScale 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-origin: center;
+}
+
+@keyframes slideInScale {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.9);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translateY(-5px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Typewriter Heading */
+.typewriter {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(1.5rem, 4vw, 2.8rem);
+  font-weight: 800;
+  color: white;
+  margin-bottom: 1.2rem;
+  min-height: clamp(2rem, 5vw, 3.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 2px 4px 12px rgba(0, 0, 0, 0.5);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.8));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced cursor with glow */
+.typewriter::after {
+  content: '|';
+  display: inline-block;
+  animation: blinkGlow 1.5s step-end infinite;
+  margin-left: 4px;
+  color: white;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+  -webkit-text-fill-color: white;
+}
+
+@keyframes blinkGlow {
+  0%, 50% { 
+    opacity: 1; 
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+  }
+  51%, 100% { 
+    opacity: 0; 
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0));
+  }
+}
+
+/* Intro Text */
+.intro-text {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.9rem, 2.2vw, 1.15rem);
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.6;
+  margin-bottom: 1.8rem;
+  font-weight: 400;
+  text-shadow: 1px 2px 6px rgba(0, 0, 0, 0.4);
+  animation: fadeInUp 1.2s ease-out 0.3s both;
+  max-width: 100%;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Highlight spans */
+.highlight {
+  color: #f39c12;
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(243, 156, 18, 0.25), rgba(243, 156, 18, 0.15));
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(243, 156, 18, 0.4);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  display: inline-block;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.highlight:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, rgba(243, 156, 18, 0.35), rgba(243, 156, 18, 0.25));
+  box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+}
+
+/* Button Container */
+.button-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: scaleInButtons 1.2s ease-out 0.6s both;
+}
+
+@keyframes scaleInButtons {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  60% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Compact Action Buttons */
+.action-button {
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  backdrop-filter: blur(15px);
+  border: 2px solid transparent;
+  min-width: 130px;
+  justify-content: center;
+  letter-spacing: 0.3px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shimmer effect on hover */
+.action-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.action-button:hover::before {
+  left: 100%;
+}
+
+.action-button:hover {
+  transform: translateY(-3px) scale(1.05);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Join Us Button */
+.join-us {
+  background: linear-gradient(135deg, #ff6b6b, #ff5252);
+  color: white;
+  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+}
+
+.join-us:hover {
+  box-shadow: 0 12px 25px rgba(255, 107, 107, 0.5);
+  background: linear-gradient(135deg, #ff5252, #e74c3c);
+}
+
+/* Catalogue Button */
+.catalogue {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
+}
+
+.catalogue:hover {
+  box-shadow: 0 12px 25px rgba(52, 152, 219, 0.5);
+  background: linear-gradient(135deg, #2980b9, #1f4e79);
+}
+
+/* Fees Structure Button */
+.fees-structure {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+  box-shadow: 0 8px 20px rgba(243, 156, 18, 0.4);
+}
+
+.fees-structure:hover {
+  box-shadow: 0 12px 25px rgba(243, 156, 18, 0.5);
+  background: linear-gradient(135deg, #e67e22, #d35400);
+}
+
+/* Button Icons */
+.button-icon {
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.action-button:hover .button-icon {
+  transform: scale(1.15) rotate(5deg);
+}
+
+/* Staggered button animations */
+.join-us {
+  animation: buttonSlideIn 0.6s ease-out 0.8s both;
+}
+
+.catalogue {
+  animation: buttonSlideIn 0.6s ease-out 0.9s both;
+}
+
+.fees-structure {
+  animation: buttonSlideIn 0.6s ease-out 1s both;
+}
+
+@keyframes buttonSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .about-intro {
+    height: 45vh;
+    min-height: 350px;
+    background-attachment: scroll;
+  }
+
   .overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.7); /* Dark overlay */
-    display: flex;
+    width: 95%;
+    padding: 1.5rem 1rem;
+    border-radius: 20px;
+  }
+
+  .typewriter {
+    margin-bottom: 1rem;
+    font-size: clamp(1.3rem, 5vw, 2.2rem);
+  }
+
+  .intro-text {
+    font-size: clamp(0.85rem, 3vw, 1rem);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+
+  .button-container {
+    gap: 0.8rem;
+  }
+
+  .action-button {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+    min-width: 120px;
+    gap: 0.5rem;
+  }
+
+  .button-icon {
+    font-size: 0.9rem;
+  }
+
+  /* Reduce animations on mobile */
+  .about-intro::after {
+    animation-duration: 20s;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-intro {
+    height: 40vh;
+    min-height: 320px;
+  }
+
+  .overlay {
+    width: 98%;
+    padding: 1.2rem 0.8rem;
+    border-radius: 16px;
+  }
+
+  .typewriter {
+    font-size: clamp(1.2rem, 6vw, 1.8rem);
+    margin-bottom: 0.8rem;
+  }
+
+  .intro-text {
+    font-size: clamp(0.8rem, 4vw, 0.95rem);
+    margin-bottom: 1.2rem;
+  }
+
+  .button-container {
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 20px;
-    z-index: 1;
+    gap: 0.6rem;
   }
-  
-  /* Typewriter Effect */
-  .typewriter {
-    font-size: 3.5rem;
-    font-weight: bold;
-    overflow: hidden;
-    white-space: nowrap;
-    border-right: 3px solid #ffffff;
-    animation: blink 0.7s step-end infinite;
-  }
-  
-  /* Intro Text */
-  .intro-text {
-    margin-top: 20px;
-    font-size: 1.5rem;
-    font-family: 'Open Sans', sans-serif;
-    color: #dcdcdc;
-    line-height: 1.8;
-    max-width: 800px;
-    animation: fadeIn 2s ease-in-out 1.5s both;
-  }
-  
-  .intro-text .highlight {
-    color: #ffcc00;
-    font-weight: bold;
-  }
-  
-  /* Button Container */
-  .button-container {
-    margin-top: 30px;
-    display: flex;
-    gap: 20px;
-  }
-  
-  /* Action Buttons */
+
   .action-button {
-    font-family: 'Poppins', sans-serif;
-    font-size: 1rem;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #ffffff;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 200px;
+    padding: 0.65rem 1rem;
+    font-size: 0.85rem;
   }
-  
-  .action-button .button-icon {
-    font-size: 1.2rem;
+
+  .highlight {
+    padding: 1px 4px;
+    border-radius: 4px;
   }
-  
-  /* Individual Button Colors */
-  .join-us {
-    background: linear-gradient(135deg, #4caf50, #66bb6a);
+}
+
+@media (max-width: 360px) {
+  .about-intro {
+    height: 38vh;
+    min-height: 300px;
   }
-  
-  .catalogue {
-    background: linear-gradient(135deg, #2196f3, #64b5f6);
+
+  .overlay {
+    padding: 1rem 0.6rem;
   }
-  
-  .fees-structure {
-    background: linear-gradient(135deg, #ff9800, #ffb74d);
+
+  .typewriter {
+    font-size: clamp(1.1rem, 7vw, 1.6rem);
   }
-  
-  /* Hover Effects */
+
+  .intro-text {
+    font-size: clamp(0.75rem, 4.5vw, 0.9rem);
+  }
+
+  .action-button {
+    max-width: 180px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Focus states for accessibility */
+.action-button:focus {
+  outline: 3px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 2px;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .about-intro::before {
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  .overlay {
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid white;
+  }
+
+  .action-button {
+    border: 2px solid white;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .about-intro::before,
+  .about-intro::after,
+  .typewriter::after {
+    animation: none;
+  }
+
   .action-button:hover {
-    transform: scale(1.1);
-    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3);
+    transform: none;
+  }
+}
+
+/* Performance optimization for older devices */
+@media (max-width: 768px) and (max-height: 600px) {
+  .about-intro::after {
+    display: none;
   }
   
-  .join-us:hover {
-    background: linear-gradient(135deg, #388e3c, #81c784);
+  .about-intro::before {
+    animation: none;
+    background: rgba(52, 152, 219, 0.7);
   }
-  
-  .catalogue:hover {
-    background: linear-gradient(135deg, #1976d2, #90caf9);
-  }
-  
-  .fees-structure:hover {
-    background: linear-gradient(135deg, #f57c00, #ffe0b2);
-  }
-  
-  /* Fade-In Animation */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  /* Cursor Blinking Effect */
-  @keyframes blink {
-    from, to {
-      border-color: transparent;
-    }
-    50% {
-      border-color: #ffffff;
-    }
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .typewriter {
-      font-size: 2.5rem;
-    }
-  
-    .intro-text {
-      font-size: 1.2rem;
-    }
-  
-    .action-button {
-      font-size: 0.9rem;
-      padding: 10px 15px;
-    }
-  
-    .action-button .button-icon {
-      font-size: 1rem;
-    }
-  }
-  
+}

@@ -1,0 +1,361 @@
+/* Import Google Fonts to match the previous component */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Campus Locations Container */
+.campus-locations-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 4rem auto;
+  padding: 0 1rem;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Header Section - Matching ParallaxOffers */
+.campus-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 0 5vw;
+}
+
+.campus-header h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 800;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #3498db, #2c3e50);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+
+.campus-header p {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1rem, 3vw, 1.3rem);
+  color: #7f8c8d;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Navigation Menu */
+.campus-navigation {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 3rem;
+}
+
+.campus-menu {
+  display: flex;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 8px;
+  border-radius: 50px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  gap: 4px;
+}
+
+.campus-menu-item {
+  position: relative;
+  background: transparent;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 40px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  color: #7f8c8d;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  min-width: 100px;
+}
+
+.campus-menu-item:hover {
+  color: #3498db;
+  transform: translateY(-2px);
+}
+
+.campus-menu-item.active {
+  color: white;
+  background: linear-gradient(135deg, #3498db, #2c3e50);
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+  transform: translateY(-2px);
+}
+
+.campus-menu-text {
+  position: relative;
+  z-index: 2;
+}
+
+.campus-menu-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(135deg, #3498db, #2c3e50);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.campus-menu-item.active .campus-menu-indicator {
+  transform: scaleX(1);
+}
+
+/* Campus Content */
+.campus-content {
+  margin-top: 2rem;
+}
+
+.campus-info-card {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 3rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(15px);
+  padding: 3rem;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-height: 500px;
+}
+
+/* Campus Details Section */
+.campus-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.campus-name {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.campus-address {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  color: #7f8c8d;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.campus-description {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1rem, 2.5vw, 1.1rem);
+  color: #34495e;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.campus-contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.contact-icon {
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
+.contact-text {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.visit-campus-btn {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #3498db, #2c3e50);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+  align-self: flex-start;
+  letter-spacing: 0.5px;
+}
+
+.visit-campus-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(52, 152, 219, 0.4);
+}
+
+/* Map Container */
+.campus-map-container {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  min-height: 400px;
+}
+
+.campus-map-container iframe {
+  transition: all 0.3s ease;
+}
+
+.campus-map-container:hover iframe {
+  transform: scale(1.02);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .campus-locations-container {
+    padding: 0 3vw;
+  }
+
+  .campus-info-card {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2.5rem;
+  }
+
+  .campus-menu {
+    padding: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .campus-menu-item {
+    padding: 10px 20px;
+    min-width: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .campus-locations-container {
+    margin: 2rem auto;
+  }
+
+  .campus-header {
+    margin-bottom: 2rem;
+  }
+
+  .campus-info-card {
+    padding: 2rem;
+    border-radius: 16px;
+  }
+
+  .campus-menu {
+    flex-direction: row;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px;
+  }
+
+  .campus-menu-item {
+    padding: 8px 16px;
+    font-size: clamp(0.8rem, 2.2vw, 0.95rem);
+  }
+
+  .campus-map-container {
+    min-height: 300px;
+  }
+
+  .campus-contact-info {
+    gap: 0.8rem;
+  }
+
+  .visit-campus-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .campus-info-card {
+    padding: 1.5rem;
+  }
+
+  .campus-menu {
+    flex-direction: column;
+    align-items: center;
+    border-radius: 16px;
+    padding: 8px;
+  }
+
+  .campus-menu-item {
+    width: 100%;
+    text-align: center;
+    border-radius: 12px;
+  }
+
+  .campus-map-container {
+    min-height: 250px;
+  }
+
+  .campus-name {
+    font-size: clamp(1.3rem, 5vw, 1.8rem);
+  }
+
+  .campus-description {
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+  }
+}
+
+/* Animation Effects */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.campus-info-card {
+  animation: fadeInUp 0.8s ease forwards;
+}
+
+/* Focus styles for accessibility */
+.campus-menu-item:focus,
+.visit-campus-btn:focus {
+  outline: 3px solid #3498db;
+  outline-offset: 2px;
+}
+
+/* Enhanced glassmorphism effect */
+.campus-info-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  border-radius: inherit;
+  opacity: 0.5;
+  z-index: -1;
+  filter: blur(1px);
+}
+
+/* Smooth transitions for content changes */
+.campus-details > * {
+  transition: all 0.3s ease;
+}
+
+.campus-map-container {
+  transition: all 0.5s ease;
+}

@@ -1,60 +1,383 @@
-/* Container for the cards */
+/* Import Google Fonts for consistency */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Cards Container */
 .cards-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px; /* Space from the navbar */
-    gap: 20px; /* Space between cards */
-    padding: 0 20px;
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2.5rem;
+  padding: 4rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Background Animation */
+.cards-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 40%, rgba(52, 152, 219, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 70% 80%, rgba(44, 62, 80, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 90% 10%, rgba(52, 152, 219, 0.05) 0%, transparent 50%);
+  animation: backgroundFloat 20s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes backgroundFloat {
+  0%, 100% { 
+    transform: translate(0, 0) rotate(0deg); 
   }
-  
-  /* Card styling */
+  33% { 
+    transform: translate(-20px, -20px) rotate(120deg); 
+  }
+  66% { 
+    transform: translate(20px, -10px) rotate(240deg); 
+  }
+}
+
+/* Individual Card */
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 24px;
+  padding: 3rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 4px 16px rgba(52, 152, 219, 0.1);
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Card Gradient Background */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(52, 152, 219, 0.05) 0%, 
+    rgba(44, 62, 80, 0.05) 50%, 
+    rgba(52, 152, 219, 0.1) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+}
+
+/* Card Hover Effects */
+.card:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 8px 30px rgba(52, 152, 219, 0.2);
+  border: 1px solid rgba(52, 152, 219, 0.3);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+/* Card Icon */
+.card-icon {
+  font-size: 4rem;
+  background: linear-gradient(135deg, #3498db, #2c3e50);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: all 0.4s ease;
+  filter: drop-shadow(0 4px 8px rgba(52, 152, 219, 0.3));
+  margin-bottom: 0.5rem;
+}
+
+.card:hover .card-icon {
+  transform: scale(1.15) rotate(5deg);
+  filter: drop-shadow(0 6px 12px rgba(52, 152, 219, 0.4));
+}
+
+/* Card Number (Count-up) */
+.card-number {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 800;
+  background: linear-gradient(135deg, #3498db, #2c3e50);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin: 0;
+  position: relative;
+  transition: all 0.4s ease;
+}
+
+.card:hover .card-number {
+  transform: scale(1.1);
+}
+
+/* Animated number glow effect */
+.card-number::after {
+  content: attr(data-number);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.3), rgba(44, 62, 80, 0.3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  blur: 2px;
+}
+
+.card:hover .card-number::after {
+  opacity: 0.6;
+}
+
+/* Card Title */
+.card-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  letter-spacing: 0.5px;
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.card:hover .card-title {
+  color: #3498db;
+  transform: translateY(-2px);
+}
+
+/* Floating particles effect */
+.card::after {
+  content: '';
+  position: absolute;
+  top: 20%;
+  right: 20%;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, rgba(52, 152, 219, 0.6), transparent);
+  border-radius: 50%;
+  opacity: 0;
+  animation: floatParticle 3s ease-in-out infinite;
+  transition: opacity 0.4s ease;
+}
+
+.card:hover::after {
+  opacity: 1;
+}
+
+@keyframes floatParticle {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 1;
+  }
+}
+
+/* Individual card variations */
+.card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.card:nth-child(1):hover .card-icon {
+  color: #3498db;
+}
+
+.card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.card:nth-child(2):hover .card-icon {
+  color: #2c3e50;
+}
+
+.card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.card:nth-child(3):hover .card-icon {
+  color: #3498db;
+}
+
+/* Entrance Animation */
+.card {
+  animation: slideInUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(60px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .cards-container {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    padding: 3rem 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .cards-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 2rem 1rem;
+  }
+
   .card {
-    background-color: #ffffff;
-    width: 250px;
-    padding: 20px;
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 2.5rem 1.5rem;
+    min-height: 240px;
+    gap: 1.2rem;
   }
-  
-  .card:hover {
-    transform: translateY(-10px); /* Lift effect on hover */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* Icon styling */
+
   .card-icon {
-    font-size: 40px;
-    color: #3b82f6; /* Blue accent color */
-    margin-bottom: 15px;
+    font-size: 3.5rem;
   }
-  
-  /* Number styling */
+
   .card-number {
-    font-size: 36px;
-    font-weight: bold;
-    color: #4caf50; /* Green accent color */
-    margin-bottom: 10px;
+    font-size: clamp(2rem, 8vw, 3rem);
   }
-  
-  /* Title styling */
+
   .card-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #333333;
+    font-size: clamp(1rem, 4vw, 1.2rem);
   }
-  
-  /* Make the layout responsive */
-  @media (max-width: 768px) {
-    .cards-container {
-      flex-direction: column;
-      align-items: center;
-    }
-  
-    .card {
-      width: 80%;
-      margin-bottom: 20px;
-    }
+}
+
+@media (max-width: 480px) {
+  .cards-container {
+    padding: 1.5rem 0.5rem;
+    gap: 1rem;
   }
-  
+
+  .card {
+    padding: 2rem 1rem;
+    min-height: 200px;
+    border-radius: 16px;
+    gap: 1rem;
+  }
+
+  .card-icon {
+    font-size: 3rem;
+  }
+
+  .card-number {
+    font-size: clamp(1.8rem, 10vw, 2.5rem);
+  }
+
+  .card-title {
+    font-size: clamp(0.9rem, 5vw, 1.1rem);
+    letter-spacing: 0.3px;
+  }
+}
+
+/* Loading Animation for Numbers */
+@keyframes countUp {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.card-number {
+  animation: countUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+/* Focus states for accessibility */
+.card:focus {
+  outline: 3px solid rgba(52, 152, 219, 0.5);
+  outline-offset: 4px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .card {
+    border: 2px solid #3498db;
+    background: white;
+  }
+
+  .card-icon,
+  .card-number,
+  .card-title {
+    -webkit-text-fill-color: #2c3e50;
+    background: none;
+    color: #2c3e50;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card-icon,
+  .card-number,
+  .card-title,
+  .cards-container::before {
+    animation: none;
+    transition: none;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .cards-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 1rem;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    background: white;
+    min-height: auto;
+    padding: 1rem;
+  }
+
+  .card-icon,
+  .card-number,
+  .card-title {
+    -webkit-text-fill-color: black;
+    background: none;
+    color: black;
+  }
+}

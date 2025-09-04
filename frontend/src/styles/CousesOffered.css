@@ -1,114 +1,337 @@
 /* CoursesOffered.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
 .courses-container {
-    padding: 60px 30px;
-    background-color: #f9f9f9;
-    text-align: center;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 5rem 2rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  font-family: 'Poppins', sans-serif;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin-bottom: 3.5rem;
+  color: #2c3e50;
+  position: relative;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.section-title.animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #3498db, #2c3e50);
+  border-radius: 2px;
+}
+
+.courses-wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
+}
+
+.course-section {
+  flex: 1;
+  padding: 2.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.course-section.animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.course-section:nth-child(1) {
+  transition-delay: 0.2s;
+}
+
+.course-section:nth-child(3) {
+  transition-delay: 0.4s;
+}
+
+.course-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.course-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: white;
+}
+
+.driving-icon {
+  background: linear-gradient(135deg, #3498db, #2c3e50);
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+}
+
+.computer-icon {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
+  box-shadow: 0 8px 20px rgba(155, 89, 182, 0.3);
+}
+
+.course-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.course-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+}
+
+.course-list li {
+  display: flex;
+  align-items: center;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-left: 4px solid transparent;
+}
+
+.course-list li:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+  background: white;
+  border-left: 4px solid #3498db;
+}
+
+.course-list li:nth-child(2n):hover {
+  border-left: 4px solid #9b59b6;
+}
+
+.list-icon {
+  width: 45px;
+  height: 45px;
+  background: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1.2rem;
+  color: #3498db;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.course-list li:nth-child(2n) .list-icon {
+  color: #9b59b6;
+}
+
+.course-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.course-name {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+  letter-spacing: -0.3px;
+}
+
+.course-desc {
+  color: #6c757d;
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.promo-banner {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  border-radius: 12px;
+  padding: 1.2rem;
+  color: white;
+  text-align: center;
+  margin-top: 2rem;
+  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.25);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.25);
   }
-  
-  .section-title {
-    font-size: 3rem;
-    color: #007bff;
-    font-weight: bold;
-    margin-bottom: 40px;
-    letter-spacing: 2px;
+  50% {
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
   }
-  
+  100% {
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.25);
+  }
+}
+
+.promo-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.promo-content i {
+  font-size: 1.4rem;
+}
+
+.vertical-divider {
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, #e9ecef, transparent);
+  margin: 2.5rem 0;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
   .courses-wrapper {
-    display: grid;
-    grid-template-columns: 1fr 1px 1fr;
-    gap: 50px;
-    max-width: 1200px;
-    margin: 0 auto;
-    align-items: start;
-  }
-  
-  .course-section {
-    background-color: white;
-    padding: 30px;
+    flex-direction: column;
     border-radius: 15px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    text-align: center;
-  }
-  
-  .course-section:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-  }
-  
-  .course-title {
-    font-size: 2rem;
-    color: #007bff;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  
-  .course-list {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    display: inline-block;
-    text-align: left;
-  }
-  
-  .course-list li {
-    font-size: 1.2rem;
-    color: #555;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.3s ease;
-  }
-  
-  .course-list li:hover {
-    color: #28a745;
-  }
-  
-  .course-list i {
-    margin-right: 15px;
-    font-size: 1.5rem;
-  }
-  
-  .course-list .driving {
-    color: #ff5733; /* Orange-red for driving courses */
-  }
-  
-  .course-list .computing {
-    color: #2980b9; /* Blue for computing courses */
-  }
-  
-  .course-note {
-    font-size: 1.1rem;
-    color: #e74c3c;
-    margin-top: 25px;
-    font-style: italic;
   }
   
   .vertical-divider {
-    width: 1px;
-    background-color: #ddd;
-    height: 400px;
-    margin: 0;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+    width: 80%;
+    height: 1px;
+    margin: 0 auto;
+    background: linear-gradient(to right, transparent, #e9ecef, transparent);
   }
   
-  @media (max-width: 768px) {
-    .courses-wrapper {
-      grid-template-columns: 1fr;
-      gap: 30px;
-    }
-  
-    .vertical-divider {
-      display: none;
-    }
-  
-    .course-section {
-      padding: 25px;
-    }
+  .course-section {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .courses-container {
+    padding: 3rem 1.5rem;
   }
   
+  .section-title {
+    font-size: 2.2rem;
+    margin-bottom: 2.5rem;
+  }
+  
+  .course-header {
+    margin-bottom: 2rem;
+  }
+  
+  .course-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 1.7rem;
+  }
+  
+  .course-title {
+    font-size: 1.6rem;
+  }
+  
+  .course-list li {
+    padding: 1.2rem;
+  }
+  
+  .list-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+    margin-right: 1rem;
+  }
+  
+  .course-name {
+    font-size: 1.05rem;
+  }
+  
+  .course-desc {
+    font-size: 0.9rem;
+  }
+  
+  .promo-content {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .courses-container {
+    padding: 2.5rem 1rem;
+  }
+  
+  .section-title {
+    font-size: 1.9rem;
+  }
+  
+  .course-section {
+    padding: 1.5rem;
+  }
+  
+  .course-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+  
+  .course-title {
+    font-size: 1.4rem;
+  }
+  
+  .course-list li {
+    padding: 1rem;
+  }
+  
+  .list-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+    margin-right: 0.8rem;
+  }
+  
+  .course-name {
+    font-size: 1rem;
+  }
+  
+  .course-desc {
+    font-size: 0.85rem;
+  }
+  
+  .promo-content {
+    font-size: 0.95rem;
+  }
+  
+  .promo-content i {
+    font-size: 1.2rem;
+  }
+}

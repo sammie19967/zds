@@ -12,7 +12,7 @@ const AdmissionCards = () => {
   useEffect(() => {
     const increment = (setter, target) => {
       let count = 0;
-      const speed = 30; // Speed of count-up
+      const speed = 70; // Speed of count-up
       const incrementValue = Math.ceil(target / 50); // Steps
 
       const counter = setInterval(() => {

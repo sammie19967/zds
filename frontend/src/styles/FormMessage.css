@@ -1,246 +1,261 @@
-/* Global Bubbles Animation */
-@keyframes bubbles {
-    0% {
-      transform: translateY(0);
-      opacity: 0.7;
-    }
-    100% {
-      transform: translateY(-300px);
-      opacity: 0;
-    }
-  }
-  
-  .form-message-container {
-    position: relative;
-    background: linear-gradient(145deg, #4caf50, #2d9f53); /* Gradient background */
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    margin-top: 30px;
-    text-align: center;
-    width: 90%;
-    max-width: 900px;
-    margin: 30px auto;
-    overflow: hidden;
-    z-index: 2; /* Ensures text appears above bubbles */
-  }
-  
-  .message {
-    position: relative;
-    z-index: 2;
-    color: white;
-  }
-  
-  .message h2 {
-    font-size: 30px;
-    font-weight: bold;
-    color: #ffffff;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-  }
-  
-  .message p {
-    font-size: 18px;
-    line-height: 1.6;
-    margin-bottom: 15px;
-    color: #f9f9f9;
-    max-width: 750px;
-    margin: 0 auto;
-  }
-  
-  .cta-button {
-    background-color: #ff3e30; /* Vibrant red button */
-    color: white;
-    padding: 12px 30px;
-    font-size: 18px;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  .cta-button:hover {
-    background-color: #ff6347; /* Slightly darker red on hover */
-  }
-  
-  .bubbles {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 1;
-  }
-  
-  .bubble {
-    position: absolute;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.2);
-    animation: bubbles 10s infinite;
-  }
-  
-  .bubble:nth-child(1) {
-    width: 80px;
-    height: 80px;
-    left: 10%;
-    animation-duration: 12s;
-    animation-delay: 2s;
-  }
-  
-  .bubble:nth-child(2) {
-    width: 120px;
-    height: 120px;
-    left: 30%;
-    animation-duration: 15s;
-    animation-delay: 4s;
-  }
-  
-  .bubble:nth-child(3) {
-    width: 100px;
-    height: 100px;
-    left: 60%;
-    animation-duration: 20s;
-    animation-delay: 6s;
-  }
-  
-  .bubble:nth-child(4) {
-    width: 150px;
-    height: 150px;
-    left: 80%;
-    animation-duration: 18s;
-    animation-delay: 8s;
-  }
-  
-  .bubble:nth-child(5) {
-    width: 110px;
-    height: 110px;
-    left: 50%;
-    animation-duration: 13s;
-    animation-delay: 1s;
-  }
-  /* Container Style */
+/* FormMessage.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 .thank-you-container {
-    position: relative;
-    background-color: #4caf50; /* Background color */
-    color: white;
-    padding: 60px 20px;
-    text-align: center;
+  background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+  color: white;
+  padding: 4rem 2rem 6rem;
+  position: relative;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+}
+
+.content {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.header-section {
+  margin-bottom: 2.5rem;
+}
+
+.icon-shield {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.cta-button {
+  background: linear-gradient(135deg, #ff6b6b, #ff5252);
+  color: white;
+  border: none;
+  padding: 1.2rem 2.5rem;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  margin: 0 auto;
+  min-width: 280px;
+}
+
+.cta-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(255, 107, 107, 0.4);
+}
+
+.fees-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.fees-btn {
+  padding: 1rem 1.8rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 2px solid transparent;
+}
+
+.view-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  backdrop-filter: blur(10px);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.view-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.download-btn {
+  background: white;
+  color: #3498db;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.download-btn:hover {
+  background: #f8f9fa;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.fees-preview {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  margin-top: 2rem;
+  color: #2c3e50;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fees-preview h3 {
+  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.fees-table {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fees-row {
+  display: table-row;
+}
+
+.fees-row.header {
+  font-weight: 600;
+  background: #f8f9fa;
+}
+
+.fees-row > div {
+  display: table-cell;
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.fees-row:last-child > div {
+  border-bottom: none;
+}
+
+.wave-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  fill: #ffffff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .thank-you-container {
+    padding: 3rem 1.5rem 5rem;
   }
   
-  /* Content Styling */
-  .thank-you-container .content {
-    z-index: 1; /* Ensure the content stays on top of the wave */
+  h2 {
+    font-size: 1.8rem;
   }
   
-  /* Heading and Paragraph */
-  .thank-you-container h2 {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
+  p {
+    font-size: 1rem;
   }
   
-  .thank-you-container p {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
+  .action-buttons {
+    gap: 1.2rem;
   }
   
-  /* Call to Action Button */
   .cta-button {
-    background-color: #f1c40f;
-    color: black;
-    padding: 12px 25px;
-    font-size: 1.1rem;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    min-width: 240px;
   }
   
-  .cta-button:hover {
-    background-color: #d4af37;
+  .fees-buttons {
+    flex-direction: column;
+    align-items: center;
   }
   
-  /* Wave SVG Styling */
-  .wave-bottom {
-    position: absolute;
-    bottom: 0;
-    left: 0;
+  .fees-btn {
     width: 100%;
-    height: 80px; /* Adjust height of the wave */
-    z-index: -1; /* Keeps the wave behind the content */
-  }
-  /* Container Style */
-.catalog-container {
-    position: relative;
-    background-color: #3498db; /* Bright blue background */
-    color: white;
-    padding: 80px 20px; /* Increased padding for better spacing */
-    text-align: center;
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Add subtle shadow for depth */
-  }
-  
-  /* Content Styling */
-  .catalog-container .content {
-    z-index: 1;
-  }
-  
-  /* Heading and Paragraph */
-  .catalog-container h2 {
-    font-size: 2.8rem;
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-  }
-  
-  .catalog-container p {
-    font-size: 1.4rem;
-    margin-bottom: 40px;
-    line-height: 1.6;
-  }
-  
-  /* Category Buttons */
-  .category-buttons {
-    display: flex;
+    max-width: 280px;
     justify-content: center;
-    gap: 20px;
+  }
+  
+  .fees-preview {
+    padding: 1.5rem;
+  }
+  
+  .fees-row > div {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .thank-you-container {
+    padding: 2.5rem 1rem 4rem;
+  }
+  
+  h2 {
+    font-size: 1.6rem;
+  }
+  
+  .icon-shield {
+    width: 70px;
+    height: 70px;
+    font-size: 1.8rem;
   }
   
   .cta-button {
-    background-color: #f39c12;
-    color: black;
-    padding: 15px 30px;
+    min-width: 200px;
+    padding: 0.9rem 1.5rem;
+  }
+  
+  .fees-preview {
+    padding: 1.2rem;
+  }
+  
+  .fees-preview h3 {
     font-size: 1.2rem;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   }
   
-  .cta-button:hover {
-    transform: scale(1.1);
-    background-color: #e67e22; /* Darker shade on hover */
+  .fees-row > div {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.85rem;
   }
-  
-  /* Specific Button Colors */
-  .cta-button.driving {
-    background-color: #e74c3c;
-  }
-  
-  .cta-button.computing {
-    background-color: #2ecc71;
-  }
-  
-  /* Wave SVG Styling */
-  .wave-bottom {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 100px; /* Adjust height of the wave */
-    z-index: -1;
-  }
-  
-  
+}
