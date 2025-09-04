@@ -27,8 +27,8 @@ const App = () => {
         <Route path="/our-team" element={<OurTeam />} />
         <Route path="/courses" element={<Courses />} />
         <Route path="/enroll" element={<Enroll />} />
-        <Route path="/computer-courses" element={<ComputingCatalog />} />
-        <Route path="/driving-courses" element={<DrivingCatalog />} />
+        <Route path="/computer" element={<ComputingCatalog />} />
+        <Route path="/driving" element={<DrivingCatalog />} />
         <Route path="/admission-form" element={<AdmissionForm />} />
         
         {/* Catch-all route for undefined paths */}

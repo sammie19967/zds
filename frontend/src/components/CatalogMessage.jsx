@@ -1,17 +1,17 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/CatalogMessage.css";
 import { FaCar, FaLaptopCode, FaChevronRight } from "react-icons/fa";
 
 const CatalogMessage = () => {
   const [activeCategory, setActiveCategory] = useState(null);
 
+  const navigate = useNavigate();
+
   const handleCategorySelect = (category) => {
     setActiveCategory(category);
-    // Scroll to the selected category section
-    const section = document.getElementById(`${category}-courses`);
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
-    }
+    // Navigate to the corresponding route
+    navigate(`/${category}`);
   };
 
   return (
