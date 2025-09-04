@@ -1,110 +1,352 @@
+/* DrivingCatalog.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
 .catalogue-container {
-    text-align: center;
-    padding: 40px 20px;
-    background-color: #f9f9f9;
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+}
+
+.catalog-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.header-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.catalog-title {
+  font-size: 3.2rem;
+  font-weight: 800;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #2c3e50, #3498db);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  display: inline-block;
+}
+
+.catalog-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #3498db, #2c3e50);
+  border-radius: 2px;
+}
+
+.catalog-description {
+  font-size: 1.3rem;
+  color: #7f8c8d;
+  max-width: 600px;
+  margin: 1.5rem auto;
+  line-height: 1.6;
+}
+
+.header-divider {
+  height: 2px;
+  background: linear-gradient(to right, transparent, #3498db, transparent);
+  width: 60%;
+  margin: 2rem auto;
+}
+
+.catalogue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.catalogue-card {
+  perspective: 1500px;
+  height: 400px;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+}
+
+.catalogue-card:hover .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.card-front {
+  background: white;
+}
+
+.card-back {
+  background: linear-gradient(135deg, #2c3e50, #3498db);
+  color: white;
+  transform: rotateY(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vehicle-image-container {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+}
+
+.vehicle-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.catalogue-card:hover .vehicle-image {
+  transform: scale(1.05);
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+}
+
+.vehicle-class-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #2c3e50;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-content {
+  padding: 1.8rem;
+}
+
+.vehicle-name {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1.2rem;
+}
+
+.vehicle-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.detail-icon {
+  font-size: 1.2rem;
+}
+
+.cost {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.requirement {
+  color: #7f8c8d;
+}
+
+.back-content {
+  text-align: center;
+  padding: 2rem;
+}
+
+.back-content h3 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.back-content p {
+  margin-bottom: 2rem;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+.apply-now-btn {
+  background: white;
+  color: #2c3e50;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.apply-now-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.btn-arrow {
+  transition: transform 0.3s ease;
+}
+
+.apply-now-btn:hover .btn-arrow {
+  transform: translateX(5px);
+}
+
+.catalog-footer {
+  text-align: center;
+  margin-top: 4rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 15px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.contact-link {
+  color: #3498db;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .catalogue-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
   }
+}
+
+@media (max-width: 768px) {
+  .catalogue-container {
+    padding: 3rem 1.5rem;
+  }
+  
   .catalog-title {
     font-size: 2.5rem;
-    color: #333;
-    margin-bottom: 10px;
   }
   
   .catalog-description {
-    font-size: 1.2rem;
-    color: #666;
-    margin-bottom: 30px;
+    font-size: 1.1rem;
   }
   
- 
+  .catalogue-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.8rem;
+  }
+  
+  .catalogue-card {
+    height: 380px;
+  }
+  
+  .vehicle-image-container {
+    height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .catalogue-container {
+    padding: 2.5rem 1rem;
+  }
+  
+  .catalog-title {
+    font-size: 2rem;
+  }
   
   .catalogue-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    max-width: 1000px;
+    grid-template-columns: 1fr;
+    max-width: 350px;
     margin: 0 auto;
   }
   
-  .catalogue-item {
-    background-color: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  .catalogue-card {
+    height: 360px;
   }
   
-  .catalogue-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  }
-  
-  .vehicle-image {
-    width: 100%;
+  .vehicle-image-container {
     height: 180px;
-    object-fit: cover;
-    border-radius: 8px;
   }
   
-  .catalogue-info {
-    margin-top: 15px;
-    text-align: left; /* Align text to the left */
-    width: 100%;
-    padding: 0 15px;
+  .card-content {
+    padding: 1.5rem;
   }
   
-  .catalogue-info h3 {
-    font-size: 1.5rem;
-    color: #222;
-    margin-bottom: 8px;
-    text-align: center; /* Keep title centered */
+  .vehicle-name {
+    font-size: 1.4rem;
   }
-  
-  .catalogue-info span {
-    display: block;
-    font-size: 1rem;
-    color: #555;
-    margin-bottom: 5px;
+}
+
+/* Animation for card entrance */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
-  
-  .catalogue-info .cost {
-    font-weight: bold;
-    color: #d32f2f;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  button {
-    display: block;
-    margin: 12px auto 0; /* Center only the button */
-    padding: 10px 18px;
-    font-size: 1rem;
-    font-weight: bold;
-    color: #fff;
-    background-color: #007bff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s ease-in-out;
-  }
-  
-  button:hover {
-    background-color: #0056b3;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .catalogue-container {
-      padding: 30px 15px;
-    }
-  
-    .catalogue-grid {
-      grid-template-columns: 1fr;
-    }
-  
-    .vehicle-image {
-      height: 160px;
-    }
-  }
-  
+}
+
+.catalogue-card {
+  animation: fadeInUp 0.8s ease forwards;
+}
+
+.catalogue-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.catalogue-card:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.catalogue-card:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+.catalogue-card:nth-child(5) {
+  animation-delay: 0.4s;
+}
+
+.catalogue-card:nth-child(6) {
+  animation-delay: 0.5s;
+}

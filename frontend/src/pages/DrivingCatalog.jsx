@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/DrivingCatalog.css";
 
@@ -28,22 +27,57 @@ const Catalogue = () => {
 
   return (
     <div className="catalogue-container">
-      <div className="catalog-title"><h1>Driving Courses</h1></div>
-      <div className="catalog-description">Explore what we offer for New drivers, Endorsers and Refreshers </div>
+      <div className="catalog-header">
+        <div className="header-content">
+          <h1 className="catalog-title">Driving Courses</h1>
+          <p className="catalog-description">
+            Explore what we offer for New drivers, Endorsers and Refreshers
+          </p>
+          <div className="header-divider"></div>
+        </div>
+      </div>
       
       <div className="catalogue-grid">
         {vehicles.map((vehicle) => (
-          <div key={vehicle.id} className="catalogue-item" style={{ backgroundColor: vehicle.bgColor }}>
-            <img src={vehicle.image} alt={vehicle.name} className="vehicle-image" />
-            <div className="catalogue-info">
-              <h3>{vehicle.name}</h3>
-              <span className="class">Class: {vehicle.class}</span>
-              <span className="cost">Cost: {vehicle.cost}</span>
-              <span className="requirement">Requirement: {vehicle.requirement}</span>
-              <button onClick={handleClick}>Apply Now</button>
+          <div key={vehicle.id} className="catalogue-card">
+            <div className="card-inner">
+              <div className="card-front">
+                <div className="vehicle-image-container">
+                  <img src={vehicle.image} alt={vehicle.name} className="vehicle-image" />
+                  <div className="image-overlay"></div>
+                  <div className="vehicle-class-badge">{vehicle.class}</div>
+                </div>
+                <div className="card-content">
+                  <h3 className="vehicle-name">{vehicle.name}</h3>
+                  <div className="vehicle-details">
+                    <div className="detail-item">
+                      <span className="detail-icon">💰</span>
+                      <span className="cost">{vehicle.cost}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-icon">📋</span>
+                      <span className="requirement">{vehicle.requirement}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="card-back">
+                <div className="back-content">
+                  <h3>Ready to Drive?</h3>
+                  <p>Join our professional {vehicle.name} driving course</p>
+                  <button className="apply-now-btn" onClick={handleClick}>
+                    Apply Now
+                    <span className="btn-arrow">→</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="catalog-footer">
+        <p>Not sure which vehicle is right for you? <span className="contact-link">Contact us for guidance</span></p>
       </div>
     </div>
   );
