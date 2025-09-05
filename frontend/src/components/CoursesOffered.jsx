@@ -1,5 +1,5 @@
 import  { useState, useEffect } from "react";
-import "../styles/CousesOffered.css";
+import "../styles/CoursesOffered.css";
 
 const CoursesOffered = () => {
   const [isVisible, setIsVisible] = useState(false);
