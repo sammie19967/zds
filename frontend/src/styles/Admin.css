@@ -1,14 +1,376 @@
-.admin-container{max-width:1200px;margin:40px auto;padding:0 16px}
-.admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.admin-actions button{padding:8px 12px;border:1px solid #ddd;background:#fff;border-radius:6px;cursor:pointer}
-.admin-actions button:disabled{opacity:.6;cursor:default}
-.admin-error{background:#ffe6e6;color:#a30000;padding:10px 12px;border:1px solid #ffb3b3;border-radius:6px;margin-bottom:16px}
-.admin-tabs{display:flex;gap:8px;margin-bottom:16px}
-.admin-tabs button{padding:8px 12px;border:1px solid #ddd;background:#fff;border-radius:20px;cursor:pointer}
-.admin-tabs button.active{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
-.admin-panel{background:#fff;border:1px solid #eee;border-radius:10px;padding:16px}
-.table-wrap{overflow:auto;border:1px solid #eee;border-radius:8px}
-table{width:100%;border-collapse:collapse}
-th,td{padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:left}
-th{background:#fafafa}
-.truncate{max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Admin.css */
+.admin-container {
+    min-height: 100vh;
+    background-color: #f5f7f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  /* Header Styles */
+  .admin-header {
+    background: linear-gradient(135deg, #2c3e50 0%, #1a2530 100%);
+    color: white;
+    padding: 1rem 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+  
+  .header-title h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+  }
+  
+  .header-title p {
+    margin: 0.25rem 0 0;
+    opacity: 0.8;
+    font-size: 0.9rem;
+  }
+  
+  .admin-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .user-email {
+    font-size: 0.85rem;
+    opacity: 0.9;
+  }
+  
+  /* Button Styles */
+  .btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .btn-secondary {
+    background-color: #3498db;
+    color: white;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #2980b9;
+  }
+  
+  .btn-secondary:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+  }
+  
+  .btn-signout {
+    background-color: #e74c3c;
+    color: white;
+  }
+  
+  .btn-signout:hover {
+    background-color: #c0392b;
+  }
+  
+  .btn-sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+  }
+  
+  .btn-export {
+    background-color: #27ae60;
+    color: white;
+  }
+  
+  .btn-export:hover {
+    background-color: #219653;
+  }
+  
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 1.5rem auto;
+    padding: 0 1.5rem;
+  }
+  
+  .stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+  }
+  
+  .submissions-icon {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  }
+  
+  .admissions-icon {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+  }
+  
+  .subjects-icon {
+    background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+  }
+  
+  .stat-content h3 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+  
+  .stat-content p {
+    margin: 0.25rem 0;
+    color: #7f8c8d;
+    font-weight: 500;
+  }
+  
+  .stat-today {
+    font-size: 0.8rem;
+    color: #27ae60;
+    font-weight: 600;
+  }
+  
+  /* Tabs */
+  .admin-tabs {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto 1.5rem;
+    padding: 0 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .tab-button {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-weight: 500;
+    color: #7f8c8d;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+  }
+  
+  .tab-button:hover {
+    color: #2c3e50;
+  }
+  
+  .tab-button.active {
+    color: #3498db;
+    border-bottom-color: #3498db;
+    background-color: rgba(52, 152, 219, 0.05);
+  }
+  
+  /* Panel Styles */
+  .admin-panel {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    padding: 1.5rem;
+    overflow: hidden;
+  }
+  
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .panel-header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #2c3e50;
+  }
+  
+  /* Table Styles */
+  .table-wrap {
+    overflow-x: auto;
+    margin-bottom: 2rem;
+  }
+  
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .data-table th {
+    background-color: #f8f9fa;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .data-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eee;
+    color: #34495e;
+  }
+  
+  .data-table tr:hover {
+    background-color: #f9f9f9;
+  }
+  
+  .timestamp {
+    white-space: nowrap;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+  }
+  
+  .email {
+    font-family: monospace;
+  }
+  
+  .no-data {
+    text-align: center;
+    color: #7f8c8d;
+    font-style: italic;
+    padding: 2rem;
+  }
+  
+  /* Subject Breakdown */
+  .panel-footer {
+    border-top: 1px solid #eee;
+    padding-top: 1.5rem;
+  }
+  
+  .panel-footer h3 {
+    margin-top: 0;
+    color: #2c3e50;
+    font-size: 1.2rem;
+  }
+  
+  .subject-breakdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  .subject-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+  }
+  
+  .subject-name {
+    color: #2c3e50;
+  }
+  
+  .subject-count {
+    background-color: #3498db;
+    color: white;
+    padding: 0.1rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  
+  /* Error Message */
+  .admin-error {
+    background-color: #ffeaea;
+    color: #c0392b;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin: 1rem auto;
+    max-width: 1200px;
+    border-left: 4px solid #e74c3c;
+  }
+  
+  /* Loading Overlay */
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .admin-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+    
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .admin-tabs {
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    
+    .panel-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .subject-breakdown {
+      grid-template-columns: 1fr;
+    }
+  }

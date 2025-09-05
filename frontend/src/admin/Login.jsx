@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import modal from '../utils/modal';
-import '../styles/Admin.css';
+import '../styles/AdminAuth.css';
 
 export default function Login() {
   const { signIn } = useAuth();
@@ -32,21 +32,38 @@ export default function Login() {
   }
 
   return (
-    <div className="admin-container" style={{ maxWidth: 420 }}>
-      <div className="admin-header"><h1>Admin Login</h1></div>
-      {error && <div className="admin-error">{error}</div>}
-      <form onSubmit={handleSubmit} className="admin-panel">
-        <div className="form-row">
-          <label htmlFor="email">Email</label>
-          <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+    <div className="admin-auth-container">
+      <div className="admin-auth-card">
+        <div className="admin-auth-header">
+          <h1 className="admin-auth-title">Admin Login</h1>
+          <p className="admin-auth-subtitle">Sign in to access your dashboard</p>
         </div>
-        <div className="form-row">
-          <label htmlFor="password">Password</label>
-          <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+
+        {error && <div className="admin-auth-error">{error}</div>}
+
+        <div className="admin-auth-body">
+          <form onSubmit={handleSubmit}>
+            <div className="admin-auth-row">
+              <label htmlFor="email" className="admin-auth-label">Email</label>
+              <input id="email" type="email" className="admin-auth-input" value={email} onChange={e => setEmail(e.target.value)} required />
+            </div>
+            <div className="admin-auth-row">
+              <label htmlFor="password" className="admin-auth-label">Password</label>
+              <input id="password" type="password" className="admin-auth-input" value={password} onChange={e => setPassword(e.target.value)} required />
+            </div>
+            <div className="admin-auth-actions">
+              <span></span>
+              <button type="submit" className="admin-auth-btn primary" disabled={loading}>
+                {loading ? 'Signing in...' : 'Sign In'}
+              </button>
+            </div>
+          </form>
         </div>
-        <button type="submit" className="multi-button right" disabled={loading}>{loading ? 'Signing in...' : 'Sign In'}</button>
-      </form>
-      <p style={{ marginTop: 12 }}>No account? <Link to="/admin/signup">Create one</Link></p>
+
+        <div className="admin-auth-footer">
+          No account? <Link to="/admin/signup">Create one</Link>
+        </div>
+      </div>
     </div>
   );
 }

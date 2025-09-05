@@ -21,6 +21,12 @@ export default function AdminDashboard() {
   const [admissions, setAdmissions] = useState([]);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('submissions');
+  const [stats, setStats] = useState({
+    totalSubmissions: 0,
+    totalAdmissions: 0,
+    todaySubmissions: 0,
+    todayAdmissions: 0
+  });
 
   const load = async () => {
     setLoading(true);
@@ -31,6 +37,27 @@ export default function AdminDashboard() {
       const [subSnap, admSnap] = await Promise.all([getDocs(subQ), getDocs(admQ)]);
       setSubmissions(subSnap.docs.map(d => ({ id: d.id, ...d.data() })));
       setAdmissions(admSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+
+      // Calculate today's counts
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const todaySubs = subSnap.docs.filter(d => {
+        const docDate = d.data().createdAt?.toDate ? d.data().createdAt.toDate() : new Date(d.data().createdAt);
+        return docDate >= today;
+      });
+      
+      const todayAdms = admSnap.docs.filter(d => {
+        const docDate = d.data().createdAt?.toDate ? d.data().createdAt.toDate() : new Date(d.data().createdAt);
+        return docDate >= today;
+      });
+
+      setStats({
+        totalSubmissions: subSnap.size,
+        totalAdmissions: admSnap.size,
+        todaySubmissions: todaySubs.length,
+        todayAdmissions: todayAdms.length
+      });
     } catch (e) {
       console.error(e);
       setError(e?.message || 'Failed to fetch data');
@@ -53,29 +80,91 @@ export default function AdminDashboard() {
   return (
     <div className="admin-container">
       <div className="admin-header">
-        <h1>Admin Dashboard</h1>
-        <div className="admin-actions">
-          <span style={{ marginRight: 12, fontSize: 14, color: '#555' }}>{user?.email}</span>
-          <button onClick={load} disabled={loading}>{loading ? 'Refreshing...' : 'Refresh'}</button>
-          <button style={{ marginLeft: 8 }} onClick={signOut}>Sign out</button>
+        <div className="header-content">
+          <div className="header-title">
+            <h1>Admin Dashboard</h1>
+            <p>Manage contact submissions and admissions</p>
+          </div>
+          <div className="admin-actions">
+            <span className="user-email">{user?.email}</span>
+            <button className="btn btn-secondary" onClick={load} disabled={loading}>
+              {loading ? <span className="spinner"></span> : 'Refresh Data'}
+            </button>
+            <button className="btn btn-signout" onClick={signOut}>Sign Out</button>
+          </div>
         </div>
       </div>
 
       {error && <div className="admin-error">{error}</div>}
 
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon submissions-icon">
+            <i className="fas fa-envelope"></i>
+          </div>
+          <div className="stat-content">
+            <h3>{stats.totalSubmissions}</h3>
+            <p>Total Submissions</p>
+            <span className="stat-today">+{stats.todaySubmissions} today</span>
+          </div>
+        </div>
+        
+        <div className="stat-card">
+          <div className="stat-icon admissions-icon">
+            <i className="fas fa-user-graduate"></i>
+          </div>
+          <div className="stat-content">
+            <h3>{stats.totalAdmissions}</h3>
+            <p>Total Admissions</p>
+            <span className="stat-today">+{stats.todayAdmissions} today</span>
+          </div>
+        </div>
+        
+        <div className="stat-card">
+          <div className="stat-icon subjects-icon">
+            <i className="fas fa-tag"></i>
+          </div>
+          <div className="stat-content">
+            <h3>{subjectCounts.length}</h3>
+            <p>Unique Subjects</p>
+            <span className="stat-today">Inquiries</span>
+          </div>
+        </div>
+      </div>
+
       <div className="admin-tabs">
-        <button className={activeTab === 'submissions' ? 'active' : ''} onClick={() => setActiveTab('submissions')}>Contact Submissions</button>
-        <button className={activeTab === 'admissions' ? 'active' : ''} onClick={() => setActiveTab('admissions')}>Admissions</button>
+        <button 
+          className={`tab-button ${activeTab === 'submissions' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('submissions')}
+        >
+          <i className="fas fa-envelope"></i>
+          Contact Submissions ({submissions.length})
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'admissions' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('admissions')}
+        >
+          <i className="fas fa-user-graduate"></i>
+          Admissions ({admissions.length})
+        </button>
       </div>
 
       {activeTab === 'submissions' && (
         <div className="admin-panel">
-          <h2>Recent Contact Submissions ({submissions.length})</h2>
+          <div className="panel-header">
+            <h2>Contact Submissions</h2>
+            <div className="panel-actions">
+              <button className="btn btn-sm btn-export">
+                <i className="fas fa-download"></i> Export
+              </button>
+            </div>
+          </div>
+          
           <div className="table-wrap">
-            <table>
+            <table className="data-table">
               <thead>
                 <tr>
-                  <th>When</th>
+                  <th>Date/Time</th>
                   <th>Name</th>
                   <th>Email</th>
                   <th>Phone</th>
@@ -86,41 +175,54 @@ export default function AdminDashboard() {
               <tbody>
                 {submissions.map(s => (
                   <tr key={s.id}>
-                    <td>{formatTs(s.createdAt)}</td>
-                    <td>{s.name || '-'}</td>
-                    <td>{s.email || '-'}</td>
-                    <td>{s.phone || '-'}</td>
-                    <td>{s.subject || '-'}</td>
-                    <td className="truncate">{s.message || '-'}</td>
+                    <td className="timestamp">{formatTs(s.createdAt)}</td>
+                    <td className="name">{s.name || '-'}</td>
+                    <td className="email">{s.email || '-'}</td>
+                    <td className="phone">{s.phone || '-'}</td>
+                    <td className="subject">{s.subject || '-'}</td>
+                    <td className="message">{s.message || '-'}</td>
                   </tr>
                 ))}
                 {submissions.length === 0 && !loading && (
-                  <tr><td colSpan={6} style={{ textAlign: 'center' }}>No data</td></tr>
+                  <tr><td colSpan={6} className="no-data">No submissions found</td></tr>
                 )}
               </tbody>
             </table>
           </div>
 
-          <h3>Subject Breakdown</h3>
-          <ul className="metrics-list">
-            {subjectCounts.map(([subj, count]) => (
-              <li key={subj}><strong>{subj}:</strong> {count}</li>
-            ))}
-            {subjectCounts.length === 0 && <li>No data</li>}
-          </ul>
+          <div className="panel-footer">
+            <h3>Subject Breakdown</h3>
+            <div className="subject-breakdown">
+              {subjectCounts.map(([subj, count]) => (
+                <div key={subj} className="subject-item">
+                  <span className="subject-name">{subj}</span>
+                  <span className="subject-count">{count}</span>
+                </div>
+              ))}
+              {subjectCounts.length === 0 && <p>No subject data available</p>}
+            </div>
+          </div>
         </div>
       )}
 
       {activeTab === 'admissions' && (
         <div className="admin-panel">
-          <h2>Recent Admissions ({admissions.length})</h2>
+          <div className="panel-header">
+            <h2>Admission Applications</h2>
+            <div className="panel-actions">
+              <button className="btn btn-sm btn-export">
+                <i className="fas fa-download"></i> Export
+              </button>
+            </div>
+          </div>
+          
           <div className="table-wrap">
-            <table>
+            <table className="data-table">
               <thead>
                 <tr>
-                  <th>When</th>
-                  <th>First</th>
-                  <th>Last</th>
+                  <th>Date/Time</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
                   <th>Phone</th>
                   <th>Course</th>
                   <th>Type/Level</th>
@@ -130,21 +232,28 @@ export default function AdminDashboard() {
               <tbody>
                 {admissions.map(a => (
                   <tr key={a.id}>
-                    <td>{formatTs(a.createdAt)}</td>
-                    <td>{a.firstName || '-'}</td>
-                    <td>{a.lastName || '-'}</td>
-                    <td>{a.phoneNumber || '-'}</td>
-                    <td>{a.course || '-'}</td>
-                    <td>{a.course === 'Driving' ? (a.drivingType === 'Endorsement' ? a.endorsementClass : a.drivingType) : a.computingLevel || '-'}</td>
-                    <td>{a.studyMode || '-'}</td>
+                    <td className="timestamp">{formatTs(a.createdAt)}</td>
+                    <td className="name">{a.firstName || '-'}</td>
+                    <td className="name">{a.lastName || '-'}</td>
+                    <td className="phone">{a.phoneNumber || '-'}</td>
+                    <td className="course">{a.course || '-'}</td>
+                    <td className="type">{a.course === 'Driving' ? (a.drivingType === 'Endorsement' ? a.endorsementClass : a.drivingType) : a.computingLevel || '-'}</td>
+                    <td className="mode">{a.studyMode || '-'}</td>
                   </tr>
                 ))}
                 {admissions.length === 0 && !loading && (
-                  <tr><td colSpan={7} style={{ textAlign: 'center' }}>No data</td></tr>
+                  <tr><td colSpan={7} className="no-data">No admissions found</td></tr>
                 )}
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+      
+      {loading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+          <p>Loading data...</p>
         </div>
       )}
     </div>

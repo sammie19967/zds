@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import modal from '../utils/modal';
-import '../styles/Admin.css';
+import '../styles/AdminAuth.css';
 
 export default function Signup() {
   const { signUp } = useAuth();
@@ -35,25 +35,42 @@ export default function Signup() {
   }
 
   return (
-    <div className="admin-container" style={{ maxWidth: 420 }}>
-      <div className="admin-header"><h1>Create Admin Account</h1></div>
-      {error && <div className="admin-error">{error}</div>}
-      <form onSubmit={handleSubmit} className="admin-panel">
-        <div className="form-row">
-          <label htmlFor="email">Email</label>
-          <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+    <div className="admin-auth-container">
+      <div className="admin-auth-card">
+        <div className="admin-auth-header">
+          <h1 className="admin-auth-title">Create Admin Account</h1>
+          <p className="admin-auth-subtitle">Sign up to manage submissions and admissions</p>
         </div>
-        <div className="form-row">
-          <label htmlFor="password">Password</label>
-          <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+
+        {error && <div className="admin-auth-error">{error}</div>}
+
+        <div className="admin-auth-body">
+          <form onSubmit={handleSubmit}>
+            <div className="admin-auth-row">
+              <label htmlFor="email" className="admin-auth-label">Email</label>
+              <input id="email" type="email" className="admin-auth-input" value={email} onChange={e => setEmail(e.target.value)} required />
+            </div>
+            <div className="admin-auth-row">
+              <label htmlFor="password" className="admin-auth-label">Password</label>
+              <input id="password" type="password" className="admin-auth-input" value={password} onChange={e => setPassword(e.target.value)} required />
+            </div>
+            <div className="admin-auth-row">
+              <label htmlFor="confirm" className="admin-auth-label">Confirm Password</label>
+              <input id="confirm" type="password" className="admin-auth-input" value={confirm} onChange={e => setConfirm(e.target.value)} required />
+            </div>
+            <div className="admin-auth-actions">
+              <span></span>
+              <button type="submit" className="admin-auth-btn primary" disabled={loading}>
+                {loading ? 'Creating...' : 'Create Account'}
+              </button>
+            </div>
+          </form>
         </div>
-        <div className="form-row">
-          <label htmlFor="confirm">Confirm Password</label>
-          <input id="confirm" type="password" value={confirm} onChange={e => setConfirm(e.target.value)} required />
+
+        <div className="admin-auth-footer">
+          Already have an account? <Link to="/admin/login">Sign in</Link>
         </div>
-        <button type="submit" className="multi-button right" disabled={loading}>{loading ? 'Creating...' : 'Create Account'}</button>
-      </form>
-      <p style={{ marginTop: 12 }}>Already have an account? <Link to="/admin/login">Sign in</Link></p>
+      </div>
     </div>
   );
 }

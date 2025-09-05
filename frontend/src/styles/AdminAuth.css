@@ -1,0 +1,155 @@
+/* AdminAuth.css - scoped styles for admin auth screens */
+
+.admin-auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4ebf5 100%);
+  padding: 24px 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Watermark on container background */
+.admin-auth-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/logo.png') no-repeat center 40%;
+  background-size: 360px 360px;
+  opacity: 0.035;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.admin-auth-card {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(28, 28, 51, 0.08);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Watermark logo behind content */
+.admin-auth-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/logo.png') no-repeat center;
+  background-size: 180px 180px;
+  opacity: 0.06; /* subtle */
+  pointer-events: none;
+  z-index: 0;
+}
+
+.admin-auth-header,
+.admin-auth-body,
+.admin-auth-footer {
+  position: relative;
+  z-index: 1; /* ensure above watermark */
+}
+
+.admin-auth-header {
+  padding: 22px 24px 12px 24px;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.admin-auth-title {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1f2937;
+}
+
+.admin-auth-subtitle {
+  margin: 6px 0 0 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.admin-auth-body {
+  padding: 20px 24px 8px 24px;
+}
+
+.admin-auth-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.admin-auth-label {
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+.admin-auth-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  outline: none;
+  background: #f9fafb;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.admin-auth-input:focus {
+  border-color: #3b82f6;
+  background: #ffffff;
+}
+
+.admin-auth-error {
+  background-color: #fde8e8;
+  color: #b91c1c;
+  border: 1px solid #f8b4b4;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 12px 24px 0 24px;
+}
+
+.admin-auth-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 24px 20px 24px;
+}
+
+.admin-auth-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.05s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-auth-btn:active { transform: translateY(1px); }
+
+.admin-auth-btn.primary {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.15);
+}
+
+.admin-auth-btn.primary:hover { background: #1d4ed8; }
+
+.admin-auth-btn.primary:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+
+.admin-auth-footer {
+  padding: 12px 24px 22px 24px;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.admin-auth-footer a { color: #2563eb; text-decoration: none; }
+.admin-auth-footer a:hover { text-decoration: underline; }
