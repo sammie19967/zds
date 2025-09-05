@@ -1,17 +1,15 @@
 import  { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import "../styles/FormMessage.css";
 import { FaEye, FaDownload, FaArrowDown, FaShieldAlt } from "react-icons/fa";
 
 const FormMessage = () => {
   const [showFees, setShowFees] = useState(false);
+  const navigate = useNavigate();
 
   const handleViewFees = () => {
     setShowFees(!showFees);
-  };
-
-  const handleDownloadFees = () => {
-    // This would trigger the download functionality
-    alert("Downloading fees structure...");
   };
 
   const handleScrollToForm = () => {
@@ -44,7 +42,7 @@ const FormMessage = () => {
               <FaEye />
               View Fees Structure
             </button>
-            <button className="fees-btn download-btn" onClick={handleDownloadFees}>
+            <button className="fees-btn download-btn" onClick={() => navigate('/feesStructure')}>
               <FaDownload />
               Download Fees Structure
             </button>

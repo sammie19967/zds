@@ -1,4 +1,6 @@
 import { useState } from "react";
+import modal from "../utils/modal";
+
 import "../styles/AdmissionForm.css";
 import logo from "../assets/logo.png";
 import { motion } from "framer-motion";
@@ -444,11 +446,16 @@ const MultiStepForm = () => {
             </motion.button>
             <motion.button
               className="multi-button right"
-              onClick={nextStep}
+              onClick={async () => {
+                await modal.success({
+                  title: "Application submitted!",
+                  text: "Thank you. We will contact you soon.",
+                });
+              }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Next
+              Submit Application
             </motion.button>
           </div>
         </motion.div>
@@ -526,7 +533,12 @@ const MultiStepForm = () => {
             </motion.button>
             <motion.button
               className="multi-button right"
-              onClick={() => alert("Form Submitted Successfully! We will contact you soon.")}
+              onClick={async () => {
+                await modal.success({
+                  title: "Application submitted!",
+                  text: "Thank you. We will contact you soon.",
+                });
+              }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >

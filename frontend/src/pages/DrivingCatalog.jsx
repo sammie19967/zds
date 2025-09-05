@@ -1,4 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import modal from "../utils/modal";
+
 import "../styles/DrivingCatalog.css";
 
 import proboxImage from "../assets/vehicles/probox.jpg";
@@ -20,8 +22,11 @@ const vehicles = [
 const Catalogue = () => {
   const navigate = useNavigate();
 
-  const handleClick = () => {
-    alert("Welcome to Zane Driving School! Fill the Application form to proceed");
+  const handleClick = async () => {
+    await modal.info({
+      title: "Welcome to Zane Driving School!",
+      text: "Fill the Application form to proceed.",
+    });
     navigate("/enroll");
   };
 

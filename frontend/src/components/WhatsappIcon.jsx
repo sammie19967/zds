@@ -33,7 +33,10 @@ const WhatsAppIcon = ({ phone = "0115820508", message = "Hello Zane Driving Scho
         }
       }}
     >
-      <div className="zane-whatsapp-badge" aria-hidden="true">Chat</div>
+      <div className="zane-whatsapp-badge" aria-hidden="true">
+        <span className="zane-badge-emoji" role="img" aria-label="sparkles">✨</span>
+        Chat
+      </div>
       <div className="zane-chat-bubble" aria-hidden="true">Have a question? Chat with us</div>
       <span className="zane-whatsapp-ring" aria-hidden="true" />
       <FaWhatsapp className="zane-whatsapp-icon" />

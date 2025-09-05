@@ -52,17 +52,32 @@
 /* Small badge on the FAB */
 .zane-whatsapp-badge {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  background: #ffffff;
-  color: #25d366;
+  top: -10px;
+  right: -10px;
+  background: linear-gradient(135deg, #ffffff, #eafff2);
+  color: #16a34a;
   border-radius: 9999px;
   font-size: 11px;
-  font-weight: 700;
-  padding: 4px 7px;
+  font-weight: 800;
+  padding: 5px 9px;
   line-height: 1;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 8px 18px rgba(22, 163, 74, 0.18), 0 0 0 1px rgba(22, 163, 74, 0.08) inset;
   pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Animated emoji inside the badge */
+.zane-badge-emoji {
+  display: inline-block;
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,0.1));
+  animation: zane-pop 1.8s ease-in-out infinite;
+}
+
+@keyframes zane-pop {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-1px) scale(1.08); }
 }
 
 /* Chat bubble tooltip */

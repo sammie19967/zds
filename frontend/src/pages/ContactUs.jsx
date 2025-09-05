@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import modal from '../utils/modal';
 import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaClock, FaQuoteLeft, FaPaperPlane, FaWhatsapp } from 'react-icons/fa';
 import CampusLocations from '../components/CampusLocations';
 import '../styles/ContactUs.css';
@@ -30,7 +31,10 @@ const ContactUs = () => {
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     console.log('Form submitted:', formData);
-    alert('Thank you for your message! We will get back to you soon.');
+    await modal.success({
+      title: 'Message sent!',
+      text: 'Thank you for your message. We will get back to you soon.',
+    });
     
     // Reset form
     setFormData({

@@ -1,6 +1,8 @@
 import { useState } from "react";
+import "../styles/FeesStructure.css";
 import { FaDownload, FaQuestionCircle, FaChevronDown, FaInfoCircle, FaMoneyBillWave, FaPercent, FaClock } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import modal from "../utils/modal";
 
 // Import pdfmake with a dynamic import to handle both CJS and ESM
 let pdfMake;
@@ -74,6 +76,16 @@ const FeesStructure = () => {
   const handleDownload = async () => {
     setIsPdfGenerating(true);
     try {
+      const confirmed = await modal.confirm({
+        title: 'Download Fees PDF?',
+        text: 'Generate and download the latest fees structure as a PDF?',
+        confirmButtonText: 'Download',
+        cancelButtonText: 'Cancel',
+      });
+      if (!confirmed) {
+        setIsPdfGenerating(false);
+        return;
+      }
       const pdfMakeInstance = await loadPdfMake();
       
       // Convert image to base64 for the PDF
@@ -89,6 +101,30 @@ const FeesStructure = () => {
       const docDefinition = {
         pageSize: 'A4',
         pageMargins: [40, 60, 40, 60],
+        // Centered logo watermark/background
+        background: function(currentPage, pageSize) {
+          const imgWidth = 360; // px
+          const imgHeight = 360; // approximate, will scale proportionally
+          const x = (pageSize.width - imgWidth) / 2;
+          const y = (pageSize.height - imgHeight) / 2;
+          return [{
+            image: logo,
+            width: imgWidth,
+            opacity: 0.06,
+            absolutePosition: { x, y }
+          }];
+        },
+        // Footer with brand and page numbers
+        footer: function(currentPage, pageCount) {
+          return {
+            margin: [40, 0, 40, 20],
+            columns: [
+              { text: 'Zane Driving School • Train with us, Drive with confidence', alignment: 'left', color: '#7f8c8d' },
+              { text: `Page ${currentPage} of ${pageCount}`, alignment: 'right', color: '#7f8c8d' }
+            ],
+            fontSize: 9
+          };
+        },
         content: [
           {
             image: logo,
@@ -219,9 +255,10 @@ const FeesStructure = () => {
     };
 
       pdfMakeInstance.createPdf(docDefinition).download(`Zane-Driving-Fees-${currentMonth}-${currentYear}.pdf`);
+      modal.toast({ icon: 'success', title: 'Download started' });
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again later.');
+      await modal.error('PDF generation failed', 'Failed to generate PDF. Please try again later.');
     } finally {
       setIsPdfGenerating(false);
     }
@@ -266,7 +303,7 @@ const FeesStructure = () => {
         </div>
       </div>
 
-      <div className="zane-content-section">
+      <div className={`zane-content-section ${activeTab === 'fees' ? 'zane-section-fees' : 'zane-section-faq'}`}>
         {activeTab === "fees" && (
           <div className="zane-fees-content">
             <div className="zane-section-header">
@@ -379,468 +416,7 @@ const FeesStructure = () => {
         )}
       </div>
 
-      <style jsx>{`
-        .zane-fees-container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 2rem;
-          font-family: 'Inter', sans-serif;
-          color: #333;
-        }
-        
-        .zane-fees-hero {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          background: linear-gradient(135deg, #0066ff 0%, #0051cc 100%);
-          color: white;
-          border-radius: 16px;
-          padding: 3rem;
-          margin-bottom: 2rem;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .zane-hero-content h1 {
-          font-size: 2.5rem;
-          margin-bottom: 1rem;
-          font-weight: 700;
-        }
-        
-        .zane-hero-content p {
-          font-size: 1.2rem;
-          margin-bottom: 1.5rem;
-          opacity: 0.9;
-        }
-        
-        .zane-hero-badges {
-          display: flex;
-          gap: 1rem;
-          flex-wrap: wrap;
-        }
-        
-        .zane-badge {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          background: rgba(255, 255, 255, 0.2);
-          padding: 0.5rem 1rem;
-          border-radius: 50px;
-          font-weight: 500;
-          backdrop-filter: blur(10px);
-        }
-        
-        .zane-hero-visual {
-          position: relative;
-          width: 200px;
-          height: 200px;
-        }
-        
-        .zane-visual-circle {
-          position: absolute;
-          width: 120px;
-          height: 120px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.2);
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-        }
-        
-        .zane-visual-bar {
-          position: absolute;
-          height: 8px;
-          border-radius: 4px;
-          background: rgba(255, 255, 255, 0.4);
-        }
-        
-        .zane-visual-bar:nth-child(2) {
-          width: 160px;
-          top: 40px;
-          left: 20px;
-          transform: rotate(-20deg);
-        }
-        
-        .zane-visual-bar:nth-child(3) {
-          width: 140px;
-          top: 90px;
-          left: 30px;
-          transform: rotate(15deg);
-        }
-        
-        .zane-visual-bar:nth-child(4) {
-          width: 120px;
-          bottom: 40px;
-          right: 30px;
-          transform: rotate(-10deg);
-        }
-        
-        .zane-tabs-navigation {
-          margin-bottom: 2rem;
-        }
-        
-        .zane-tabs {
-          display: flex;
-          background: #f8f9fa;
-          border-radius: 12px;
-          padding: 0.5rem;
-        }
-        
-        .zane-tab {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 1rem 1.5rem;
-          border-radius: 8px;
-          border: none;
-          background: transparent;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          flex: 1;
-          justify-content: center;
-        }
-        
-        .zane-tab:hover {
-          background: rgba(0, 102, 255, 0.1);
-        }
-        
-        .zane-tab-active {
-          background: #0066ff;
-          color: white;
-          box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
-        }
-        
-        .zane-tab-icon {
-          font-size: 1.2rem;
-        }
-        
-        .zane-content-section {
-          background: white;
-          border-radius: 16px;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-          overflow: hidden;
-        }
-        
-        .zane-section-header {
-          padding: 2rem 2rem 1rem;
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          border-bottom: 1px solid #eaeaea;
-        }
-        
-        .zane-section-header h2 {
-          font-size: 1.8rem;
-          font-weight: 700;
-          margin-bottom: 0.5rem;
-          color: #212529;
-        }
-        
-        .zane-date-display {
-          color: #6c757d;
-          font-weight: 500;
-        }
-        
-        .zane-download-btn {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          background: linear-gradient(135deg, #0066ff, #0051cc);
-          color: white;
-          border: none;
-          padding: 0.8rem 1.5rem;
-          border-radius: 8px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-        
-        .zane-download-btn:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(0, 102, 255, 0.4);
-        }
-        
-        .zane-download-btn:disabled {
-          opacity: 0.7;
-          cursor: not-allowed;
-        }
-        
-        .zane-btn-icon {
-          font-size: 1rem;
-        }
-        
-        .zane-table-container {
-          padding: 0 2rem;
-          overflow-x: auto;
-        }
-        
-        .zane-fees-table {
-          width: 100%;
-          border-radius: 8px;
-          overflow: hidden;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-          margin: 1.5rem 0;
-        }
-        
-        .zane-table-header {
-          display: grid;
-          grid-template-columns: 1.5fr 1fr 1fr 1fr 1.5fr;
-          background: #2c3e50;
-          color: white;
-          font-weight: 600;
-        }
-        
-        .zane-header-cell {
-          padding: 1rem;
-          text-align: center;
-        }
-        
-        .zane-table-body {
-          background: white;
-        }
-        
-        .zane-table-row {
-          display: grid;
-          grid-template-columns: 1.5fr 1fr 1fr 1fr 1.5fr;
-          transition: all 0.3s ease;
-        }
-        
-        .zane-table-row:hover {
-          background: #f8f9fa;
-        }
-        
-        .zane-row-even {
-          background: #f8f9fa;
-        }
-        
-        .zane-row-even:hover {
-          background: #e9ecef;
-        }
-        
-        .zane-table-cell {
-          padding: 1rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-        }
-        
-        .zane-cell-content {
-          width: 100%;
-        }
-        
-        .zane-fee-amount {
-          font-weight: 700;
-          color: #28a745;
-        }
-        
-        .zane-info-cards {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 1.5rem;
-          padding: 2rem;
-        }
-        
-        .zane-info-card {
-          display: flex;
-          align-items: flex-start;
-          gap: 1rem;
-          background: #f8f9fa;
-          padding: 1.5rem;
-          border-radius: 12px;
-          transition: all 0.3s ease;
-        }
-        
-        .zane-info-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-        
-        .zane-card-icon {
-          font-size: 1.5rem;
-          color: #0066ff;
-          background: rgba(0, 102, 255, 0.1);
-          padding: 1rem;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .zane-card-content h3 {
-          margin-bottom: 0.5rem;
-          font-weight: 600;
-        }
-        
-        .zane-card-content p {
-          color: #6c757d;
-          line-height: 1.5;
-        }
-        
-        .zane-faq-content .zane-section-header {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-        
-        .zane-faq-content .zane-section-header p {
-          color: #6c757d;
-        }
-        
-        .zane-faq-container {
-          padding: 0 2rem;
-        }
-        
-        .zane-faq-item {
-          border-bottom: 1px solid #eaeaea;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-        
-        .zane-faq-item:last-child {
-          border-bottom: none;
-        }
-        
-        .zane-faq-question {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 1.5rem 0;
-        }
-        
-        .zane-question-text {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          font-weight: 600;
-          font-size: 1.1rem;
-        }
-        
-        .zane-question-icon {
-          color: #0066ff;
-          font-size: 1.2rem;
-        }
-        
-        .zane-chevron {
-          transition: transform 0.3s ease;
-          color: #6c757d;
-        }
-        
-        .zane-chevron-open {
-          transform: rotate(180deg);
-        }
-        
-        .zane-faq-answer {
-          max-height: 0;
-          overflow: hidden;
-          transition: max-height 0.3s ease;
-        }
-        
-        .zane-faq-expanded .zane-faq-answer {
-          max-height: 200px;
-          padding-bottom: 1.5rem;
-        }
-        
-        .zane-faq-answer p {
-          color: #6c757d;
-          line-height: 1.6;
-          margin: 0;
-        }
-        
-        .zane-contact-cta {
-          text-align: center;
-          padding: 3rem 2rem;
-          background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-          border-radius: 0 0 16px 16px;
-        }
-        
-        .zane-contact-cta h3 {
-          margin-bottom: 0.5rem;
-          font-weight: 600;
-        }
-        
-        .zane-contact-cta p {
-          color: #6c757d;
-          margin-bottom: 1.5rem;
-        }
-        
-        .zane-cta-button {
-          background: #0066ff;
-          color: white;
-          border: none;
-          padding: 0.8rem 2rem;
-          border-radius: 8px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-        
-        .zane-cta-button:hover {
-          background: #0051cc;
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(0, 102, 255, 0.3);
-        }
-        
-        @media (max-width: 768px) {
-          .zane-fees-container {
-            padding: 1rem;
-          }
-          
-          .zane-fees-hero {
-            flex-direction: column;
-            text-align: center;
-            padding: 2rem 1rem;
-          }
-          
-          .zane-hero-content h1 {
-            font-size: 2rem;
-          }
-          
-          .zane-hero-badges {
-            justify-content: center;
-          }
-          
-          .zane-hero-visual {
-            margin-top: 2rem;
-            width: 150px;
-            height: 150px;
-          }
-          
-          .zane-section-header {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: stretch;
-          }
-          
-          .zane-download-btn {
-            align-self: center;
-          }
-          
-          .zane-table-header,
-          .zane-table-row {
-            grid-template-columns: 1fr;
-            gap: 0.5rem;
-          }
-          
-          .zane-header-cell,
-          .zane-table-cell {
-            padding: 0.5rem;
-            text-align: left;
-            justify-content: flex-start;
-          }
-          
-          .zane-table-cell::before {
-            content: attr(data-label);
-            font-weight: 700;
-            margin-right: 0.5rem;
-            color: #6c757d;
-          }
-          
-          .zane-info-cards {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
+      
     </div>
   );
 };
