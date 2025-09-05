@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
 import logo from '../assets/logo.png';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [activeLink, setActiveLink] = useState('/');
+  const navigate = useNavigate();
 
   // Handle scroll detection for navbar styling
   useEffect(() => {
@@ -18,107 +19,62 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Get current page path for active link detection
-  useEffect(() => {
-    setActiveLink(window.location.pathname);
-  }, []);
-
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   // Close mobile menu when clicking on a link
-  const handleLinkClick = (path) => {
-    setActiveLink(path);
-    setIsMenuOpen(false);
-  };
-
-  // Check if a link is active
-  const isLinkActive = (path) => {
-    if (path === '/') return activeLink === '/';
-    return activeLink.startsWith(path);
-  };
+  const handleLinkClick = () => setIsMenuOpen(false);
 
   return (
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
       <div className="navbar-container">
         {/* Logo and Text */}
-        <div className="navbar-logo-container" onClick={() => handleLinkClick('/')}>
+        <button
+          className="navbar-logo-container"
+          onClick={() => { navigate('/'); handleLinkClick(); }}
+          aria-label="Go to home"
+        >
           <img src={logo} alt="Zane Driving School Logo" className="navbar-logo-img" />
           <span className="navbar-logo-text">Zane Driving School</span>
-        </div>
+        </button>
 
         <div className={`navbar-links ${isMenuOpen ? 'active' : ''}`}>
-          <a 
-            href="/" 
-            className={isLinkActive('/') ? 'active' : ''}
-            onClick={() => handleLinkClick('/')}
-          >
+          <NavLink to="/" end onClick={handleLinkClick} className={({ isActive }) => isActive ? 'active' : undefined}>
             Home
-          </a>
-          
-          <a 
-            href="/about-us" 
-            className={isLinkActive('/about-us') ? 'active' : ''}
-            onClick={() => handleLinkClick('/about-us')}
-          >
+          </NavLink>
+
+          <NavLink to="/about-us" onClick={handleLinkClick} className={({ isActive }) => isActive ? 'active' : undefined}>
             About Us
-          </a>
-          
-          <a 
-            href="/enroll" 
-            className={isLinkActive('/enroll') ? 'active' : ''}
-            onClick={() => handleLinkClick('/enroll')}
-          >
+          </NavLink>
+
+          <NavLink to="/enroll" onClick={handleLinkClick} className={({ isActive }) => isActive ? 'active' : undefined}>
             Admission
-          </a>
-          
+          </NavLink>
+
           {/* Courses Dropdown */}
           <div className="navbar-dropdown">
-            <a 
-              href="/courses" 
-              className={`navbar-dropdown-link ${isLinkActive('/courses') ? 'active' : ''}`}
-              onClick={() => handleLinkClick('/courses')}
+            <NavLink 
+              to="/courses" 
+              onClick={handleLinkClick}
+              className={({ isActive }) => `navbar-dropdown-link ${isActive ? 'active' : ''}`}
             >
               Courses
-            </a>
+            </NavLink>
             <div className="navbar-dropdown-content">
-              <a 
-                href="/computing"
-                onClick={() => handleLinkClick('/courses/computing')}
-              >
-                Computing
-              </a>
-              <a 
-                href="/driving"
-                onClick={() => handleLinkClick('/courses/driving')}
-              >
-                Driving Courses
-              </a>
-              <a 
-                href="/feesStructure"
-                onClick={() => handleLinkClick('/courses/feesStructure')}
-              >
-                Fees Structure
-              </a>
+              <Link to="/computing" onClick={handleLinkClick}>Computing</Link>
+              <Link to="/driving" onClick={handleLinkClick}>Driving Courses</Link>
+              <Link to="/feesStructure" onClick={handleLinkClick}>Fees Structure</Link>
             </div>
           </div>
 
-          <a 
-            href="/our-team" 
-            className={isLinkActive('/our-team') ? 'active' : ''}
-            onClick={() => handleLinkClick('/our-team')}
-          >
+          <NavLink to="/our-team" onClick={handleLinkClick} className={({ isActive }) => isActive ? 'active' : undefined}>
             Our Team
-          </a>
-          
-          <a 
-            href="/contact-us" 
-            className={isLinkActive('/contact-us') ? 'active' : ''}
-            onClick={() => handleLinkClick('/contact-us')}
-          >
+          </NavLink>
+
+          <NavLink to="/contact-us" onClick={handleLinkClick} className={({ isActive }) => isActive ? 'active' : undefined}>
             Contact Us
-          </a>
+          </NavLink>
         </div>
 
         <button 
