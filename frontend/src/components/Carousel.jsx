@@ -20,7 +20,7 @@ const Carousel = () => {
     {
       image: computerCourseImage,
       title: 'Computer Courses',
-      description: 'Gain essential computer skills for today\'s digital world with our expert-led courses.',
+      description: 'Gain essential computer skills for todays digital world with our expert-led courses.',
       bgColor: 'linear-gradient(135deg, #ff6b6b, #c0392b)',
       textColor: '#ffffff'
     },
