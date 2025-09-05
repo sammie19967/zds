@@ -13,6 +13,10 @@ import DrivingCatalog from './pages/DrivingCatalog';
 import AdmissionForm from './components/AdmissionForm';
 import WhatsAppIcon from './components/WhatsappIcon';
 import FeesStructure from './pages/FeesStructure';
+import AdminDashboard from './admin/AdminDashboard';
+import Login from './admin/Login';
+import Signup from './admin/Signup';
+import RequireAuth from './admin/RequireAuth';
 
 
 const App = () => {
@@ -33,6 +37,9 @@ const App = () => {
         <Route path="/driving" element={<DrivingCatalog />} />
         <Route path="/admission-form" element={<AdmissionForm />} />
         <Route path="/feesStructure" element={<FeesStructure />} />
+        <Route path="/admin" element={<RequireAuth><AdminDashboard /></RequireAuth>} />
+        <Route path="/admin/login" element={<Login />} />
+        <Route path="/admin/signup" element={<Signup />} />
         
         {/* Catch-all route for undefined paths */}
         <Route path="*" element={<NotFound />} />

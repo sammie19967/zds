@@ -1,0 +1,14 @@
+.admin-container{max-width:1200px;margin:40px auto;padding:0 16px}
+.admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.admin-actions button{padding:8px 12px;border:1px solid #ddd;background:#fff;border-radius:6px;cursor:pointer}
+.admin-actions button:disabled{opacity:.6;cursor:default}
+.admin-error{background:#ffe6e6;color:#a30000;padding:10px 12px;border:1px solid #ffb3b3;border-radius:6px;margin-bottom:16px}
+.admin-tabs{display:flex;gap:8px;margin-bottom:16px}
+.admin-tabs button{padding:8px 12px;border:1px solid #ddd;background:#fff;border-radius:20px;cursor:pointer}
+.admin-tabs button.active{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
+.admin-panel{background:#fff;border:1px solid #eee;border-radius:10px;padding:16px}
+.table-wrap{overflow:auto;border:1px solid #eee;border-radius:8px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:left}
+th{background:#fafafa}
+.truncate{max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

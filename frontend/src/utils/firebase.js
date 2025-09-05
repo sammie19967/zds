@@ -2,6 +2,7 @@
 // Ensure you set the env vars in your .env (see .env.example)
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore, serverTimestamp, addDoc, collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 
 const config = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -29,6 +30,7 @@ assertFirebaseConfig(config);
 
 const app = getApps().length ? getApps()[0] : initializeApp(config);
 export const db = getFirestore(app);
+export const auth = getAuth(app);
 
 // Submit a contact message to Firestore
 export async function submitContactMessage({ name, email, phone, subject, message }) {
@@ -57,4 +59,21 @@ export async function fetchRecentSubmissions({ take = 50 } = {}) {
   const q = query(collection(db, 'submissions'), orderBy('createdAt', 'desc'), limit(take));
   const snap = await getDocs(q);
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+// Auth helpers
+export async function signInWithEmail(email, password) {
+  return signInWithEmailAndPassword(auth, email, password);
+}
+
+export async function signUpWithEmail(email, password) {
+  return createUserWithEmailAndPassword(auth, email, password);
+}
+
+export async function signOutUser() {
+  return signOut(auth);
+}
+
+export function subscribeAuth(callback) {
+  return onAuthStateChanged(auth, callback);
 }
