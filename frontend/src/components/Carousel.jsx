@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import '../styles/carousel.css';
+import '../styles/Carousel.css';
 
 import drivingCourseImage from '../assets/driving-course.png';
 import computerCourseImage from '../assets/computer-course.png';
