@@ -259,12 +259,15 @@
   align-items: center;
   margin-bottom: 1.5rem;
   margin-top: auto;
+  column-gap: 2rem;
+  row-gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .detail-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
 }
 
 .detail-indicator {
