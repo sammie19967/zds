@@ -26,9 +26,10 @@ const Footer = () => {
 
         <div className="footer-section contact">
           <h2>Contact Us</h2>
-          <p><i className="fas fa-map-marker-alt"></i> Kaiboi, Nakuru, Eldoret, Kericho</p>
-          <p><i className="fas fa-phone-alt"></i> +254 123 456 789</p>
-          <p><i className="fas fa-envelope"></i> info@zaneschool.com</p>
+          <p><i className="fas fa-map-marker-alt"></i> Nakuru, Kericho</p>
+          <p><i className="fas fa-phone-alt"></i> +254 15820508</p>
+          <p><i className="fas fa-envelope"></i> zanedrivingschool2022@gmail.com</p>
+          <p><i className="fas fa-whatsapp"></i> +254 15820508</p>
         </div>
       </div>
 
@@ -45,6 +46,9 @@ const Footer = () => {
           </a>
           <a href="https://linkedin.com" target="_blank" rel="noreferrer">
             <i className="fab fa-linkedin-in"></i>
+          </a>
+          <a href="https://wa.me/25415820508" target="_blank" rel="noreferrer">
+            <i className="fab fa-whatsapp"></i>
           </a>
         </div>
         <p>© 2025 Zane Driving School and Computing. All Rights Reserved.</p>

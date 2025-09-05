@@ -1,10 +1,10 @@
 import React from 'react'
-import FeesStructure from './FeesStructure'
+import TeamGalleryComponent from '../components/TeamGallery'
 
 const OurTeam = () => {
   return (
     <div>
-      <FeesStructure/>
+      <TeamGalleryComponent/>
     </div>
   )
 }

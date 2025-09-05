@@ -14,9 +14,11 @@ import AdmissionForm from './components/AdmissionForm';
 import WhatsAppIcon from './components/WhatsappIcon';
 import FeesStructure from './pages/FeesStructure';
 
+
 const App = () => {
   return (
     <Router>
+
       <Navbar/>
       <WhatsAppIcon/>
       <Routes>
