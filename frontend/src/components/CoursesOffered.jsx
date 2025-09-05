@@ -14,7 +14,7 @@ const CoursesOffered = () => {
 
   return (
     <div className="courses-container">
-      <h1 className={`section-title ${isVisible ? 'animate-in' : ''}`}>Courses Offered</h1>
+      <h1 className={`section-title ${isVisible ? 'animate-in' : ''}`}>Courses We Offer</h1>
       <div className="courses-wrapper">
         <div className={`course-section ${isVisible ? 'animate-in' : ''}`}>
           <div className="course-header">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import '../styles/Carousel.css';
 
 import drivingCourseImage from '../assets/driving-course.png';
@@ -11,14 +11,14 @@ const Carousel = () => {
 
   const slides = [
     {
-      image: drivingCourseImage,
+      image: computerCourseImage,
       title: 'Driving Courses',
       description: 'Learn to drive confidently with our certified instructors and practical training.',
       bgColor: 'linear-gradient(135deg, #3498db, #2c3e50)',
       textColor: '#ffffff'
     },
     {
-      image: computerCourseImage,
+      image: drivingCourseImage,
       title: 'Computer Courses',
       description: 'Gain essential computer skills for todays digital world with our expert-led courses.',
       bgColor: 'linear-gradient(135deg, #ff6b6b, #c0392b)',
@@ -83,18 +83,20 @@ const Carousel = () => {
 
   return (
     <div 
-      className="carousel-container"
+      className="carousel-container carousel-root"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="carousel-wrapper">
+      <div
+        className="carousel-wrapper"
+        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+      >
         {slides.map((slide, index) => (
           <div
             key={index}
             className={`carousel-slide ${index === currentIndex ? 'active' : ''}`}
             style={{ 
-              background: slide.bgColor,
-              transform: `translateX(-${currentIndex * 100}%)` 
+              background: slide.bgColor
             }}
           >
             <div className="slide-content">
@@ -107,6 +109,7 @@ const Carousel = () => {
                 </p>
                 <a href="/enroll" className="join-btn">
                   {buttonText}
+                  <span className="btn-arrow" aria-hidden="true">➜</span>
                 </a>
               </div>
               <div className="image-container">

@@ -1,7 +1,6 @@
 
 import Carousel from '../components/Carousel'
 import ParallaxOffers from '../components/ParallaxOffers'
-import Reviews from '../components/Reviews'
 import CampusLocations from '../components/CampusLocations'
 
 const Home = () => {
@@ -9,8 +8,6 @@ const Home = () => {
     <div>
       <Carousel/>
       <ParallaxOffers/>
-      <Reviews/>
-      
       <CampusLocations/>
       </div>
   )

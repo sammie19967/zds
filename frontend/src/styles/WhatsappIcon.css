@@ -1,82 +1,120 @@
-/* WhatsApp Icon Container */
-.whatsapp-icon-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 60px;
-    height: 60px;
-    background: #25d366;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    animation: bounce 2s infinite;
-    cursor: pointer;
+/* Floating WhatsApp FAB - Zane styles */
+.zane-whatsapp-container {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  width: 72px;
+  height: 72px;
+  background: #25d366;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  outline: none;
+  animation: zane-wiggle 5s ease-in-out infinite;
+}
+
+.zane-whatsapp-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+}
+
+.zane-whatsapp-container:focus-visible {
+  box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.35), 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+/* Icon */
+.zane-whatsapp-icon {
+  font-size: 32px;
+  color: #ffffff;
+  z-index: 2;
+}
+
+/* Pulsing ring */
+.zane-whatsapp-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6);
+  animation: zane-pulse 1.8s infinite;
+}
+
+@keyframes zane-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.55); }
+  70% { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0.0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.0); }
+}
+
+/* Small badge on the FAB */
+.zane-whatsapp-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ffffff;
+  color: #25d366;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 7px;
+  line-height: 1;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+}
+
+/* Chat bubble tooltip */
+.zane-chat-bubble {
+  position: absolute;
+  right: 0;
+  bottom: 84px;
+  background: linear-gradient(135deg, #111827, #1f2937);
+  color: #f9fafb;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.zane-chat-bubble::after {
+  content: '';
+  position: absolute;
+  right: 14px;
+  bottom: -8px;
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(135deg, #111827, #1f2937);
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+
+.zane-whatsapp-container:hover .zane-chat-bubble,
+.zane-whatsapp-container:focus-visible .zane-chat-bubble {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Reduce sizes on mobile */
+@media (max-width: 768px) {
+  .zane-whatsapp-container {
+    width: 62px;
+    height: 62px;
   }
-  
-  /* Icon Styling */
-  .whatsapp-icon {
-    font-size: 2rem;
-    color: #ffffff;
-  }
-  
-  /* Hover Effect */
-  .whatsapp-icon-container:hover {
-    transform: scale(1.1);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-  }
-  
-  /* Chat Bubble Styling */
-  .chat-bubble {
-    position: absolute;
-    bottom: 75px;
-    right: 0;
-    background: #ffffff;
-    color: #25d366;
-    padding: 8px 12px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 500;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all 0.3s ease-in-out;
-    pointer-events: none;
-  }
-  
-  /* Reveal Bubble on Hover */
-  .whatsapp-icon-container:hover .chat-bubble {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  
-  /* Bounce Animation */
-  @keyframes bounce {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .whatsapp-icon-container {
-      width: 50px;
-      height: 50px;
-    }
-  
-    .whatsapp-icon {
-      font-size: 1.8rem;
-    }
-  
-    .chat-bubble {
-      font-size: 0.8rem;
-    }
-  }
-  
+  .zane-whatsapp-icon { font-size: 28px; }
+  .zane-chat-bubble { font-size: 0.85rem; bottom: 74px; }
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .zane-whatsapp-ring { animation: none; }
+  .zane-whatsapp-container { transition: none; }
+  .zane-chat-bubble { transition: none; }
+}
