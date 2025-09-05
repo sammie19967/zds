@@ -1,5 +1,6 @@
 import { useState } from "react";
 import modal from "../utils/modal";
+import { submitAdmissionApplication } from "../utils/firebase";
 
 import "../styles/AdmissionForm.css";
 import logo from "../assets/logo.png";
@@ -22,6 +23,7 @@ const MultiStepForm = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const nextStep = () => {
     // Validate current step before proceeding
@@ -79,6 +81,50 @@ const MultiStepForm = () => {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const validateAll = () => {
+    if (!validateStep(1)) { setStep(1); return false; }
+    if (!validateStep(2)) { setStep(2); return false; }
+    if (!validateStep(3)) { setStep(3); return false; }
+    return true;
+  };
+
+  const handleSubmitApplication = async () => {
+    // Validate all steps before submit
+    if (!validateAll()) return;
+    setIsSubmitting(true);
+    try {
+      await submitAdmissionApplication(formData);
+      await modal.success({
+        title: "Application submitted!",
+        text: "Thank you. We will contact you soon.",
+      });
+      // Reset form and go back to step 1
+      setFormData({
+        firstName: "",
+        lastName: "",
+        phoneNumber: "",
+        dateOfBirth: "",
+        nationality: "",
+        gender: "",
+        course: "",
+        drivingType: "",
+        endorsementClass: "",
+        computingLevel: "",
+        studyMode: "",
+      });
+      setErrors({});
+      setStep(1);
+    } catch (err) {
+      console.error(err);
+      await modal.error({
+        title: "Submission failed",
+        text: err?.message || "We could not submit your application. Please try again later.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -446,16 +492,12 @@ const MultiStepForm = () => {
             </motion.button>
             <motion.button
               className="multi-button right"
-              onClick={async () => {
-                await modal.success({
-                  title: "Application submitted!",
-                  text: "Thank you. We will contact you soon.",
-                });
-              }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              onClick={handleSubmitApplication}
+              disabled={isSubmitting}
+              whileHover={{ scale: isSubmitting ? 1 : 1.05 }}
+              whileTap={{ scale: isSubmitting ? 1 : 0.95 }}
             >
-              Submit Application
+              {isSubmitting ? "Submitting..." : "Submit Application"}
             </motion.button>
           </div>
         </motion.div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import modal from '../utils/modal';
 import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaClock, FaQuoteLeft, FaPaperPlane, FaWhatsapp } from 'react-icons/fa';
+import { submitContactMessage } from '../utils/firebase';
 import CampusLocations from '../components/CampusLocations';
 import '../styles/ContactUs.css';
 
@@ -26,26 +27,29 @@ const ContactUs = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    console.log('Form submitted:', formData);
-    await modal.success({
-      title: 'Message sent!',
-      text: 'Thank you for your message. We will get back to you soon.',
-    });
-    
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      subject: 'General Inquiry',
-      message: ''
-    });
-    
-    setIsSubmitting(false);
+    try {
+      await submitContactMessage(formData);
+      await modal.success({
+        title: 'Message sent!',
+        text: 'Thank you for your message. We will get back to you soon.',
+      });
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        subject: 'General Inquiry',
+        message: ''
+      });
+    } catch (err) {
+      console.error(err);
+      await modal.error({
+        title: 'Submission failed',
+        text: err?.message || 'We could not send your message. Please try again later.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const testimonials = [
