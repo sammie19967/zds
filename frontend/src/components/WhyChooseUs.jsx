@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/whychooseus.css';
+import '../styles/WhyChooseUs.css';
 
 
 import { FaCar, FaLaptopCode, FaUserShield, FaCertificate } from 'react-icons/fa';
