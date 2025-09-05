@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import '../styles/Navbar.css';
 import logo from '../assets/logo.png';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const navigate = useNavigate();
 
   // Handle scroll detection for navbar styling
   useEffect(() => {
@@ -30,14 +29,15 @@ const Navbar = () => {
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
       <div className="navbar-container">
         {/* Logo and Text */}
-        <button
+        <Link
+          to="/"
           className="navbar-logo-container"
-          onClick={() => { navigate('/'); handleLinkClick(); }}
+          onClick={handleLinkClick}
           aria-label="Go to home"
         >
           <img src={logo} alt="Zane Driving School Logo" className="navbar-logo-img" />
           <span className="navbar-logo-text">Zane Driving School</span>
-        </button>
+        </Link>
 
         <div className={`navbar-links ${isMenuOpen ? 'active' : ''}`}>
           <NavLink to="/" end onClick={handleLinkClick} className={({ isActive }) => isActive ? 'active' : undefined}>
