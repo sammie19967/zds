@@ -3,8 +3,10 @@ import "../styles/WhatsappIcon.css";
 import { FaWhatsapp } from "react-icons/fa";
 
 const WhatsAppIcon = () => {
-  const phoneNumber = "0725713192";
+  const phoneNumber = "0115820508";
   const whatsappLink = `https://wa.me/254${phoneNumber.slice(1)}`;
+
+
 
   return (
     <a
@@ -13,7 +15,7 @@ const WhatsAppIcon = () => {
       rel="noopener noreferrer"
       className="whatsapp-icon-container"
     >
-      <div className="chat-bubble">Reach Us Out</div>
+      <div className="chat-bubble">Reach Us Out for more info</div>
       <FaWhatsapp className="whatsapp-icon" />
     </a>
   );

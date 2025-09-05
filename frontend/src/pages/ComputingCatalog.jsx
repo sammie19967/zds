@@ -1,7 +1,9 @@
 import { useState } from "react";
 import "../styles/ComputingCatalog.css";
+import { useNavigate } from "react-router-dom";
 
 const ComputingCatalog = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("beginner");
   
   const beginnerCourses = [
@@ -185,7 +187,7 @@ const ComputingCatalog = () => {
                 
                 {/* Apply Button */}
                 <button className="apply-button">
-                  <span className="button-text">Apply Now</span>
+                  <span className="button-text" onClick={() => navigate('/enroll')}>Apply Now</span>
                   <svg className="button-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>

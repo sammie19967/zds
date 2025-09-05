@@ -22,7 +22,7 @@ const Catalogue = () => {
 
   const handleClick = () => {
     alert("Welcome to Zane Driving School! Fill the Application form to proceed");
-    navigate("/ApplicationForm");
+    navigate("/enroll");
   };
 
   return (
@@ -77,7 +77,7 @@ const Catalogue = () => {
       </div>
 
       <div className="catalog-footer">
-        <p>Not sure which vehicle is right for you? <span className="contact-link">Contact us for guidance</span></p>
+        <p>Not sure which vehicle is right for you? <span className="contact-link href='/contact-us'">Contact us for guidance</span></p>
       </div>
     </div>
   );
