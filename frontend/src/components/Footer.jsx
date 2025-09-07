@@ -1,6 +1,6 @@
-import React from "react";
 import "../styles/Footer.css";
 import logo from "../assets/logo.png"; // Update this path to your logo's actual location
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -16,11 +16,11 @@ const Footer = () => {
         <div className="footer-section links">
           <h2>Quick Links</h2>
           <ul>
-            <li><a href="/home">Home</a></li>
-            <li><a href="/about">About Us</a></li>
-            <li><a href="/courses">Courses</a></li>
-            <li><a href="/admissions">Admissions</a></li>
-            <li><a href="/contact">Contact Us</a></li>
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/about-us">About Us</Link></li>
+            <li><Link to="/courses">Courses</Link></li>
+            <li><Link to="/admission-form">Admissions</Link></li>
+            <li><Link to="/contact-us">Contact Us</Link></li>
           </ul>
         </div>
 
