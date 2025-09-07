@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import modal from "../utils/modal";
 import { submitAdmissionApplication } from "../utils/firebase";
 
@@ -25,10 +25,6 @@ const MultiStepForm = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Scroll to top whenever step changes
-  useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-  }, [step]);
 
   const nextStep = () => {
     // Validate current step before proceeding
