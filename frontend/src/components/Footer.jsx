@@ -44,6 +44,9 @@ const Footer = () => {
           <a href="https://www.facebook.com/profile.php?id=100084443037318" target="_blank" rel="noreferrer">
             <i className="fab fa-facebook-f"></i>
           </a>
+          <a href="http://tiktok.com/@zanedrivingschool_3" target="_blank" rel="noreferrer">
+            <i className="fab fa-tiktok"></i>
+          </a>
           <a href="https://twitter.com" target="_blank" rel="noreferrer">
             <i className="fab fa-twitter"></i>
           </a>

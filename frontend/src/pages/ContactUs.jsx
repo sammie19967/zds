@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import modal from '../utils/modal';
 import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaClock, FaQuoteLeft, FaPaperPlane, FaWhatsapp, FaFacebook } from 'react-icons/fa';
+import { FaTiktok } from 'react-icons/fa6';
 import { submitContactMessage } from '../utils/firebase';
 import CampusLocations from '../components/CampusLocations';
 import '../styles/ContactUs.css';
@@ -260,6 +261,20 @@ const ContactUs = () => {
                   <p>
                     <a href="https://www.facebook.com/profile.php?id=100084443037318" target="_blank" rel="noopener noreferrer">
                       Visit our Facebook page
+                    </a>
+                  </p>
+                </div>
+              </div>
+
+              <div className="contact-method">
+                <div className="method-icon">
+                  <FaTiktok />
+                </div>
+                <div className="method-details">
+                  <h3>TikTok</h3>
+                  <p>
+                    <a href="http://tiktok.com/@zanedrivingschool_3" target="_blank" rel="noopener noreferrer">
+                      Follow us on TikTok
                     </a>
                   </p>
                 </div>
