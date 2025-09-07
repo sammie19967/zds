@@ -17,12 +17,14 @@ import AdminDashboard from './admin/AdminDashboard';
 import Login from './admin/Login';
 import Signup from './admin/Signup';
 import RequireAuth from './admin/RequireAuth';
+import ScrollToTop from './components/ScrollToTop';
 
 
 const App = () => {
   return (
     <Router>
 
+      <ScrollToTop/>
       <Navbar/>
       <WhatsAppIcon/>
       <Routes>
