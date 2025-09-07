@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import modal from "../utils/modal";
+import ScrollToTop from "../components/ScrollToTop";
 
 import "../styles/DrivingCatalog.css";
 
@@ -23,15 +25,30 @@ const Catalogue = () => {
   const navigate = useNavigate();
 
   const handleClick = async () => {
-    await modal.info({
-      title: "Welcome to Zane Driving School!",
-      text: "Fill the Application form to proceed.",
-    });
-    navigate("/enroll");
+    try {
+      await modal.info({
+        title: "Welcome to Zane Driving School!",
+        text: "Fill the Application form to proceed.",
+      });
+      // Scroll to top before navigation
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Small delay to ensure scroll completes before navigation
+      await new Promise(resolve => setTimeout(resolve, 300));
+      navigate("/enroll");
+    } catch (error) {
+      console.error("Error during navigation:", error);
+    }
   };
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
-    <div className="catalogue-container">
+    <>
+      <ScrollToTop />
+      <div className="catalogue-container">
       <div className="catalog-header">
         <div className="header-content">
           <h1 className="catalog-title">Driving Courses</h1>
@@ -85,6 +102,7 @@ const Catalogue = () => {
         <p>Not sure which vehicle is right for you? <span className="contact-link href='/contact-us'">Contact us for guidance</span></p>
       </div>
     </div>
+    </>
   );
 };
 

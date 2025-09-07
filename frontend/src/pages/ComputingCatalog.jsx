@@ -1,11 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/ComputingCatalog.css";
 import { useNavigate } from "react-router-dom";
 import modal from "../utils/modal";
+import ScrollToTop from "../components/ScrollToTop";
 
 const ComputingCatalog = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("beginner");
+  
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  
+  const handleEnrollClick = async (course) => {
+    try {
+      await modal.info({
+        title: `Enroll in ${course.title}`,
+        text: `You're about to enroll in our ${course.title} course. Please fill out the application form to proceed.`,
+      });
+      // Scroll to top before navigation
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Small delay to ensure scroll completes before navigation
+      await new Promise(resolve => setTimeout(resolve, 300));
+      navigate("/enroll");
+    } catch (error) {
+      console.error("Error during navigation:", error);
+    }
+  };
   
   const beginnerCourses = [
     {
@@ -110,6 +132,8 @@ const ComputingCatalog = () => {
   ];
 
   return (
+    <>
+      <ScrollToTop />
     <div className="computing-catalog">
       {/* Header */}
       <div className="catalog-header">
@@ -208,6 +232,7 @@ const ComputingCatalog = () => {
         ))}
       </div>
     </div>
+    </>
   );
 };
 
