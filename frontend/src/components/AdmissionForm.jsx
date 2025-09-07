@@ -492,12 +492,11 @@ const MultiStepForm = () => {
             </motion.button>
             <motion.button
               className="multi-button right"
-              onClick={handleSubmitApplication}
-              disabled={isSubmitting}
-              whileHover={{ scale: isSubmitting ? 1 : 1.05 }}
-              whileTap={{ scale: isSubmitting ? 1 : 0.95 }}
+              onClick={nextStep}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              {isSubmitting ? "Submitting..." : "Submit Application"}
+              Review & Confirm
             </motion.button>
           </div>
         </motion.div>
@@ -511,7 +510,7 @@ const MultiStepForm = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <h2>Step 4: Summary</h2>
+          <h2>Step 4: Review & Confirm</h2>
           
           <div className="summary-section">
             <h3>Personal Information</h3>
@@ -575,16 +574,12 @@ const MultiStepForm = () => {
             </motion.button>
             <motion.button
               className="multi-button right"
-              onClick={async () => {
-                await modal.success({
-                  title: "Application submitted!",
-                  text: "Thank you. We will contact you soon.",
-                });
-              }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              onClick={handleSubmitApplication}
+              disabled={isSubmitting}
+              whileHover={{ scale: isSubmitting ? 1 : 1.05 }}
+              whileTap={{ scale: isSubmitting ? 1 : 0.95 }}
             >
-              Submit Application
+              {isSubmitting ? "Submitting..." : "Submit Application"}
             </motion.button>
           </div>
         </motion.div>
