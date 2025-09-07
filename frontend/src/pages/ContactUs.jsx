@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import modal from '../utils/modal';
-import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaClock, FaQuoteLeft, FaPaperPlane, FaWhatsapp } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaClock, FaQuoteLeft, FaPaperPlane, FaWhatsapp, FaFacebook } from 'react-icons/fa';
 import { submitContactMessage } from '../utils/firebase';
 import CampusLocations from '../components/CampusLocations';
 import '../styles/ContactUs.css';
@@ -248,6 +248,20 @@ const ContactUs = () => {
                 <div className="method-details">
                   <h3>WhatsApp</h3>
                   <p><a href="https://wa.me/254715820508" target="_blank" rel="noopener noreferrer">Chat with us on WhatsApp</a></p>
+                </div>
+              </div>
+
+              <div className="contact-method">
+                <div className="method-icon">
+                  <FaFacebook />
+                </div>
+                <div className="method-details">
+                  <h3>Facebook</h3>
+                  <p>
+                    <a href="https://www.facebook.com/profile.php?id=100084443037318" target="_blank" rel="noopener noreferrer">
+                      Visit our Facebook page
+                    </a>
+                  </p>
                 </div>
               </div>
 

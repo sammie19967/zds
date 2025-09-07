@@ -29,13 +29,19 @@ const Footer = () => {
           <p><i className="fas fa-map-marker-alt"></i> Nakuru, Kericho</p>
           <p><i className="fas fa-phone-alt"></i> +254 15820508</p>
           <p><i className="fas fa-envelope"></i> zanedrivingschool2022@gmail.com</p>
+          <p>
+            <i className="fab fa-facebook-f"></i>{' '}
+            <a href="https://www.facebook.com/profile.php?id=100084443037318" target="_blank" rel="noreferrer">
+              Facebook
+            </a>
+          </p>
           <p><i className="fas fa-whatsapp"></i> +254 15820508</p>
         </div>
       </div>
 
       <div className="footer-bottom">
         <div className="footer-social">
-          <a href="https://facebook.com" target="_blank" rel="noreferrer">
+          <a href="https://www.facebook.com/profile.php?id=100084443037318" target="_blank" rel="noreferrer">
             <i className="fab fa-facebook-f"></i>
           </a>
           <a href="https://twitter.com" target="_blank" rel="noreferrer">

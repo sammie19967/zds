@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import '../styles/Carousel.css';
 
-import drivingCourseImage from '../assets/driving-course.png';
+import drivingCourseImage from '../assets/probox front.jpg';
 import computerCourseImage from '../assets/computer-course.png';
 import industryCertifiedImage from '../assets/industry.jpg';
 
@@ -11,14 +11,14 @@ const Carousel = () => {
 
   const slides = [
     {
-      image: computerCourseImage,
+      image: drivingCourseImage,
       title: 'Driving Courses',
       description: 'Learn to drive confidently with our certified instructors and practical training.',
       bgColor: 'linear-gradient(135deg, #3498db, #2c3e50)',
       textColor: '#ffffff'
     },
     {
-      image: drivingCourseImage,
+      image: computerCourseImage,
       title: 'Computer Courses',
       description: 'Gain essential computer skills for todays digital world with our expert-led courses.',
       bgColor: 'linear-gradient(135deg, #ff6b6b, #c0392b)',

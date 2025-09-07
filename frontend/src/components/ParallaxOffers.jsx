@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import "../styles/ParallaxOffers.css";
 
 import newStudentImage from "../assets/newstudent.jpeg";
-import refresherImage from "../assets/refresher.jpeg";
+import refresherImage from "../assets/probox back.jpg";
 import endorsementImage from "../assets/endorsement.jpeg";
-import computerImage from "../assets/computer.png";
+import computerImage from "../assets/computer.jpg";
 
 const ParallaxOffers = () => {
   const offers = [
