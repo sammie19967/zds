@@ -213,13 +213,7 @@ const ComputingCatalog = () => {
                 {/* Apply Button */}
                 <button
                   className="apply-button"
-                  onClick={async () => {
-                    await modal.info({
-                      title: "Apply for this course",
-                      text: "We will take you to the application form.",
-                    });
-                    navigate('/enroll');
-                  }}
+                  onClick={() => handleEnrollClick(course)}
                 >
                   <span className="button-text">Apply Now</span>
                   <svg className="button-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
