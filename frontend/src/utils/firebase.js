@@ -2,7 +2,15 @@
 // Ensure you set the env vars in your .env (see .env.example)
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore, serverTimestamp, addDoc, collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  setPersistence,
+  browserSessionPersistence
+} from 'firebase/auth';
 
 const config = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -61,9 +69,30 @@ export async function fetchRecentSubmissions({ take = 50 } = {}) {
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-// Auth helpers
+// Auth helpers with 15-minute session timeout
+let sessionTimer;
+const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
+
 export async function signInWithEmail(email, password) {
-  return signInWithEmailAndPassword(auth, email, password);
+  // Set session persistence to SESSION
+  await setPersistence(auth, browserSessionPersistence);
+  
+  const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  
+  // Reset any existing timer
+  if (sessionTimer) {
+    clearTimeout(sessionTimer);
+  }
+  
+  // Set up the session timeout
+  sessionTimer = setTimeout(() => {
+    signOut(auth).then(() => {
+      // Redirect to login page on timeout
+      window.location.href = '/login';
+    });
+  }, SESSION_TIMEOUT);
+  
+  return userCredential.user;
 }
 
 export async function signUpWithEmail(email, password) {
@@ -71,6 +100,9 @@ export async function signUpWithEmail(email, password) {
 }
 
 export async function signOutUser() {
+  if (sessionTimer) {
+    clearTimeout(sessionTimer);
+  }
   return signOut(auth);
 }
 
