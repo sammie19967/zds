@@ -3,7 +3,7 @@ import modal from "../utils/modal";
 
 import "../styles/DrivingCatalog.css";
 
-import proboxImage from "../assets/vehicles/probox.jpg";
+import proboxImage from "../assets/vehicles/probox front.jpg";
 import vitzImage from "../assets/vehicles/vitz.jpg";
 import motorbikeImage from "../assets/vehicles/motorbike.jpg";
 import lorryImage from "../assets/vehicles/lorry.png";
@@ -11,12 +11,12 @@ import vanImage from "../assets/vehicles/van.jpg";
 import busImage from "../assets/vehicles/bus.png";
 
 const vehicles = [
-  { id: 1, name: "Probox", class: "B light", cost: "Ksh.15,000", image: proboxImage, requirement: "ID", bgColor: "#f7c6c7" },
-  { id: 2, name: "Vitz", class: "B2 Automatic", cost: "Ksh.15,000", image: vitzImage, requirement: "ID", bgColor: "#ffd59e" },
-  { id: 3, name: "Motorbike", class: "A1 A2", cost: "Ksh.7,000", image: motorbikeImage, requirement: "ID", bgColor: "#d4f0f0" },
+  { id: 1, name: "Probox", class: "Class B light Manual", cost: "Ksh.15,000", image: proboxImage, requirement: "ID", bgColor: "#f7c6c7" },
+  { id: 2, name: "Vitz", class: "Class B2 Automatic", cost: "Ksh.15,000", image: vitzImage, requirement: "ID", bgColor: "#ffd59e" },
+  { id: 3, name: "Motorbike", class: "Class A1 A2", cost: "Ksh.7,000", image: motorbikeImage, requirement: "ID", bgColor: "#d4f0f0" },
   { id: 4, name: "Light Truck", class: "Class C1", cost: "Ksh.9,000", image: lorryImage, requirement: "ID and DL", bgColor: "#c8e6c9" },
-  { id: 5, name: "PSV", class: "D1", cost: "Ksh.9,000", image: vanImage, requirement: "ID and DL", bgColor: "#ffecb3" },
-  { id: 6, name: "Bus", class: "D2", cost: "Coming Soon", image: busImage, requirement: "ID and DL", bgColor: "#c5cae9" },
+  { id: 5, name: "PSV", class: "Class D1", cost: "Ksh.9,000", image: vanImage, requirement: "ID and DL", bgColor: "#ffecb3" },
+  { id: 6, name: "Bus", class: "Class D2", cost: "Coming Soon", image: busImage, requirement: "ID and DL", bgColor: "#c5cae9" },
 ];
 
 const Catalogue = () => {
@@ -55,13 +55,13 @@ const Catalogue = () => {
                 <div className="card-content">
                   <h3 className="vehicle-name">{vehicle.name}</h3>
                   <div className="vehicle-details">
-                    <div className="detail-item">
-                      <span className="detail-icon">💰</span>
-                      <span className="cost">{vehicle.cost}</span>
+                    <div className="detail-row">
+                      <span className="detail-label">Course Fee:</span>
+                      <span className="detail-value cost">{vehicle.cost}</span>
                     </div>
-                    <div className="detail-item">
-                      <span className="detail-icon">📋</span>
-                      <span className="requirement">{vehicle.requirement}</span>
+                    <div className="detail-row">
+                      <span className="detail-label">Requirements:</span>
+                      <span className="detail-value requirement">{vehicle.requirement}</span>
                     </div>
                   </div>
                 </div>
@@ -69,7 +69,7 @@ const Catalogue = () => {
               <div className="card-back">
                 <div className="back-content">
                   <h3>Ready to Drive?</h3>
-                  <p>Join our professional {vehicle.name} driving course</p>
+                  <p>Join our professional {vehicle.class} driving course</p>
                   <button className="apply-now-btn" onClick={handleClick}>
                     Apply Now
                     <span className="btn-arrow">→</span>
