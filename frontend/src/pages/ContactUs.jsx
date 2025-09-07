@@ -83,7 +83,7 @@ const ContactUs = () => {
       <div className="contact-hero">
         <div className="hero-content">
           <h1>Get In Touch With Us</h1>
-          <p>Have questions or need assistance? We&apos;re here to help! Reach out through any channel and we'll respond promptly.</p>
+          <p>Have questions or need assistance? We&apos;re here to help! Reach out through any channel and we&apos;ll respond promptly.</p>
           <div className="hero-cta">
             <div className="cta-item">
               <div className="cta-icon">
@@ -238,7 +238,7 @@ const ContactUs = () => {
                 <div className="method-details">
                   <h3>Phone</h3>
                   <p><a href="tel:+254715820508">+254 115 820 508</a></p>
-                  <p><a href="tel:+254715820509">+254 115 820 509</a></p>
+                  <p><a href="tel:+254726210068">+254 726 210 068</a></p>
                 </div>
               </div>
 
@@ -248,7 +248,7 @@ const ContactUs = () => {
                 </div>
                 <div className="method-details">
                   <h3>WhatsApp</h3>
-                  <p><a href="https://wa.me/254715820508" target="_blank" rel="noopener noreferrer">Chat with us on WhatsApp</a></p>
+                  <p><a href="https://wa.me/254115820508" target="_blank" rel="noopener noreferrer">Chat with us on WhatsApp</a></p>
                 </div>
               </div>
 
