@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import '../styles/Carousel.css';
 
 import drivingCourseImage from '../assets/probox front.jpg';
-import computerCourseImage from '../assets/computer-course.png';
+import computerCourseImage from '../assets/driving-course.png';
 import industryCertifiedImage from '../assets/industry.jpg';
 
 const Carousel = () => {

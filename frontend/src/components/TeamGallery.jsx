@@ -1,6 +1,19 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { Users, Camera, Mail, Phone, MapPin, Award, Calendar } from 'lucide-react';
 import '../styles/TeamGallery.css';
+import sharonImage from '../assets/team/sharon.jpg';
+import rotokImage from '../assets/rotok project.jpg';
+import zaneImage from '../assets/zane community.jpg';
+import zaneStudentsImage from '../assets/zane students.jpg';
+import basicMechanicsImage from '../assets/basic mechanics.jpg';
+import zaneComputerImage from '../assets/zane computer.jpg';
+import project2Image from '../assets/project 2.jpg';
+import zaneGearsImage from '../assets/zane gears.jpg';
+import zaneHonWalterTenoImage from '../assets/zane hon walter teno.jpg';
+import zaneClassImage from '../assets/zane class.jpg';
+import zaneShirtImage from '../assets/zane shirt.jpg';
+import zaneTshirtBlueImage from '../assets/zane tshirt blue.jpg';
+
 
 const TeamGalleryComponent = () => {
   const [activeTab, setActiveTab] = useState('team');
@@ -8,30 +21,30 @@ const TeamGalleryComponent = () => {
   const teamMembers = [
     {
       id: 1,
-      name: "Dr. Sarah Johnson",
+      name: "Ms. Sharon Retet",
       role: "Principal",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop&crop=face",
+      image: sharonImage,
       email: "sarah.johnson@school.edu",
       phone: "+1 (555) 123-4567",
-      experience: "15 years",
-      education: "PhD in Educational Leadership",
+      experience: "5 years",
+      education: "PhD Commerce",
       description: "Passionate about creating an inclusive learning environment that fosters academic excellence and personal growth."
     },
     {
       id: 2,
-      name: "Michael Chen",
-      role: "HR Manager",
+      name: "Mr. Daniel Pamba",
+      role: "Senior Instructor",
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face",
       email: "michael.chen@school.edu",
       phone: "+1 (555) 123-4568",
-      experience: "8 years",
+      experience: "18 years",
       education: "MBA in Human Resources",
       description: "Dedicated to building strong teams and maintaining a positive workplace culture for all staff members."
     },
     {
       id: 3,
-      name: "Emily Rodriguez",
-      role: "Accountant",
+      name: "Felix Ombogo",
+      role: "Instructor",
       image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop&crop=face",
       email: "emily.rodriguez@school.edu",
       phone: "+1 (555) 123-4569",
@@ -41,18 +54,18 @@ const TeamGalleryComponent = () => {
     },
     {
       id: 4,
-      name: "David Kim",
+      name: "Sammie Barasa",
       role: "IT Specialist",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
       email: "david.kim@school.edu",
       phone: "+1 (555) 123-4570",
-      experience: "6 years",
+      experience: "3 years",
       education: "MS in Computer Science",
       description: "Maintains and develops technology infrastructure to enhance learning experiences and administrative efficiency."
     },
     {
       id: 5,
-      name: "Prof. Maria Santos",
+      name: "John Mwenda",
       role: "Senior Instructor",
       image: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=300&h=300&fit=crop&crop=face",
       email: "maria.santos@school.edu",
@@ -63,7 +76,7 @@ const TeamGalleryComponent = () => {
     },
     {
       id: 6,
-      name: "James Wilson",
+      name: "Justus Ontuoma",
       role: "Instructor",
       image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop&crop=face",
       email: "james.wilson@school.edu",
@@ -77,43 +90,58 @@ const TeamGalleryComponent = () => {
   const galleryImages = [
     {
       id: 1,
-      url: "https://images.unsplash.com/photo-1523050854058-8df90110c9d1?w=500&h=400&fit=crop",
-      caption: "Modern Classroom Environment"
+      url: rotokImage,
+      caption: "MCA Hon. Kiptisya Rotok, Rongai ward, Nakuru"
     },
     {
       id: 2,
-      url: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=500&h=400&fit=crop",
-      caption: "Science Laboratory"
+      url: zaneImage,
+      caption: "Boda Boda Community OlRongai"
     },
     {
       id: 3,
-      url: "https://images.unsplash.com/photo-1497486751825-1233686d5d80?w=500&h=400&fit=crop",
-      caption: "Library & Study Area"
+      url: zaneStudentsImage,
+      caption: "Students"
     },
     {
       id: 4,
-      url: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=500&h=400&fit=crop",
-      caption: "Graduation Ceremony"
+      url: basicMechanicsImage,
+      caption: "Basic Mechanics"
     },
     {
       id: 5,
-      url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=400&fit=crop",
+      url: zaneComputerImage,
       caption: "Computer Lab"
     },
     {
       id: 6,
-      url: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=500&h=400&fit=crop",
-      caption: "Team Collaboration"
+      url: project2Image,
+      caption: "Project 2"
     },
     {
       id: 7,
-      url: "https://images.unsplash.com/photo-1581726707445-75cbe4efc586?w=500&h=400&fit=crop",
-      caption: "Sports Facilities"
+      url: zaneGearsImage,
+      caption: "Gears OverView"
     },
     {
       id: 8,
-      url: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=500&h=400&fit=crop",
-      caption: "Campus Garden"
+      url: zaneHonWalterTenoImage,
+      caption: "Hon. Walter Teno, Nandi County"
+    },
+    {
+      id: 9,
+      url: zaneClassImage,
+      caption: "Mr. Daniel Pamba Teaching Model Town Board"
+    },
+    {
+      id: 10,
+      url: zaneShirtImage,
+      caption: "Zane driving school Shirt"
+    },
+    {
+      id: 11,
+      url: zaneTshirtBlueImage,
+      caption: "Blue T-shirt"
     }
   ];
 
