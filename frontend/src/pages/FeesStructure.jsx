@@ -29,7 +29,7 @@ const FeesStructure = () => {
   const currentYear = currentDate.getFullYear();
 
   const feesData = [
-    { type: "New Student", class: "A1/A2", duration: "4 weeks", fees: "15,000", description: "Motorbike/Tuktuk" },
+    { type: "New Student", class: "A1/A2", duration: "4 weeks", fees: "7,000", description: "Motorbike/Tuktuk" },
     { type: "Endorsement", class: "A1/A2", duration: "4 weeks", fees: "5,000", description: "" },
     { type: "New Student", class: "B1/B2", duration: "4 weeks", fees: "15,000", description: "Saloon Car" },
     { type: "Endorsement", class: "B1/B2", duration: "4 weeks", fees: "9,000", description: "" },
@@ -89,7 +89,7 @@ const FeesStructure = () => {
       const pdfMakeInstance = await loadPdfMake();
       
       // Convert image to base64 for the PDF
-      const response = await fetch('/src/assets/logo.png');
+      const response = await fetch('/logo.png');
       const blob = await response.blob();
       const reader = new FileReader();
       const logoPromise = new Promise((resolve) => {
@@ -191,6 +191,7 @@ const FeesStructure = () => {
         { text: "Email: zanedrivingschool2022@gmail.com" },
         { text: "Main Office: Mercy Njeri along Kabarak Road, Nakuru, Kenya", margin: [0, 0, 0, 20] },
         { text: "Branch Office: Kericho", margin: [0, 0, 0, 20] },
+        { text: "Website: zanedrivingschool.co.ke", margin: [0, 0, 0, 20] },
 
         { text: "Thank you for choosing Zane Driving School", style: "footer" },
       ],
