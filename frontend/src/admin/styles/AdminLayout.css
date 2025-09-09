@@ -1,0 +1,52 @@
+.admin-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  margin: 0;
+  padding: 0;
+}
+
+/* Reset any default body margin/padding */
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.admin-content {
+  flex: 1;
+  padding: 2rem;
+  margin: 0 0 0 250px; /* Only left margin for sidebar */
+  transition: all 0.3s ease;
+  width: calc(100% - 250px); /* Full width minus sidebar */
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .admin-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 1rem;
+  }
+  
+  .admin-container.collapsed .admin-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* Ensure the sidebar doesn't cause horizontal scroll */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Fix for mobile viewport height */
+@supports (-webkit-touch-callout: none) {
+  .admin-container,
+  .admin-content {
+    min-height: -webkit-fill-available;
+  }
+}

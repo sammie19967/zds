@@ -1,0 +1,145 @@
+/* Sidebar Container */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 16rem;
+  background-color: #1f2937;
+  color: white;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+/* Header Section */
+.header {
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid #374151;
+}
+
+.header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+}
+
+.header p {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Navigation */
+.nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 0;
+}
+
+.nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navItem {
+  margin-bottom: 0.25rem;
+  transition: transform 0.2s ease;
+}
+
+.navItem:hover {
+  transform: translateX(4px);
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: #d1d5db;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.navLink:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-left-color: #3b82f6;
+}
+
+.navLink.active {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: white;
+  border-left-color: #3b82f6;
+}
+
+.icon {
+  margin-right: 0.75rem;
+  font-size: 1.1rem;
+}
+
+/* Footer Section */
+.footer {
+  padding: 1rem;
+  border-top: 1px solid #374151;
+  background-color: #1a2230;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: #4b5563;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+.username {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0 0 0.125rem 0;
+}
+
+.role {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Scrollbar Styling */
+.nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.nav::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.nav::-webkit-scrollbar-thumb {
+  background-color: #4b5563;
+  border-radius: 3px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}

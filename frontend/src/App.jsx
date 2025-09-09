@@ -1,52 +1,124 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
 import OurTeam from './pages/OurTeam';
 import Courses from './pages/Courses';
-import NotFound from './pages/NotFound';
-import Navbar from './components/navbar';
 import Enroll from './pages/Enroll';
-import Footer from './components/Footer';
 import ComputingCatalog from './pages/ComputingCatalog';
 import DrivingCatalog from './pages/DrivingCatalog';
 import AdmissionForm from './components/AdmissionForm';
-import WhatsAppIcon from './components/WhatsappIcon';
+import WhatsAppIcon from './components/WhatsAppIcon';
 import FeesStructure from './pages/FeesStructure';
 import AdminDashboard from './admin/AdminDashboard';
+import AdminLayout from './admin/components/AdminLayout';
 import Login from './admin/Login';
 import Signup from './admin/Signup';
 import RequireAuth from './admin/RequireAuth';
 import ScrollToTop from './components/ScrollToTop';
+import NotFound from './pages/NotFound';
 
+const MainApp = () => (
+  <>
+    <Navbar/>
+    <WhatsAppIcon/>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/about-us" element={<AboutUs />} />
+      <Route path="/contact-us" element={<ContactUs />} />
+      <Route path="/our-team" element={<OurTeam />} />
+      <Route path="/courses" element={<Courses />} />
+      <Route path="/enroll" element={<Enroll />} />
+      <Route path="/computing" element={<ComputingCatalog />} />
+      <Route path="/driving" element={<DrivingCatalog />} />
+      <Route path="/admission-form" element={<AdmissionForm />} />
+      <Route path="/feesStructure" element={<FeesStructure />} />
+      <Route path="/admin/login" element={<Login />} />
+      <Route path="/admin/signup" element={<Signup />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+    <Footer />
+  </>
+);
+
+// Wrapper component for protected admin routes
+const ProtectedAdminRoute = ({ children }) => (
+  <RequireAuth>
+    <AdminLayout>
+      {children}
+    </AdminLayout>
+  </RequireAuth>
+);
+
+// Add prop validation
+ProtectedAdminRoute.propTypes = {
+  children: PropTypes.node.isRequired
+};
+
+const AdminApp = () => (
+  <Routes>
+    <Route path="/admin/dashboard" element={
+      <ProtectedAdminRoute>
+        <AdminDashboard />
+      </ProtectedAdminRoute>
+    } />
+    <Route path="/admin/register" element={
+      <ProtectedAdminRoute>
+        <div>Student Registration Form</div>
+      </ProtectedAdminRoute>
+    } />
+    <Route path="/admin/students" element={
+      <ProtectedAdminRoute>
+        <div>Students List</div>
+      </ProtectedAdminRoute>
+    } />
+    <Route path="/admin/fees" element={
+      <ProtectedAdminRoute>
+        <div>Fees Tracking</div>
+      </ProtectedAdminRoute>
+    } />
+    <Route path="/admin/fuel" element={
+      <ProtectedAdminRoute>
+        <div>Fuel Tracking</div>
+      </ProtectedAdminRoute>
+    } />
+    <Route path="/admin/enquiries" element={
+      <ProtectedAdminRoute>
+        <div>Enquiries Management</div>
+      </ProtectedAdminRoute>
+    } />
+    {/* Catch-all route for admin paths that don't match any route */}
+    <Route path="/admin/*" element={<NotFound />} />
+  </Routes>
+);
+
+const AppContent = () => {
+  const location = useLocation();
+  console.log('Current path:', location.pathname);
+  
+  // Check if we're on an admin route
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  
+  // If we're on the root admin path, redirect to /admin/dashboard
+  if (location.pathname === '/admin') {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
+  return (
+    <>
+      <ScrollToTop/>
+      {isAdminRoute ? <AdminApp /> : <MainApp />}
+    </>
+  );
+};
 
 const App = () => {
   return (
     <Router>
-
-      <ScrollToTop/>
-      <Navbar/>
-      <WhatsAppIcon/>
-      <Routes>
-        {/* Main routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/about-us" element={<AboutUs />} />
-        <Route path="/contact-us" element={<ContactUs />} />
-        <Route path="/our-team" element={<OurTeam />} />
-        <Route path="/courses" element={<Courses />} />
-        <Route path="/enroll" element={<Enroll />} />
-        <Route path="/computing" element={<ComputingCatalog />} />
-        <Route path="/driving" element={<DrivingCatalog />} />
-        <Route path="/admission-form" element={<AdmissionForm />} />
-        <Route path="/feesStructure" element={<FeesStructure />} />
-        <Route path="/admin" element={<RequireAuth><AdminDashboard /></RequireAuth>} />
-        <Route path="/admin/login" element={<Login />} />
-        <Route path="/admin/signup" element={<Signup />} />
-        
-        {/* Catch-all route for undefined paths */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <Footer />
+      <AppContent />
     </Router>
   );
 };
