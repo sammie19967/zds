@@ -10,6 +10,8 @@ import { motion } from 'framer-motion';
 const AdminAdmissionForm = () => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [passportPreview, setPassportPreview] = useState(null);
+  const [dragActive, setDragActive] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -31,15 +33,69 @@ const AdminAdmissionForm = () => {
   };
   const prevStep = () => setStep((s) => s - 1);
 
+  const validateAndSetPassport = (file) => {
+    if (!file) {
+      setFormData((prev) => ({ ...prev, passportFile: null }));
+      setErrors((prev) => ({ ...prev, passportFile: 'Passport photo is required' }));
+      return;
+    }
+    const isImage = file.type && file.type.startsWith('image/');
+    const isSmallEnough = file.size <= 2 * 1024 * 1024; // 2MB
+    if (!isImage) {
+      setErrors((prev) => ({ ...prev, passportFile: 'Please upload an image file (JPEG/PNG).' }));
+      setFormData((prev) => ({ ...prev, passportFile: null }));
+      return;
+    }
+    if (!isSmallEnough) {
+      setErrors((prev) => ({ ...prev, passportFile: 'Image too large (max 2MB).' }));
+      setFormData((prev) => ({ ...prev, passportFile: null }));
+      return;
+    }
+    if (passportPreview) {
+      URL.revokeObjectURL(passportPreview);
+      setPassportPreview(null);
+    }
+    const url = URL.createObjectURL(file);
+    setPassportPreview(url);
+    setFormData((prev) => ({ ...prev, passportFile: file }));
+    setErrors((prev) => ({ ...prev, passportFile: '' }));
+  };
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'passportFile') {
       const file = files && files[0] ? files[0] : null;
-      setFormData((prev) => ({ ...prev, passportFile: file }));
+      validateAndSetPassport(file);
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
+      if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
     }
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+  };
+
+  const onDragOver = (e) => {
+    e.preventDefault();
+    setDragActive(true);
+  };
+
+  const onDragLeave = (e) => {
+    e.preventDefault();
+    setDragActive(false);
+  };
+
+  const onDrop = (e) => {
+    e.preventDefault();
+    setDragActive(false);
+    const file = e.dataTransfer.files && e.dataTransfer.files[0] ? e.dataTransfer.files[0] : null;
+    validateAndSetPassport(file);
+  };
+
+  const removePassport = () => {
+    if (passportPreview) {
+      URL.revokeObjectURL(passportPreview);
+      setPassportPreview(null);
+    }
+    setFormData((prev) => ({ ...prev, passportFile: null }));
+    setErrors((prev) => ({ ...prev, passportFile: '' }));
   };
 
   const validateStep = (current) => {
@@ -50,6 +106,7 @@ const AdminAdmissionForm = () => {
       if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
       if (!formData.nationalIdOrPassport) newErrors.nationalIdOrPassport = 'ID/Passport is required';
       if (!formData.nationality) newErrors.nationality = 'Nationality is required';
+      if (!formData.passportFile) newErrors.passportFile = 'Passport photo is required';
     }
     if (current === 2) {
       if (!formData.course) newErrors.course = 'Course selection is required';
@@ -75,6 +132,38 @@ const AdminAdmissionForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const cropImageToSquare = (file) => new Promise((resolve, reject) => {
+    try {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const side = Math.min(img.width, img.height);
+        const sx = (img.width - side) / 2;
+        const sy = (img.height - side) / 2;
+        const canvas = document.createElement('canvas');
+        canvas.width = side;
+        canvas.height = side;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, side, side);
+        canvas.toBlob((blob) => {
+          URL.revokeObjectURL(url);
+          if (!blob) {
+            reject(new Error('Failed to crop image'));
+            return;
+          }
+          const ext = file.type === 'image/png' ? 'png' : 'jpg';
+          const mime = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+          const cropped = new File([blob], `passport_square.${ext}`, { type: mime });
+          resolve(cropped);
+        }, file.type === 'image/png' ? 'image/png' : 'image/jpeg', 0.92);
+      };
+      img.onerror = reject;
+      img.src = url;
+    } catch (e) {
+      reject(e);
+    }
+  });
+
   const validateAll = () => {
     if (!validateStep(1)) { setStep(1); return false; }
     if (!validateStep(2)) { setStep(2); return false; }
@@ -88,14 +177,25 @@ const AdminAdmissionForm = () => {
     try {
       let passportUrl = '';
       if (formData.passportFile) {
-        passportUrl = await uploadAdminPassportToCloudinary(formData.passportFile);
+        const cropped = await cropImageToSquare(formData.passportFile);
+        passportUrl = await uploadAdminPassportToCloudinary(cropped);
       }
-      await submitAdminAdmission({
-        ...formData,
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         dateOfBirth: formData.dateOfBirth,
-        passportUrl,
+        nationalIdOrPassport: formData.nationalIdOrPassport,
+        nationality: formData.nationality,
+        course: formData.course,
+        drivingType: formData.drivingType,
+        endorsementClass: formData.endorsementClass,
+        computingLevel: formData.computingLevel,
         amountPaid: Number(formData.amountPaid),
-      });
+        confirmationCode: formData.confirmationCode,
+        passportUrl,
+      };
+
+      await submitAdminAdmission(payload);
       await modal.success({
         title: 'Student registered!',
         text: 'The admission has been recorded successfully.',
@@ -114,6 +214,10 @@ const AdminAdmissionForm = () => {
         confirmationCode: '',
         passportFile: null,
       });
+      if (passportPreview) {
+        URL.revokeObjectURL(passportPreview);
+        setPassportPreview(null);
+      }
       setErrors({});
       setStep(1);
     } catch (err) {
@@ -221,8 +325,36 @@ const AdminAdmissionForm = () => {
               {errors.nationalIdOrPassport && <span className="error-text">{errors.nationalIdOrPassport}</span>}
             </div>
             <div className="form-group">
-              <label htmlFor="passportFile">Passport Photo (JPEG/PNG)</label>
-              <input id="passportFile" type="file" name="passportFile" accept="image/*" onChange={handleChange} />
+              <label htmlFor="passportFile">Passport Photo (JPEG/PNG, max 2MB) *</label>
+              <div
+                onDragOver={onDragOver}
+                onDragLeave={onDragLeave}
+                onDrop={onDrop}
+                style={{
+                  border: `2px dashed ${dragActive ? '#2563eb' : '#e5e7eb'}`,
+                  background: dragActive ? 'rgba(37,99,235,0.03)' : '#fff',
+                  borderRadius: 8,
+                  padding: 16,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 8,
+                  alignItems: 'flex-start',
+                }}
+              >
+                <input id="passportFile" type="file" name="passportFile" accept="image/*" onChange={handleChange} style={{ display: 'none' }} />
+                <label htmlFor="passportFile" style={{ cursor: 'pointer', color: '#2563eb', fontWeight: 600 }}>
+                  Click to choose a file or drag & drop here
+                </label>
+                {errors.passportFile && <span className="error-text">{errors.passportFile}</span>}
+                {passportPreview && (
+                  <div className="image-preview" style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <img src={passportPreview} alt="Passport preview" style={{ width: 96, height: 96, objectFit: 'cover', borderRadius: 8, border: '1px solid #e5e7eb' }} />
+                    <button type="button" className="multi-button" onClick={removePassport} style={{ padding: '6px 10px' }}>
+                      Remove
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

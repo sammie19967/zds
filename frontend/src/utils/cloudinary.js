@@ -1,24 +1,35 @@
-// Cloudinary unsigned upload helper
-// Requires the following env vars in your Vite project (.env):
-// - VITE_CLOUDINARY_CLOUD_NAME
-// - VITE_CLOUDINARY_UPLOAD_PRESET (unsigned preset)
+// Cloudinary signed upload helper
+// Requires serverless function at /api/cloudinary-signature (or VITE_CLOUDINARY_SIGNING_URL) to generate signature
+// Server env (Vercel Project Settings): CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
 
 export async function uploadAdminPassportToCloudinary(file) {
   if (!file) return '';
 
-  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+  const signingUrl = import.meta.env.VITE_CLOUDINARY_SIGNING_URL || '/api/cloudinary-signature';
 
-  if (!cloudName || !uploadPreset) {
-    throw new Error('Cloudinary env missing: please set VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET');
+  // 1) Ask our serverless function for a signature and upload params
+  const sigRes = await fetch(signingUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ folder: 'admin_admissions' }),
+    credentials: 'include',
+  });
+
+  if (!sigRes.ok) {
+    const text = await sigRes.text();
+    throw new Error(`Failed to get Cloudinary signature: ${sigRes.status} ${text}`);
   }
 
+  const { signature, timestamp, apiKey, folder, cloudName } = await sigRes.json();
+
+  // 2) Upload to Cloudinary with the signed params
   const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
   const form = new FormData();
   form.append('file', file);
-  form.append('upload_preset', uploadPreset);
-  // Optional: folder to organize uploads
-  form.append('folder', 'admin_admissions');
+  form.append('api_key', apiKey);
+  form.append('timestamp', timestamp);
+  form.append('signature', signature);
+  form.append('folder', folder);
 
   const res = await fetch(url, {
     method: 'POST',
