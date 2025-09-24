@@ -21,7 +21,7 @@ function AdminDashboard() {
         <div className="quick-stats">
           <div className="stat-card">
             <h3>Quick Stats</h3>
-            <p>Manage your school's data and settings from this dashboard.</p>
+            <p>Manage your school&apos;s data and settings from this dashboard.</p>
           </div>
         </div>
       </div>

@@ -23,8 +23,8 @@ import NotFound from './pages/NotFound';
 
 const MainApp = () => (
   <>
-    <Navbar/>
-    <WhatsAppIcon/>
+    <Navbar />
+    <WhatsAppIcon />
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/about-us" element={<AboutUs />} />
@@ -44,7 +44,6 @@ const MainApp = () => (
   </>
 );
 
-// Wrapper component for protected admin routes
 const ProtectedAdminRoute = ({ children }) => (
   <RequireAuth>
     <AdminLayout>
@@ -53,7 +52,6 @@ const ProtectedAdminRoute = ({ children }) => (
   </RequireAuth>
 );
 
-// Add prop validation
 ProtectedAdminRoute.propTypes = {
   children: PropTypes.node.isRequired
 };
@@ -90,37 +88,35 @@ const AdminApp = () => (
         <div>Enquiries Management</div>
       </ProtectedAdminRoute>
     } />
-    {/* Catch-all route for admin paths that don't match any route */}
-    <Route path="/admin/*" element={<NotFound />} />
+    {/* Optional: Catch-all for unmatched admin routes */}
+    {/* <Route path="/admin/*" element={<NotFound />} /> */}
   </Routes>
 );
 
 const AppContent = () => {
   const location = useLocation();
   console.log('Current path:', location.pathname);
-  
-  // Check if we're on an admin route
-  const isAdminRoute = location.pathname.startsWith('/admin');
-  
-  // If we're on the root admin path, redirect to /admin/dashboard
+
+  // Refined admin route check
+  const isAdminRoute = location.pathname.startsWith('/admin') &&
+    !['/admin/login', '/admin/signup'].includes(location.pathname);
+
   if (location.pathname === '/admin') {
     return <Navigate to="/admin/dashboard" replace />;
   }
 
   return (
     <>
-      <ScrollToTop/>
+      <ScrollToTop />
       {isAdminRoute ? <AdminApp /> : <MainApp />}
     </>
   );
 };
 
-const App = () => {
-  return (
-    <Router>
-      <AppContent />
-    </Router>
-  );
-};
+const App = () => (
+  <Router>
+    <AppContent />
+  </Router>
+);
 
 export default App;
