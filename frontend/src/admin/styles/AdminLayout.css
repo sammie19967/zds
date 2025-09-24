@@ -23,6 +23,12 @@ body {
   overflow-y: auto;
 }
 
+/* When sidebar is collapsed, shrink the left margin/width */
+.admin-sidebar.collapsed ~ .admin-content {
+  margin-left: 72px;
+  width: calc(100% - 72px);
+}
+
 /* Responsive adjustments */
 @media (max-width: 992px) {
   .admin-content {

@@ -11,24 +11,99 @@
   left: 0;
   top: 0;
   z-index: 1000;
+  transition: width 0.25s ease;
+}
+
+.admin-sidebar.collapsed {
+  width: 72px;
 }
 
 /* Sidebar Header */
 .sidebar-header {
-  padding: 20px;
+  padding: 12px 12px;
   border-bottom: 1px solid #334155;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
-.sidebar-header h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
+.brand {
+  display: flex;
+  flex-direction: column; /* Stack logo above text */
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1; /* Take available space so the toggle doesn’t crowd the logo */
 }
 
-.sidebar-header p {
-  margin: 4px 0 0;
-  font-size: 0.8rem;
-  color: #94a3b8;
+.brand-text {
+  text-align: center; /* Center the title/subtitle under the logo */
+}
+
+.sidebar-logo {
+  width: 56px; /* Larger logo */
+  height: 56px;
+  object-fit: contain;
+  background: #ffffff; /* White background behind the logo */
+  border-radius: 12px; /* Rounded borders */
+  padding: 6px; /* Spacing so the background shows around the image */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Subtle elevation on dark bg */
+}
+
+/* In collapsed mode, keep the logo visually centered within header space
+   and place the toggle below it so the logo has its own area */
+.admin-sidebar.collapsed .sidebar-header {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 8px;
+}
+
+.admin-sidebar.collapsed .brand {
+  justify-content: center;
+  width: 100%;
+}
+
+.admin-sidebar.collapsed .sidebar-logo {
+  width: 64px; /* Even larger in collapsed for visibility */
+  height: 64px;
+  background: #ffffff; /* White background behind the logo */
+  border-radius: 12px; /* Rounded borders */
+  padding: 6px; /* Spacing so the background shows around the image */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Subtle elevation on dark bg */
+}
+
+.toggle-btn {
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0; /* Prevent the toggle from shrinking the brand/logo */
+}
+
+.admin-sidebar.collapsed .toggle-btn {
+  width: 36px;
+  height: 36px;
+}
+
+.toggle-btn:hover {
+  background: #334155;
+  color: #fff;
+}
+
+/* Hide brand text explicitly when collapsed (fallback, already wrapped in .brand-text) */
+.admin-sidebar.collapsed .sidebar-header h2,
+.admin-sidebar.collapsed .sidebar-header p,
+.admin-sidebar.collapsed .brand-text {
+  display: none;
 }
 
 /* Navigation */
@@ -73,6 +148,18 @@
 
 .nav-text {
   font-size: 0.9rem;
+}
+
+/* Hide navigation labels when collapsed (already present) and center icon */
+.admin-sidebar.collapsed .nav-text {
+  display: none;
+}
+.admin-sidebar.collapsed .nav-link {
+  justify-content: center;
+}
+
+.admin-sidebar.collapsed .nav-icon {
+  margin-right: 0;
 }
 
 /* Sidebar Footer */
@@ -164,6 +251,26 @@
 
 .logout-btn svg {
   margin-right: 8px;
+}
+
+/* Hide user detail text and logout label when collapsed (already present) */
+.admin-sidebar.collapsed .user-info,
+.admin-sidebar.collapsed .logout-btn span {
+  display: none;
+}
+
+/* Keep logout icon centered */
+.admin-sidebar.collapsed .logout-btn {
+  width: 48px;
+  padding: 8px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-sidebar.collapsed .logout-btn svg {
+  margin-right: 0;
 }
 
 /* Scrollbar */

@@ -7,7 +7,9 @@ import {
   FaGasPump,
   FaSignOutAlt,
   FaUserCircle,
-  FaEnvelope
+  FaEnvelope,
+  FaChevronLeft,
+  FaChevronRight
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { signOutUser } from '../../utils/firebase';
@@ -20,6 +22,7 @@ const Sidebar = () => {
   const [displayName, setDisplayName] = useState('Admin User');
   const [email, setEmail] = useState('');
   const navigate = useNavigate();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const formatDisplayName = (name) => {
     if (!name) return 'ADMIN USER';
@@ -48,10 +51,11 @@ const Sidebar = () => {
       console.error('Logout error:', error);
     }
   };
+  const toggleCollapse = () => setIsCollapsed((v) => !v);
   const menuItems = [
     { 
       name: 'Dashboard', 
-      path: '/admin', 
+      path: '/admin/dashboard', 
       icon: <FaTachometerAlt />
     },
     { 
@@ -83,12 +87,24 @@ const Sidebar = () => {
 
 
   return (
-    <div className="admin-sidebar">
+    <div className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-header">
-        <h2>Zane Driving</h2>
-        <p>Admin Panel</p>
+        <div className="brand">
+          <img src="/logo.png" alt="Zane Driving" className="sidebar-logo" />
+          <div className="brand-text">
+            <h2>Zane Driving</h2>
+            <p>Admin Panel</p>
+          </div>
+        </div>
+        <button
+          className="toggle-btn"
+          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          onClick={toggleCollapse}
+        >
+          {isCollapsed ? <FaChevronRight /> : <FaChevronLeft />}
+        </button>
       </div>
-      
+       
       <nav className="sidebar-nav">
         <ul>
           {menuItems.map((item) => (
@@ -99,6 +115,7 @@ const Sidebar = () => {
                 className={({ isActive }) => 
                   `nav-link ${isActive ? 'active' : ''}`
                 }
+                title={isCollapsed ? item.name : undefined}
               >
                 <span className="nav-icon">{item.icon}</span>
                 <span className="nav-text">{item.name}</span>
@@ -107,7 +124,7 @@ const Sidebar = () => {
           ))}
         </ul>
       </nav>
-      
+       
       <div className="sidebar-footer">
         <div className="user-profile">
           <div className="user-avatar">
@@ -130,7 +147,7 @@ const Sidebar = () => {
             </p>
           </div>
         </div>
-        <button className="logout-btn" onClick={handleLogout}>
+        <button className="logout-btn" onClick={handleLogout} title={isCollapsed ? 'Sign Out' : undefined}>
           <FaSignOutAlt />
           <span>Sign Out</span>
         </button>

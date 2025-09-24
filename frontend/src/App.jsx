@@ -13,7 +13,7 @@ import DrivingCatalog from './pages/DrivingCatalog';
 import AdmissionForm from './components/AdmissionForm';
 import WhatsAppIcon from './components/WhatsAppIcon';
 import FeesStructure from './pages/FeesStructure';
-import AdminDashboard from './admin/AdminDashboard';
+import AdminDashboard from './admin/components/AdminDashboard';
 import AdminLayout from './admin/components/AdminLayout';
 import Login from './admin/Login';
 import Signup from './admin/Signup';
