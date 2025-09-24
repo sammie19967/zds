@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import modal from '../../utils/modal';
-import { submitAdminAdmission, uploadAdminAdmissionPhoto } from '../../utils/firebase';
+import { submitAdminAdmission } from '../../utils/firebase';
+import { uploadAdminPassportToCloudinary } from '../../utils/cloudinary';
 
 import '../../styles/AdmissionForm.css';
 import logo from '../../assets/logo.png';
@@ -20,6 +21,7 @@ const AdminAdmissionForm = () => {
     endorsementClass: '',
     computingLevel: '', // Beginner | Intermediate
     amountPaid: '',
+    confirmationCode: '',
     passportFile: null,
   });
   const [errors, setErrors] = useState({});
@@ -67,6 +69,7 @@ const AdminAdmissionForm = () => {
         const amt = Number(formData.amountPaid);
         if (Number.isNaN(amt) || amt < 0) newErrors.amountPaid = 'Enter a valid amount';
       }
+      if (!formData.confirmationCode) newErrors.confirmationCode = 'Confirmation code is required';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -85,7 +88,7 @@ const AdminAdmissionForm = () => {
     try {
       let passportUrl = '';
       if (formData.passportFile) {
-        passportUrl = await uploadAdminAdmissionPhoto(formData.passportFile);
+        passportUrl = await uploadAdminPassportToCloudinary(formData.passportFile);
       }
       await submitAdminAdmission({
         ...formData,
@@ -108,6 +111,7 @@ const AdminAdmissionForm = () => {
         endorsementClass: '',
         computingLevel: '',
         amountPaid: '',
+        confirmationCode: '',
         passportFile: null,
       });
       setErrors({});
@@ -345,6 +349,11 @@ const AdminAdmissionForm = () => {
             <input id="amountPaid" type="number" name="amountPaid" value={formData.amountPaid} onChange={handleChange} placeholder="e.g., 3500" className={errors.amountPaid ? 'error' : ''} required />
             {errors.amountPaid && <span className="error-text">{errors.amountPaid}</span>}
           </div>
+          <div className="form-group">
+            <label htmlFor="confirmationCode">Payment Confirmation Code *</label>
+            <input id="confirmationCode" type="text" name="confirmationCode" value={formData.confirmationCode} onChange={handleChange} placeholder="e.g., MPESA/Bank ref" className={errors.confirmationCode ? 'error' : ''} required />
+            {errors.confirmationCode && <span className="error-text">{errors.confirmationCode}</span>}
+          </div>
 
           <div className="summary-section">
             <h3>Summary</h3>
@@ -366,6 +375,7 @@ const AdminAdmissionForm = () => {
                 <div className="summary-item"><strong>Experience Level:</strong> {formData.computingLevel}</div>
               )}
               <div className="summary-item"><strong>Amount Paid:</strong> {formData.amountPaid}</div>
+              <div className="summary-item"><strong>Confirmation Code:</strong> {formData.confirmationCode}</div>
             </div>
           </div>
 
