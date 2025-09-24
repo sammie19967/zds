@@ -14,6 +14,7 @@ import AdmissionForm from './components/AdmissionForm';
 import WhatsAppIcon from './components/WhatsAppIcon';
 import FeesStructure from './pages/FeesStructure';
 import AdminDashboard from './admin/components/AdminDashboard';
+import AdminAdmissionForm from './admin/components/AdminAdmissionForm';
 import AdminLayout from './admin/components/AdminLayout';
 import Login from './admin/Login';
 import Signup from './admin/Signup';
@@ -65,7 +66,7 @@ const AdminApp = () => (
     } />
     <Route path="/admin/register" element={
       <ProtectedAdminRoute>
-        <div>Student Registration Form</div>
+        <AdminAdmissionForm />
       </ProtectedAdminRoute>
     } />
     <Route path="/admin/students" element={

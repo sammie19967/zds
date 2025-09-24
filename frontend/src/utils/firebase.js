@@ -11,6 +11,7 @@ import {
   setPersistence,
   browserSessionPersistence
 } from 'firebase/auth';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const config = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -39,6 +40,7 @@ assertFirebaseConfig(config);
 const app = getApps().length ? getApps()[0] : initializeApp(config);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+export const storage = getStorage(app);
 
 // Submit a contact message to Firestore
 export async function submitContactMessage({ name, email, phone, subject, message }) {
@@ -60,6 +62,25 @@ export async function submitAdmissionApplication(data) {
     createdAt: serverTimestamp(),
   };
   await addDoc(collection(db, 'admissions'), payload);
+}
+
+// Submit an admin admission (admin registration of a student) to Firestore
+export async function submitAdminAdmission(data) {
+  const payload = {
+    ...data,
+    createdAt: serverTimestamp(),
+  };
+  await addDoc(collection(db, 'admin_admissions'), payload);
+}
+
+// Upload a passport photo for admin admission and return the public URL
+export async function uploadAdminAdmissionPhoto(file) {
+  if (!file) return '';
+  const safeName = file.name?.replace(/[^a-zA-Z0-9_.-]/g, '_') || 'photo.jpg';
+  const key = `admin_admissions/${Date.now()}_${safeName}`;
+  const storageRef = ref(storage, key);
+  await uploadBytes(storageRef, file);
+  return await getDownloadURL(storageRef);
 }
 
 // Fetch recent submissions (simple helper)
