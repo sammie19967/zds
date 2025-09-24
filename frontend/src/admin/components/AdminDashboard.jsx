@@ -5,10 +5,10 @@ import '../styles/AdminDashboard.css';
 const AdminDashboard = () => {
   // Placeholder stats. Wire these to real data when available.
   const stats = [
-    { label: 'Total Students', value: 128, icon: <FaUsers />, color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
-    { label: 'New Enquiries', value: 14, icon: <FaEnvelope />, color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
-    { label: 'Fees Collected (MoM)', value: '$42,560', icon: <FaMoneyBillWave />, color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
-    { label: 'Fuel Expenses (MoM)', value: '$3,240', icon: <FaGasPump />, color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
+    { label: 'Total Students', value: 128, icon: <FaUsers />, tone: 'primary' },
+    { label: 'New Enquiries', value: 14, icon: <FaEnvelope />, tone: 'secondary' },
+    { label: 'Fees Collected (MoM)', value: '$42,560', icon: <FaMoneyBillWave />, tone: 'yellow' },
+    { label: 'Fuel Expenses (MoM)', value: '$3,240', icon: <FaGasPump />, tone: 'red' },
   ];
 
   const quickActions = [
@@ -42,7 +42,7 @@ const AdminDashboard = () => {
       <div className="stats-grid">
         {stats.map((s) => (
           <div key={s.label} className="stat-card">
-            <div className="stat-icon" style={{ color: s.color, background: s.bg }}>{s.icon}</div>
+            <div className={`stat-icon chip-${s.tone}`}>{s.icon}</div>
             <div className="stat-info">
               <span className="stat-label">{s.label}</span>
               <strong className="stat-value">{s.value}</strong>
