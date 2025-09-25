@@ -3,6 +3,11 @@ import { Link } from 'react-router-dom';
 import { listAdminAdmissions } from '../../utils/firebase';
 import '../styles/StudentsList.css';
 
+// Proper-case a full name string (handles spaces, hyphens, apostrophes)
+const properCase = (s = '') => s
+  .toLowerCase()
+  .replace(/\b([a-z])/g, (m) => m.toUpperCase());
+
 const formatDate = (ts) => {
   if (!ts) return '';
   // Firestore serverTimestamp can be a Timestamp
@@ -43,6 +48,7 @@ const StudentsList = () => {
         r.firstName,
         r.lastName,
         r.course,
+        r.admissionNumber,
       ]
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(q))
@@ -65,7 +71,7 @@ const StudentsList = () => {
               </svg>
               <input
                 className="zds-students-search-input"
-                placeholder="Search name or course..."
+                placeholder="Search name, course or admission no..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
@@ -142,9 +148,17 @@ const StudentsList = () => {
                       <th>
                         <div className="zds-students-th">
                           <svg className="zds-students-th-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12a2 2 0 100-4 2 2 0 000 4z" />
                           </svg>
-                          Fees Paid
+                          Program Details
+                        </div>
+                      </th>
+                      <th>
+                        <div className="zds-students-th">
+                          <svg className="zds-students-th-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          Registered
                         </div>
                       </th>
                       <th>
@@ -163,7 +177,7 @@ const StudentsList = () => {
                             </div>
                             <div className="zds-students-info">
                               <span className="zds-students-name">
-                                {r.firstName} {r.lastName}
+                                {properCase(`${r.firstName || ''} ${r.lastName || ''}`.trim())}
                               </span>
                               <span className="zds-students-id">ID: {r.id.slice(0, 8)}</span>
                             </div>
@@ -175,13 +189,19 @@ const StudentsList = () => {
                         <td className="zds-students-course-cell">
                           <span className="zds-students-course-badge">{r.course}</span>
                         </td>
-                        <td className="zds-students-fees-cell">
-                          <span className="zds-students-fees">
-                            {typeof r.amountPaid === 'number' 
-                              ? `KSh ${r.amountPaid.toLocaleString()}` 
-                              : r.amountPaid || '-'
-                            }
-                          </span>
+                        <td className="zds-students-program-cell">
+                          {r.course === 'Driving' ? (
+                            <span className="zds-students-program">
+                              {(r.drivingType || '-')}{' '}
+                              {r.drivingType ? '•' : ''}{' '}
+                              {r.drivingType === 'Endorsement' ? (r.endorsementClass || '-') : ((r.drivingClass || 'B1/B2'))}
+                            </span>
+                          ) : (
+                            <span className="zds-students-program">{r.computingLevel || '-'}</span>
+                          )}
+                        </td>
+                        <td className="zds-students-date-cell">
+                          <span className="zds-students-date">{formatDate(r.createdAt)}</span>
                         </td>
                         <td className="zds-students-actions">
                           <Link to={`/admin/payments?studentId=${r.id}`} className="zds-students-add-btn" style={{ padding: '6px 10px' }}>
@@ -192,7 +212,7 @@ const StudentsList = () => {
                     ))}
                     {filtered.length === 0 && (
                       <tr>
-                        <td colSpan={5} className="zds-students-empty">
+                        <td colSpan={6} className="zds-students-empty">
                           <div className="zds-students-empty-content">
                             <svg className="zds-students-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />

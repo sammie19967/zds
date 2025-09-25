@@ -21,9 +21,8 @@ const AdminAdmissionForm = () => {
     course: '', // Driving | Computing
     drivingType: '', // New Student | Endorsement | Refresher
     endorsementClass: '',
+    drivingClass: '', // For New Student/Refresher, defaults to B1/B2
     computingLevel: '', // Beginner | Intermediate
-    amountPaid: '',
-    confirmationCode: '',
     passportFile: null,
   });
   const [errors, setErrors] = useState({});
@@ -116,17 +115,15 @@ const AdminAdmissionForm = () => {
       if (formData.drivingType === 'Endorsement' && !formData.endorsementClass) {
         newErrors.endorsementClass = 'Endorsement class is required';
       }
+      // For New Student / Refresher, ensure drivingClass default exists
+      if (formData.course === 'Driving' && formData.drivingType && formData.drivingType !== 'Endorsement') {
+        if (!formData.drivingClass) {
+          setFormData((prev) => ({ ...prev, drivingClass: 'B1/B2' }));
+        }
+      }
       if (formData.course === 'Computing' && !formData.computingLevel) {
         newErrors.computingLevel = 'Experience level is required';
       }
-    }
-    if (current === 3) {
-      if (!formData.amountPaid) newErrors.amountPaid = 'Amount paid is required';
-      if (formData.amountPaid) {
-        const amt = Number(formData.amountPaid);
-        if (Number.isNaN(amt) || amt < 0) newErrors.amountPaid = 'Enter a valid amount';
-      }
-      if (!formData.confirmationCode) newErrors.confirmationCode = 'Confirmation code is required';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -167,7 +164,6 @@ const AdminAdmissionForm = () => {
   const validateAll = () => {
     if (!validateStep(1)) { setStep(1); return false; }
     if (!validateStep(2)) { setStep(2); return false; }
-    if (!validateStep(3)) { setStep(3); return false; }
     return true;
   };
 
@@ -189,9 +185,8 @@ const AdminAdmissionForm = () => {
         course: formData.course,
         drivingType: formData.drivingType,
         endorsementClass: formData.endorsementClass,
+        drivingClass: formData.drivingType === 'Endorsement' ? '' : (formData.drivingClass || 'B1/B2'),
         computingLevel: formData.computingLevel,
-        amountPaid: Number(formData.amountPaid),
-        confirmationCode: formData.confirmationCode,
         passportUrl,
       };
 
@@ -211,9 +206,8 @@ const AdminAdmissionForm = () => {
         course: '',
         drivingType: '',
         endorsementClass: '',
+        drivingClass: '',
         computingLevel: '',
-        amountPaid: '',
-        confirmationCode: '',
         passportFile: null,
       });
       if (passportPreview) {
@@ -476,18 +470,7 @@ const AdminAdmissionForm = () => {
 
       {step === 3 && (
         <motion.div className="multi-form-step active" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
-          <h2>Step 3: Admission Payment</h2>
-
-          <div className="form-group">
-            <label htmlFor="amountPaid">Amount Paid (at admission) *</label>
-            <input id="amountPaid" type="number" name="amountPaid" value={formData.amountPaid} onChange={handleChange} placeholder="e.g., 3500" className={errors.amountPaid ? 'error' : ''} required />
-            {errors.amountPaid && <span className="error-text">{errors.amountPaid}</span>}
-          </div>
-          <div className="form-group">
-            <label htmlFor="confirmationCode">Payment Confirmation Code *</label>
-            <input id="confirmationCode" type="text" name="confirmationCode" value={formData.confirmationCode} onChange={handleChange} placeholder="e.g., MPESA/Bank ref" className={errors.confirmationCode ? 'error' : ''} required />
-            {errors.confirmationCode && <span className="error-text">{errors.confirmationCode}</span>}
-          </div>
+          <h2>Step 3: Review & Submit</h2>
 
           <div className="summary-section">
             <h3>Summary</h3>
@@ -500,6 +483,9 @@ const AdminAdmissionForm = () => {
               {formData.course === 'Driving' && (
                 <>
                   <div className="summary-item"><strong>Driving Type:</strong> {formData.drivingType}</div>
+                  {formData.drivingType !== 'Endorsement' && (
+                    <div className="summary-item"><strong>Driving Class:</strong> {formData.drivingClass || 'B1/B2'}</div>
+                  )}
                   {formData.drivingType === 'Endorsement' && (
                     <div className="summary-item"><strong>Endorsement Class:</strong> {formData.endorsementClass}</div>
                   )}
@@ -508,8 +494,6 @@ const AdminAdmissionForm = () => {
               {formData.course === 'Computing' && (
                 <div className="summary-item"><strong>Experience Level:</strong> {formData.computingLevel}</div>
               )}
-              <div className="summary-item"><strong>Amount Paid:</strong> {formData.amountPaid}</div>
-              <div className="summary-item"><strong>Confirmation Code:</strong> {formData.confirmationCode}</div>
             </div>
           </div>
 

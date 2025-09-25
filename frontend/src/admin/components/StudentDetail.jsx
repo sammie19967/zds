@@ -476,13 +476,18 @@ const StudentDetail = () => {
                     }
                   >
                     {editing ? (
-                      <input 
-                        className="student-detail-input" 
-                        name="endorsementClass" 
-                        value={data.endorsementClass || ''} 
-                        onChange={handleChange}
-                        placeholder="Enter endorsement class"
-                      />
+                      <select
+                        className="student-detail-select"
+                        name="endorsementClass"
+                        value={(data.endorsementClass || '').toUpperCase()}
+                        onChange={(e) => setData((prev) => ({ ...prev, endorsementClass: e.target.value }))}
+                      >
+                        <option value="">Select Class</option>
+                        <option value="A1/A2">A1/A2</option>
+                        <option value="B1/B2">B1/B2</option>
+                        <option value="C1/C2">C1/C2</option>
+                        <option value="D1/D2">D1/D2</option>
+                      </select>
                     ) : (
                       <span className="student-detail-text">{data.endorsementClass || '-'}</span>
                     )}

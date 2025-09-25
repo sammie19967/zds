@@ -198,12 +198,25 @@ export async function deleteAdminAdmission(id) {
 }
 
 // ===== Fees & Payments Helpers =====
-// Course fees are stored in collection 'course_fees' with doc ids equal to course keys, e.g. 'Driving', 'Computing'
+// Course fees are stored in collection 'course_fees'
+// - Driving: doc id 'Driving' with shape { classes: { 'A1/A2': { 'New Student': 7000, 'Endorsement': 5000, 'Refresher': 0 }, 'B1/B2': {...}, ... }, updatedAt }
+// - Computing: doc id 'Computing' with shape { levels: { Beginner: 3000, Intermediate: 6000 }, updatedAt }
 export async function getCourseFees() {
+  // Backward compatibility: returns a flat map if present, else builds from structured docs
   const snap = await getDocs(collection(db, 'course_fees'));
   const fees = {};
   snap.forEach(d => { fees[d.id] = Number(d.data()?.amount || 0); });
-  return fees; // { Driving: 5000, Computing: 3000 }
+  return fees; // { Driving: 5000, Computing: 3000 } when using legacy flat docs
+}
+
+// New: get structured fees
+export async function getStructuredFees() {
+  const drivingRef = doc(db, 'course_fees', 'Driving');
+  const computingRef = doc(db, 'course_fees', 'Computing');
+  const [dSnap, cSnap] = await Promise.all([getDoc(drivingRef), getDoc(computingRef)]);
+  const driving = dSnap.exists() ? (dSnap.data()?.classes || {}) : {};
+  const computing = cSnap.exists() ? (cSnap.data()?.levels || {}) : {};
+  return { driving, computing };
 }
 
 export async function setCourseFee(courseKey, amount) {
@@ -212,14 +225,10 @@ export async function setCourseFee(courseKey, amount) {
   await updateDoc(ref, { amount: Number(amount), updatedAt: serverTimestamp() }).catch(async (e) => {
     // If doc doesn't exist, create it
     if (e && /NOT_FOUND|No document to update/.test(String(e))) {
-      await updateDoc(ref, { amount: Number(amount), updatedAt: serverTimestamp() }).catch(async () => {
-        // Fallback to set via addDoc not applicable; use set through update with merge using setDoc-like behavior via transaction if needed
-        // Simpler: use runTransaction to set if missing
-        await runTransaction(db, async (txn) => {
-          const s = await txn.get(ref);
-          if (!s.exists()) txn.set(ref, { amount: Number(amount), createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
-          else txn.update(ref, { amount: Number(amount), updatedAt: serverTimestamp() });
-        });
+      await runTransaction(db, async (txn) => {
+        const s = await txn.get(ref);
+        if (!s.exists()) txn.set(ref, { amount: Number(amount), createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        else txn.update(ref, { amount: Number(amount), updatedAt: serverTimestamp() });
       });
     } else {
       throw e;
@@ -227,14 +236,44 @@ export async function setCourseFee(courseKey, amount) {
   });
 }
 
+// New: set driving fee by class and type
+export async function setDrivingFee(drivingClass, drivingType, amount) {
+  if (!drivingClass || !drivingType) throw new Error('drivingClass and drivingType are required');
+  const ref = doc(db, 'course_fees', 'Driving');
+  await runTransaction(db, async (txn) => {
+    const s = await txn.get(ref);
+    const prev = s.exists() ? (s.data() || {}) : {};
+    const classes = { ...(prev.classes || {}) };
+    const classMap = { ...(classes[drivingClass] || {}) };
+    classMap[drivingType] = Number(amount);
+    classes[drivingClass] = classMap;
+    if (!s.exists()) txn.set(ref, { classes, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+    else txn.update(ref, { classes, updatedAt: serverTimestamp() });
+  });
+}
+
+// New: set computing fee by level
+export async function setComputingFee(level, amount) {
+  if (!level) throw new Error('level is required');
+  const ref = doc(db, 'course_fees', 'Computing');
+  await runTransaction(db, async (txn) => {
+    const s = await txn.get(ref);
+    const prev = s.exists() ? (s.data() || {}) : {};
+    const levels = { ...(prev.levels || {}) };
+    levels[level] = Number(amount);
+    if (!s.exists()) txn.set(ref, { levels, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+    else txn.update(ref, { levels, updatedAt: serverTimestamp() });
+  });
+}
+
 // Payments are stored under each student: admin_admissions/{id}/payments
-export async function addStudentPayment(studentId, { amount, confirmationCode, paidAt = new Date().toISOString(), note = '' }) {
+export async function addStudentPayment(studentId, { amount, confirmationCode, paidAt = null, note = '' }) {
   if (!studentId) throw new Error('studentId required');
   const colRef = collection(db, 'admin_admissions', studentId, 'payments');
   const payload = {
     amount: Number(amount),
     confirmationCode: confirmationCode || '',
-    paidAt, // ISO string
+    paidAt: paidAt || new Date().toISOString(),
     note,
     createdAt: serverTimestamp(),
   };
