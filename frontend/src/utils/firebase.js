@@ -196,3 +196,59 @@ export async function deleteAdminAdmission(id) {
   const ref = doc(db, 'admin_admissions', id);
   await deleteDoc(ref);
 }
+
+// ===== Fees & Payments Helpers =====
+// Course fees are stored in collection 'course_fees' with doc ids equal to course keys, e.g. 'Driving', 'Computing'
+export async function getCourseFees() {
+  const snap = await getDocs(collection(db, 'course_fees'));
+  const fees = {};
+  snap.forEach(d => { fees[d.id] = Number(d.data()?.amount || 0); });
+  return fees; // { Driving: 5000, Computing: 3000 }
+}
+
+export async function setCourseFee(courseKey, amount) {
+  if (!courseKey) throw new Error('courseKey required');
+  const ref = doc(db, 'course_fees', courseKey);
+  await updateDoc(ref, { amount: Number(amount), updatedAt: serverTimestamp() }).catch(async (e) => {
+    // If doc doesn't exist, create it
+    if (e && /NOT_FOUND|No document to update/.test(String(e))) {
+      await updateDoc(ref, { amount: Number(amount), updatedAt: serverTimestamp() }).catch(async () => {
+        // Fallback to set via addDoc not applicable; use set through update with merge using setDoc-like behavior via transaction if needed
+        // Simpler: use runTransaction to set if missing
+        await runTransaction(db, async (txn) => {
+          const s = await txn.get(ref);
+          if (!s.exists()) txn.set(ref, { amount: Number(amount), createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+          else txn.update(ref, { amount: Number(amount), updatedAt: serverTimestamp() });
+        });
+      });
+    } else {
+      throw e;
+    }
+  });
+}
+
+// Payments are stored under each student: admin_admissions/{id}/payments
+export async function addStudentPayment(studentId, { amount, confirmationCode, paidAt = new Date().toISOString(), note = '' }) {
+  if (!studentId) throw new Error('studentId required');
+  const colRef = collection(db, 'admin_admissions', studentId, 'payments');
+  const payload = {
+    amount: Number(amount),
+    confirmationCode: confirmationCode || '',
+    paidAt, // ISO string
+    note,
+    createdAt: serverTimestamp(),
+  };
+  await addDoc(colRef, payload);
+}
+
+export async function listStudentPayments(studentId) {
+  const colRef = collection(db, 'admin_admissions', studentId, 'payments');
+  const qRef = query(colRef, orderBy('createdAt', 'desc'));
+  const snap = await getDocs(qRef);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+export async function getStudentPaymentsTotal(studentId) {
+  const payments = await listStudentPayments(studentId);
+  return payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+}

@@ -23,6 +23,8 @@ import ScrollToTop from './components/ScrollToTop';
 import NotFound from './pages/NotFound';
 import StudentsList from './admin/components/StudentsList';
 import StudentDetail from './admin/components/StudentDetail';
+import AdminFees from './admin/components/AdminFees';
+import AdminPaymentHistory from './admin/components/AdminPaymentHistory';
 
 const MainApp = () => (
   <>
@@ -83,7 +85,12 @@ const AdminApp = () => (
     } />
     <Route path="/admin/fees" element={
       <ProtectedAdminRoute>
-        <div>Fees Tracking</div>
+        <AdminFees />
+      </ProtectedAdminRoute>
+    } />
+    <Route path="/admin/payments" element={
+      <ProtectedAdminRoute>
+        <AdminPaymentHistory />
       </ProtectedAdminRoute>
     } />
     <Route path="/admin/fuel" element={
