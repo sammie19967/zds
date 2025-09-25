@@ -1,0 +1,463 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Container */
+.zds-students-container {
+  font-family: 'Inter', sans-serif;
+  padding: 1.5rem;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+/* Main Card */
+.zds-students-card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f1f5f9;
+  overflow: hidden;
+}
+
+/* Header */
+.zds-students-card-header {
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.zds-students-header-content {
+  flex: 1;
+  min-width: 250px;
+}
+
+.zds-students-page-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1e293b;
+  background: linear-gradient(135deg, #1e293b, #475569);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.zds-students-page-subtitle {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.zds-students-header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Search Input */
+.zds-students-search {
+  position: relative;
+  min-width: 280px;
+}
+
+.zds-students-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.zds-students-search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.zds-students-search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.zds-students-search-input::placeholder {
+  color: #9ca3af;
+}
+
+/* Add Student Button */
+.zds-students-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  white-space: nowrap;
+}
+
+.zds-students-add-btn:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.zds-students-btn-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Card Content */
+.zds-students-card-content {
+  padding: 0;
+}
+
+/* Loading State */
+.zds-students-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+}
+
+.zds-students-loading-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: zds-spin 1s linear infinite;
+}
+
+.zds-students-loading-text {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+@keyframes zds-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error State */
+.zds-students-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  gap: 0.75rem;
+}
+
+.zds-students-error-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #ef4444;
+  flex-shrink: 0;
+}
+
+.zds-students-error-text {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Stats Bar */
+.zds-students-stats {
+  display: flex;
+  gap: 2rem;
+  padding: 1.5rem 2rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.zds-students-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.zds-students-stat-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.zds-students-stat-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* Table Container */
+.zds-students-table-wrap {
+  overflow-x: auto;
+}
+
+/* Table Styles */
+.zds-students-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+/* Table Header */
+.zds-students-table thead tr {
+  background: #f8fafc;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.zds-students-table th {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+}
+
+.zds-students-th {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.zds-students-th-icon {
+  width: 1rem;
+  height: 1rem;
+  color: #6b7280;
+}
+
+/* Table Rows */
+.zds-students-row {
+  border-bottom: 1px solid #f1f5f9;
+  transition: all 0.2s ease;
+}
+
+.zds-students-row:hover {
+  background-color: #f8fafc;
+}
+
+.zds-students-table td {
+  padding: 1rem 1.5rem;
+  vertical-align: middle;
+}
+
+/* Student Name Cell */
+.zds-students-name-cell {
+  width: 40%;
+}
+
+.zds-students-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+
+.zds-students-link:hover {
+  color: #3b82f6;
+}
+
+.zds-students-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.zds-students-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.zds-students-name {
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zds-students-id {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-family: 'Courier New', monospace;
+}
+
+/* Course Cell */
+.zds-students-course-cell {
+  width: 30%;
+}
+
+.zds-students-course-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Fees Cell */
+.zds-students-fees-cell {
+  width: 30%;
+}
+
+.zds-students-fees {
+  font-weight: 600;
+  color: #059669;
+  font-family: 'Courier New', monospace;
+}
+
+/* Empty State */
+.zds-students-empty {
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.zds-students-empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.zds-students-empty-icon {
+  width: 3rem;
+  height: 3rem;
+  color: #9ca3af;
+}
+
+.zds-students-empty-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.zds-students-empty-desc {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .zds-students-stats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .zds-students-stat {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .zds-students-container {
+    padding: 1rem;
+  }
+  
+  .zds-students-card-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.5rem;
+  }
+  
+  .zds-students-header-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .zds-students-search {
+    min-width: auto;
+  }
+  
+  .zds-students-add-btn {
+    justify-content: center;
+  }
+  
+  .zds-students-table th,
+  .zds-students-table td {
+    padding: 0.75rem 1rem;
+  }
+  
+  .zds-students-avatar {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.625rem;
+  }
+  
+  .zds-students-th {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .zds-students-th-icon {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .zds-students-table {
+    font-size: 0.75rem;
+  }
+  
+  .zds-students-info {
+    min-width: 120px;
+  }
+  
+  .zds-students-course-badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.625rem;
+  }
+  
+  .zds-students-page-title {
+    font-size: 1.5rem;
+  }
+  
+  .zds-students-stats {
+    padding: 1rem 1.5rem;
+  }
+}

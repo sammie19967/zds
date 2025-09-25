@@ -1,7 +1,7 @@
 // Firebase initialization and Firestore helpers
 // Ensure you set the env vars in your .env (see .env.example)
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, serverTimestamp, addDoc, collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { getFirestore, serverTimestamp, addDoc, collection, getDocs, query, orderBy, limit, doc, getDoc, updateDoc, deleteDoc, startAfter, where, runTransaction } from 'firebase/firestore';
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
@@ -64,13 +64,38 @@ export async function submitAdmissionApplication(data) {
   await addDoc(collection(db, 'admissions'), payload);
 }
 
+// Helper to generate the next admission number atomically
+async function getNextAdmissionNumber() {
+  const countersDocRef = doc(db, 'counters', 'admin_admissions');
+  const next = await runTransaction(db, async (txn) => {
+    const snap = await txn.get(countersDocRef);
+    let last = 0;
+    if (snap.exists()) {
+      const d = snap.data();
+      last = Number(d.lastAdmissionNumber) || 0;
+    } else {
+      // initialize the counters doc
+      txn.set(countersDocRef, { lastAdmissionNumber: 0, updatedAt: serverTimestamp() });
+    }
+    const newVal = last + 1;
+    txn.update(countersDocRef, { lastAdmissionNumber: newVal, updatedAt: serverTimestamp() });
+    return newVal;
+  });
+  // Zero-pad to at least 4 digits (e.g., 0001, 0123, 1234). Will naturally exceed 4 once count > 9999.
+  return String(next).padStart(4, '0');
+}
+
 // Submit an admin admission (admin registration of a student) to Firestore
 export async function submitAdminAdmission(data) {
+  // Generate a unique, incrementing admission number
+  const admissionNumber = await getNextAdmissionNumber();
   const payload = {
     ...data,
+    admissionNumber,
     createdAt: serverTimestamp(),
   };
-  await addDoc(collection(db, 'admin_admissions'), payload);
+  const docRef = await addDoc(collection(db, 'admin_admissions'), payload);
+  return { id: docRef.id, admissionNumber };
 }
 
 // Upload a passport photo for admin admission and return the public URL
@@ -129,4 +154,45 @@ export async function signOutUser() {
 
 export function subscribeAuth(callback) {
   return onAuthStateChanged(auth, callback);
+}
+
+// Admin admissions CRUD helpers
+export async function listAdminAdmissions({ take = 100 } = {}) {
+  const q = query(collection(db, 'admin_admissions'), orderBy('createdAt', 'desc'), limit(take));
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+export async function listAdminAdmissionsPage({ take = 25, cursor = null, course = '' } = {}) {
+  let qBase = [orderBy('createdAt', 'desc'), limit(take)];
+  const col = collection(db, 'admin_admissions');
+  // Optional course filter
+  if (course) {
+    qBase = [where('course', '==', course), orderBy('createdAt', 'desc'), limit(take)];
+  }
+  let qRef = query(col, ...qBase);
+  if (cursor) {
+    qRef = query(col, ...qBase, startAfter(cursor));
+  }
+  const snap = await getDocs(qRef);
+  const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const lastDoc = snap.docs[snap.docs.length - 1] || null;
+  return { items: docs, cursor: lastDoc };
+}
+
+export async function getAdminAdmissionById(id) {
+  const ref = doc(db, 'admin_admissions', id);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return null;
+  return { id: snap.id, ...snap.data() };
+}
+
+export async function updateAdminAdmission(id, data) {
+  const ref = doc(db, 'admin_admissions', id);
+  await updateDoc(ref, { ...data, updatedAt: serverTimestamp() });
+}
+
+export async function deleteAdminAdmission(id) {
+  const ref = doc(db, 'admin_admissions', id);
+  await deleteDoc(ref);
 }

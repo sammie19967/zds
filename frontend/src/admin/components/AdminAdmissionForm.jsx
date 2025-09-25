@@ -195,10 +195,12 @@ const AdminAdmissionForm = () => {
         passportUrl,
       };
 
-      await submitAdminAdmission(payload);
+      const result = await submitAdminAdmission(payload);
       await modal.success({
         title: 'Student registered!',
-        text: 'The admission has been recorded successfully.',
+        text: result?.admissionNumber
+          ? `The admission has been recorded successfully.\nAdmission No: ${result.admissionNumber}`
+          : 'The admission has been recorded successfully.',
       });
       setFormData({
         firstName: '',

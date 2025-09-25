@@ -21,6 +21,8 @@ import Signup from './admin/Signup';
 import RequireAuth from './admin/RequireAuth';
 import ScrollToTop from './components/ScrollToTop';
 import NotFound from './pages/NotFound';
+import StudentsList from './admin/components/StudentsList';
+import StudentDetail from './admin/components/StudentDetail';
 
 const MainApp = () => (
   <>
@@ -71,7 +73,12 @@ const AdminApp = () => (
     } />
     <Route path="/admin/students" element={
       <ProtectedAdminRoute>
-        <div>Students List</div>
+        <StudentsList />
+      </ProtectedAdminRoute>
+    } />
+    <Route path="/admin/students/:id" element={
+      <ProtectedAdminRoute>
+        <StudentDetail />
       </ProtectedAdminRoute>
     } />
     <Route path="/admin/fees" element={
