@@ -22,6 +22,10 @@ const AdminFees = () => {
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [payment, setPayment] = useState({ amount: '', confirmationCode: '', note: '' });
   const [submittingPayment, setSubmittingPayment] = useState(false);
+  // Typeahead for student selection
+  const [studentQuery, setStudentQuery] = useState('');
+  const [studentSuggestions, setStudentSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -54,6 +58,18 @@ const AdminFees = () => {
     return () => { mounted = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshToggle]);
+
+  // Recompute suggestions when the query or students change
+  useEffect(() => {
+    const q = studentQuery.trim().toLowerCase();
+    if (!q) { setStudentSuggestions([]); return; }
+    const results = students.filter((s) => {
+      const name = `${s.firstName || ''} ${s.lastName || ''}`.trim().toLowerCase();
+      const adm = (s.admissionNumber || '').toString().toLowerCase();
+      return name.includes(q) || adm.includes(q);
+    }).slice(0, 10);
+    setStudentSuggestions(results);
+  }, [studentQuery, students]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -91,6 +107,7 @@ const AdminFees = () => {
     }
     try {
       setSubmittingPayment(true);
+      // Do not pass paidAt; let backend default to current timestamp/ISO
       await addStudentPayment(selectedStudentId, {
         amount: amt,
         confirmationCode: payment.confirmationCode,
@@ -134,16 +151,58 @@ const AdminFees = () => {
       <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, marginBottom: 16 }}>
         <h2 style={{ margin: 0, marginBottom: 12 }}>Record Payment</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
-          <div>
-            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Student</label>
-            <select className="student-detail-select" value={selectedStudentId} onChange={(e) => setSelectedStudentId(e.target.value)}>
-              <option value="">Select a student</option>
-              {students.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.admissionNumber ? `[${s.admissionNumber}] ` : ''}{s.firstName} {s.lastName} — {s.course}
-                </option>
-              ))}
-            </select>
+          <div style={{ position: 'relative' }}>
+            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Find Student (Name or Admission No.)</label>
+            <input
+              className="student-detail-input"
+              placeholder="Start typing... e.g., Jane, John Doe, 0007"
+              value={studentQuery}
+              onChange={(e) => { setStudentQuery(e.target.value); setShowSuggestions(true); }}
+              onFocus={() => setShowSuggestions(true)}
+            />
+            {showSuggestions && studentSuggestions.length > 0 && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  background: '#fff',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: 8,
+                  marginTop: 4,
+                  zIndex: 20,
+                  maxHeight: 260,
+                  overflowY: 'auto',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.08)'
+                }}
+                onMouseLeave={() => setShowSuggestions(false)}
+              >
+                {studentSuggestions.map((s) => (
+                  <div
+                    key={s.id}
+                    onClick={() => {
+                      setSelectedStudentId(s.id);
+                      setStudentQuery(`${s.firstName || ''} ${s.lastName || ''} ${s.admissionNumber ? `(${s.admissionNumber})` : ''}`.trim());
+                      setShowSuggestions(false);
+                    }}
+                    style={{ padding: '8px 10px', cursor: 'pointer' }}
+                    className="zds-suggestion-item"
+                  >
+                    <div style={{ fontWeight: 600 }}>{s.firstName} {s.lastName} {s.admissionNumber ? `(${s.admissionNumber})` : ''}</div>
+                    <div style={{ fontSize: 12, color: '#6b7280' }}>{s.course || '-'}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {selectedStudentId && (
+              <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
+                Selected ID: <strong>{selectedStudentId.slice(0,8)}</strong>
+                <button type="button" onClick={() => { setSelectedStudentId(''); setStudentQuery(''); }} style={{ marginLeft: 8, fontSize: 12 }}>
+                  Clear
+                </button>
+              </div>
+            )}
           </div>
           <div>
             <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Amount</label>
