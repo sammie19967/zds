@@ -284,10 +284,11 @@ export async function setComputingFee(level, amount) {
 export async function addStudentPayment(studentId, { amount, confirmationCode, paidAt = null, note = '' }) {
   if (!studentId) throw new Error('studentId required');
   const colRef = collection(db, 'admin_admissions', studentId, 'payments');
+  const paidIso = paidAt || new Date().toISOString();
   const payload = {
     amount: Number(amount),
     confirmationCode: confirmationCode || '',
-    paidAt: paidAt || new Date().toISOString(),
+    paidAt: paidIso,
     note,
     createdAt: serverTimestamp(),
   };
@@ -430,7 +431,7 @@ export async function getMonthlyApplicationsCount(month = '') {
 
 export async function getMonthlyPaymentsTotal(month = '') {
   const { start, end } = monthRange(month);
-  // Query all payments across admin_admissions/*/payments via collection group
+  // Query all payments across admin_admissions/*/payments via collection group using createdAt range
   const qRef = query(collectionGroup(db, 'payments'), where('createdAt', '>=', start), where('createdAt', '<', end));
   const snap = await getDocs(qRef);
   return snap.docs.reduce((sum, d) => sum + (Number(d.data()?.amount) || 0), 0);
