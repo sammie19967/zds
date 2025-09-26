@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { listAdminAdmissions, listStudentPayments } from '../../utils/firebase';
 import modal from '../../utils/modal';
+import '../styles/AdminPaymentHistory.css';
 
 const currency = (n) => `KSh ${Number(n || 0).toLocaleString()}`;
 const fmtDateTime = (isoOrTs) => {
@@ -65,73 +66,161 @@ const AdminPaymentHistory = () => {
     }
   };
 
-  return (
-    <div style={{ padding: 20 }}>
-      <h1 style={{ marginBottom: 16 }}>Admin: Payment History</h1>
+  const selectedStudent = students.find(s => s.id === selectedId);
+  const totalAmount = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
 
-      {/* Student Picker */}
-      <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: 12 }}>
-          <div style={{ gridColumn: '1 / 3' }}>
-            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Search Students</label>
-            <input className="student-detail-input" placeholder="Search by name, admission no, course" value={query} onChange={(e) => setQuery(e.target.value)} />
-          </div>
-          <div>
-            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Select Student</label>
-            <select
-              className="student-detail-select"
-              value={selectedId}
-              onChange={async (e) => { const id = e.target.value; setSelectedId(id); await loadPayments(id); }}
-            >
-              <option value="">-- Choose --</option>
-              {filtered.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.admissionNumber ? `[${s.admissionNumber}] ` : ''}{s.firstName} {s.lastName} — {s.course}
-                </option>
-              ))}
-            </select>
+  return (
+    <div className="admin-payment-container">
+      <div className="admin-payment-main-card">
+        <div className="admin-payment-header">
+          <div className="admin-payment-header-content">
+            <h1 className="admin-payment-title">Payment History</h1>
+            <p className="admin-payment-subtitle">
+              View and track student payment records
+            </p>
           </div>
         </div>
-      </div>
 
-      {/* Payments Table */}
-      <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, marginTop: 16 }}>
-        <h2 style={{ margin: 0, marginBottom: 12 }}>Payment Records</h2>
-        {!selectedId && (
-          <div style={{ color: '#6b7280' }}>Select a student to view payment history.</div>
-        )}
-        {selectedId && (
-          <div className="zds-students-table-wrap">
-            <table className="zds-students-table">
-              <thead>
-                <tr>
-                  <th>Date/Time</th>
-                  <th>Amount</th>
-                  <th>Confirmation Code</th>
-                  <th>Note</th>
-                </tr>
-              </thead>
-              <tbody>
-                {payments.map((p) => (
-                  <tr key={p.id}>
-                    <td>{fmtDateTime(p.paidAt || p.createdAt)}</td>
-                    <td><strong>{currency(p.amount)}</strong></td>
-                    <td>{p.confirmationCode || '-'}</td>
-                    <td>{p.note || '-'}</td>
-                  </tr>
-                ))}
-                {payments.length === 0 && !loadingPayments && (
-                  <tr>
-                    <td colSpan={4} style={{ textAlign: 'center', padding: 16, color: '#6b7280' }}>No payments found</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            {loadingPayments && <div style={{ marginTop: 8, color: '#6b7280' }}>Loading payments...</div>}
+        <div className="admin-payment-content">
+          {/* Stats Section */}
+          {selectedStudent && (
+            <div className="admin-payment-stats">
+              <div className="admin-payment-stat-card">
+                <div className="admin-payment-stat-label">Total Payments</div>
+                <div className="admin-payment-stat-value">{payments.length}</div>
+              </div>
+              <div className="admin-payment-stat-card">
+                <div className="admin-payment-stat-label">Total Amount</div>
+                <div className="admin-payment-stat-value admin-payment-stat-currency">
+                  {currency(totalAmount)}
+                </div>
+              </div>
+              <div className="admin-payment-stat-card">
+                <div className="admin-payment-stat-label">Student</div>
+                <div className="admin-payment-stat-value" style={{ fontSize: '1rem' }}>
+                  {selectedStudent.firstName} {selectedStudent.lastName}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Student Picker */}
+          <div className="admin-payment-picker-card">
+            <div className="admin-payment-picker-grid">
+              <div className="admin-payment-form-group">
+                <label className="admin-payment-label">Search Students</label>
+                <input 
+                  className="admin-payment-input" 
+                  placeholder="Search by name, admission no, course" 
+                  value={query} 
+                  onChange={(e) => setQuery(e.target.value)} 
+                />
+              </div>
+              <div className="admin-payment-form-group">
+                <label className="admin-payment-label">Select Student</label>
+                <select
+                  className="admin-payment-select"
+                  value={selectedId}
+                  onChange={async (e) => { 
+                    const id = e.target.value; 
+                    setSelectedId(id); 
+                    await loadPayments(id); 
+                  }}
+                >
+                  <option value="">-- Choose Student --</option>
+                  {filtered.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.admissionNumber ? `[${s.admissionNumber}] ` : ''}{s.firstName} {s.lastName} — {s.course}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
-        )}
+
+          {/* Payments Table */}
+          <div className="admin-payment-history-card">
+            <h2 className="admin-payment-history-title">Payment Records</h2>
+            
+            {!selectedId && (
+              <div className="admin-payment-no-selection">
+                <svg className="admin-payment-no-selection-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <div className="admin-payment-no-selection-title">No Student Selected</div>
+                <div className="admin-payment-no-selection-desc">
+                  Select a student from the dropdown above to view their payment history
+                </div>
+              </div>
+            )}
+            
+            {selectedId && (
+              <>
+                {loadingPayments && (
+                  <div className="admin-payment-loading">
+                    <div className="admin-payment-loading-spinner"></div>
+                    Loading payment records...
+                  </div>
+                )}
+                
+                {!loadingPayments && (
+                  <div className="admin-payment-table-container">
+                    <table className="admin-payment-table">
+                      <thead>
+                        <tr>
+                          <th>Date/Time</th>
+                          <th>Amount</th>
+                          <th>Confirmation Code</th>
+                          <th>Note</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {payments.map((p) => (
+                          <tr key={p.id}>
+                            <td>{fmtDateTime(p.paidAt || p.createdAt)}</td>
+                            <td>
+                              <span className="admin-payment-amount">
+                                {currency(p.amount)}
+                              </span>
+                            </td>
+                            <td>
+                              {p.confirmationCode ? (
+                                <span className="admin-payment-confirmation">
+                                  {p.confirmationCode}
+                                </span>
+                              ) : (
+                                '-'
+                              )}
+                            </td>
+                            <td>{p.note || '-'}</td>
+                          </tr>
+                        ))}
+                        {payments.length === 0 && (
+                          <tr>
+                            <td colSpan={4} className="admin-payment-empty">
+                              <div className="admin-payment-empty-title">No Payments Found</div>
+                              <div className="admin-payment-empty-description">
+                                This student has no payment records yet
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+          
+          {loading && (
+            <div className="admin-payment-loading">
+              <div className="admin-payment-loading-spinner"></div>
+              <div className="admin-payment-loading-text">Loading students...</div>
+            </div>
+          )}
+        </div>
       </div>
-      {loading && <div style={{ marginTop: 8, color: '#6b7280' }}>Loading students...</div>}
     </div>
   );
 };

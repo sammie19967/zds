@@ -1,0 +1,627 @@
+/* AdminInquiries.css - Consistent styling matching StudentsList design patterns */
+
+/* Base container and layout */
+.admin-inquiries-container {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.admin-inquiries-main-card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header section */
+.admin-inquiries-header {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-inquiries-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+
+.admin-inquiries-header-content {
+  position: relative;
+  z-index: 1;
+}
+
+.admin-inquiries-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: white;
+}
+
+.admin-inquiries-subtitle {
+  font-size: 1.1rem;
+  font-weight: 300;
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* Search section */
+.admin-inquiries-search-section {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.admin-inquiries-search-grid {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+.admin-inquiries-search-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-inquiries-search-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.admin-inquiries-search-input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.admin-inquiries-search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.admin-inquiries-month-select {
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-inquiries-month-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.admin-inquiries-clear-btn {
+  padding: 0.75rem 1.5rem;
+  background: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: fit-content;
+}
+
+.admin-inquiries-clear-btn:hover {
+  background: #4b5563;
+  transform: translateY(-1px);
+}
+
+/* Navigation tabs */
+.admin-inquiries-nav {
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 2rem;
+}
+
+.admin-inquiries-nav-list {
+  display: flex;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-inquiries-nav-item {
+  position: relative;
+}
+
+.admin-inquiries-nav-button {
+  background: none;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+  position: relative;
+}
+
+.admin-inquiries-nav-button:hover {
+  color: #3b82f6;
+  background: #f8fafc;
+}
+
+.admin-inquiries-nav-button.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+  background: #f8fafc;
+}
+
+/* Content section */
+.admin-inquiries-content {
+  padding: 2rem;
+}
+
+/* Stats section */
+.admin-inquiries-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.admin-inquiries-stat-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-inquiries-stat-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.admin-inquiries-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* Table styles */
+.admin-inquiries-table-container {
+  background: white;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.admin-inquiries-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.admin-inquiries-table th {
+  background: #f8fafc;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.admin-inquiries-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+  vertical-align: top;
+}
+
+.admin-inquiries-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.admin-inquiries-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Message column with proper text handling */
+.admin-inquiries-message-cell {
+  max-width: 300px;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
+  line-height: 1.5;
+  position: relative;
+}
+
+.admin-inquiries-message-content {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-inquiries-message-full {
+  display: block;
+  -webkit-line-clamp: unset;
+}
+
+.admin-inquiries-message-toggle {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.admin-inquiries-message-toggle:hover {
+  color: #1d4ed8;
+}
+
+/* Status badges */
+.admin-inquiries-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-inquiries-status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.admin-inquiries-status-reviewed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.admin-inquiries-status-contacted {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* Loading states */
+.admin-inquiries-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.admin-inquiries-loading-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: admin-inquiries-spin 1s linear infinite;
+  margin-right: 0.75rem;
+}
+
+@keyframes admin-inquiries-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error states */
+.admin-inquiries-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+/* Empty states */
+.admin-inquiries-empty {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.admin-inquiries-empty-icon {
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1rem;
+  opacity: 0.5;
+}
+
+.admin-inquiries-empty-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.admin-inquiries-empty-description {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .admin-inquiries-container {
+    padding: 1rem;
+  }
+  
+  .admin-inquiries-header {
+    padding: 1.5rem;
+  }
+  
+  .admin-inquiries-title {
+    font-size: 1.75rem;
+  }
+  
+  .admin-inquiries-content {
+    padding: 1.5rem;
+  }
+  
+  .admin-inquiries-stats {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-inquiries-container {
+    padding: 0.5rem;
+  }
+  
+  .admin-inquiries-header {
+    padding: 1rem;
+  }
+  
+  .admin-inquiries-title {
+    font-size: 1.5rem;
+  }
+  
+  .admin-inquiries-subtitle {
+    font-size: 1rem;
+  }
+  
+  .admin-inquiries-content {
+    padding: 1rem;
+  }
+  
+  .admin-inquiries-search-section {
+    padding: 1rem;
+  }
+  
+  .admin-inquiries-search-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .admin-inquiries-nav {
+    padding: 0 1rem;
+  }
+  
+  .admin-inquiries-nav-list {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .admin-inquiries-nav-button {
+    white-space: nowrap;
+    padding: 0.75rem 1rem;
+  }
+  
+  .admin-inquiries-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-inquiries-table-container {
+    overflow-x: auto;
+  }
+  
+  .admin-inquiries-table {
+    min-width: 600px;
+  }
+  
+  .admin-inquiries-message-cell {
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-inquiries-main-card {
+    border-radius: 0;
+    margin: 0;
+  }
+  
+  .admin-inquiries-header {
+    border-radius: 0;
+  }
+  
+  .admin-inquiries-table {
+    min-width: 500px;
+  }
+  
+  .admin-inquiries-message-cell {
+    max-width: 150px;
+  }
+  
+  .admin-inquiries-table th,
+  .admin-inquiries-table td {
+    padding: 0.75rem 0.5rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  .admin-inquiries-container {
+    background: white;
+    padding: 0;
+  }
+  
+  .admin-inquiries-main-card {
+    box-shadow: none;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .admin-inquiries-header {
+    background: #f8fafc !important;
+    color: #1e293b !important;
+  }
+  
+  .admin-inquiries-nav,
+  .admin-inquiries-search-section {
+    display: none;
+  }
+}
+
+/* Message Cell Styles */
+.zds-inquiries-message-cell {
+  max-width: 400px;
+  word-wrap: break-word;
+  line-height: 1.5;
+  padding: 8px 0;
+}
+
+.zds-inquiries-message-content {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.3s ease;
+}
+
+.zds-inquiries-message-expanded {
+  -webkit-line-clamp: unset;
+  max-height: none;
+  overflow: visible;
+}
+
+.zds-inquiries-message-toggle {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 4px 0;
+  margin-top: 4px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.zds-inquiries-message-toggle:hover {
+  text-decoration: underline;
+  color: #2563eb;
+}
+
+/* Phone number in contact column */
+.zds-inquiries-phone {
+  color: #64748b;
+  font-size: 0.85rem;
+  margin-top: 2px;
+}
+
+/* Tab buttons */
+.zds-students-tab-btn {
+  background: #e2e8f0;
+  border: none;
+  border-radius: 8px;
+  color: #475569;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 10px 20px;
+  margin-left: 8px;
+  transition: all 0.2s ease;
+}
+
+.zds-students-tab-btn:hover {
+  background: #cbd5e1;
+  color: #334155;
+}
+
+.zds-students-tab-btn.active {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+/* Clear button for filters */
+.zds-students-clear-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  margin-left: 8px;
+  transition: all 0.2s ease;
+}
+
+.zds-students-clear-btn:hover {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .zds-inquiries-message-cell {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .zds-inquiries-message-cell {
+    max-width: 200px;
+  }
+  
+  .zds-students-tab-btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .zds-inquiries-message-cell {
+    max-width: 150px;
+  }
+  
+  .zds-students-tab-btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    margin-left: 4px;
+  }
+}

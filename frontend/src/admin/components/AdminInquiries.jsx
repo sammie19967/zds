@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { listEnquiries, listApplications } from '../../utils/firebase';
-import '../styles/StudentsList.css';
+import '../styles/AdminInquiries.css';
 
 // Helpers
 const toYYYYMM = (ts) => {
@@ -18,16 +18,25 @@ const toYYYYMM = (ts) => {
 const properCase = (s = '') => s.toLowerCase().replace(/\b([a-z])/g, (m) => m.toUpperCase());
 
 const AdminInquiries = () => {
-  const [activeTab, setActiveTab] = useState('enquiries'); // 'enquiries' | 'applications'
+  const [activeTab, setActiveTab] = useState('enquiries');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [enquiries, setEnquiries] = useState([]);
   const [applications, setApplications] = useState([]);
+  const [expandedMessages, setExpandedMessages] = useState({});
 
   const [qEnq, setQEnq] = useState('');
   const [monthEnq, setMonthEnq] = useState('');
   const [qApp, setQApp] = useState('');
   const [monthApp, setMonthApp] = useState('');
+
+  // Toggle message expansion
+  const toggleMessage = (id) => {
+    setExpandedMessages(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -87,6 +96,28 @@ const AdminInquiries = () => {
     });
   }, [applications, qApp, monthApp]);
 
+  const renderMessageCell = (message, id) => {
+    if (!message) return '-';
+    const isExpanded = expandedMessages[id];
+    const shouldShowToggle = message.length > 100;
+    
+    return (
+      <div className="zds-inquiries-message-cell">
+        <div className={`zds-inquiries-message-content ${isExpanded ? 'zds-inquiries-message-expanded' : ''}`}>
+          {message}
+        </div>
+        {shouldShowToggle && (
+          <button 
+            className="zds-inquiries-message-toggle"
+            onClick={() => toggleMessage(id)}
+          >
+            {isExpanded ? 'Show less' : 'Show more'}
+          </button>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="zds-students-container">
       <div className="zds-students-card">
@@ -97,18 +128,16 @@ const AdminInquiries = () => {
           </div>
           <div className="zds-students-header-actions" style={{ borderBottom: 'none' }}>
             <button
-              className="zds-students-add-btn"
-              style={{ background: activeTab === 'enquiries' ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : '#e5e7eb', color: activeTab === 'enquiries' ? '#fff' : '#111827' }}
+              className={`zds-students-tab-btn ${activeTab === 'enquiries' ? 'active' : ''}`}
               onClick={() => setActiveTab('enquiries')}
             >
-              Enquiries
+              Enquiries ({enquiries.length})
             </button>
             <button
-              className="zds-students-add-btn"
-              style={{ background: activeTab === 'applications' ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : '#e5e7eb', color: activeTab === 'applications' ? '#fff' : '#111827' }}
+              className={`zds-students-tab-btn ${activeTab === 'applications' ? 'active' : ''}`}
               onClick={() => setActiveTab('applications')}
             >
-              Applications
+              Applications ({applications.length})
             </button>
           </div>
         </div>
@@ -130,19 +159,25 @@ const AdminInquiries = () => {
             </div>
           )}
 
-          {!loading && !error && activeTab === 'enquiries' && (
+          {!loading && !error && (
             <>
               <div className="zds-students-stats">
                 <div className="zds-students-stat">
-                  <span className="zds-students-stat-label">Total Enquiries</span>
-                  <span className="zds-students-stat-value">{enquiries.length}</span>
+                  <span className="zds-students-stat-label">
+                    {activeTab === 'enquiries' ? 'Total Enquiries' : 'Total Applications'}
+                  </span>
+                  <span className="zds-students-stat-value">
+                    {activeTab === 'enquiries' ? enquiries.length : applications.length}
+                  </span>
                 </div>
-                {(qEnq || monthEnq) && (
-                  <div className="zds-students-stat">
-                    <span className="zds-students-stat-label">Filtered</span>
-                    <span className="zds-students-stat-value">{filteredEnquiries.length}</span>
-                  </div>
-                )}
+                <div className="zds-students-stat">
+                  <span className="zds-students-stat-label">
+                    {activeTab === 'enquiries' ? 'Filtered' : 'Filtered'}
+                  </span>
+                  <span className="zds-students-stat-value">
+                    {activeTab === 'enquiries' ? filteredEnquiries.length : filteredApplications.length}
+                  </span>
+                </div>
               </div>
 
               <div className="zds-students-header-actions" style={{ padding: '0 1.5rem 1rem' }}>
@@ -150,121 +185,103 @@ const AdminInquiries = () => {
                   <svg className="zds-students-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                  <input className="zds-students-search-input" placeholder="Search name, email, phone or subject..." value={qEnq} onChange={(e) => setQEnq(e.target.value)} />
+                  <input 
+                    className="zds-students-search-input" 
+                    placeholder={`Search ${activeTab === 'enquiries' ? 'name, email, phone or subject...' : 'name, course, email or phone...'}`} 
+                    value={activeTab === 'enquiries' ? qEnq : qApp} 
+                    onChange={(e) => activeTab === 'enquiries' ? setQEnq(e.target.value) : setQApp(e.target.value)} 
+                  />
                 </div>
                 <div className="zds-students-month-filter">
                   <label className="zds-students-month-label">Month</label>
-                  <input type="month" className="zds-students-month-input" value={monthEnq} onChange={(e) => setMonthEnq(e.target.value)} />
-                  {monthEnq && (
-                    <button className="zds-students-add-btn" style={{ padding: '6px 10px' }} onClick={() => setMonthEnq('')}>Clear</button>
+                  <input 
+                    type="month" 
+                    className="zds-students-month-input" 
+                    value={activeTab === 'enquiries' ? monthEnq : monthApp} 
+                    onChange={(e) => activeTab === 'enquiries' ? setMonthEnq(e.target.value) : setMonthApp(e.target.value)} 
+                  />
+                  {(activeTab === 'enquiries' ? monthEnq : monthApp) && (
+                    <button 
+                      className="zds-students-clear-btn"
+                      onClick={() => activeTab === 'enquiries' ? setMonthEnq('') : setMonthApp('')}
+                    >
+                      Clear
+                    </button>
                   )}
                 </div>
               </div>
 
               <div className="zds-students-table-wrap">
-                <table className="zds-students-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Contact</th>
-                      <th>Subject</th>
-                      <th>Message</th>
-                      <th>Received</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredEnquiries.map((r) => (
-                      <tr key={r.id} className="zds-students-row">
-                        <td>{properCase(r.name || '-')}</td>
-                        <td>
-                          <div>{r.email || '-'}</div>
-                          <div style={{ color: '#64748b', fontSize: 12 }}>{r.phone || ''}</div>
-                        </td>
-                        <td>{r.subject || 'General Inquiry'}</td>
-                        <td style={{ maxWidth: 360, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.message || '-'}</td>
-                        <td>{new Date(r.createdAt?.seconds ? r.createdAt.seconds * 1000 : r.createdAt).toLocaleString?.() || ''}</td>
-                      </tr>
-                    ))}
-                    {filteredEnquiries.length === 0 && (
+                {activeTab === 'enquiries' ? (
+                  <table className="zds-students-table">
+                    <thead>
                       <tr>
-                        <td colSpan={5} className="zds-students-empty">
-                          <div className="zds-students-empty-content">
-                            <p className="zds-students-empty-title">No enquiries found</p>
-                            <p className="zds-students-empty-desc">Try adjusting the search or month filter</p>
-                          </div>
-                        </td>
+                        <th>Name</th>
+                        <th>Contact</th>
+                        <th>Subject</th>
+                        <th>Message</th>
+                        <th>Received</th>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          )}
-
-          {!loading && !error && activeTab === 'applications' && (
-            <>
-              <div className="zds-students-stats">
-                <div className="zds-students-stat">
-                  <span className="zds-students-stat-label">Total Applications</span>
-                  <span className="zds-students-stat-value">{applications.length}</span>
-                </div>
-                {(qApp || monthApp) && (
-                  <div className="zds-students-stat">
-                    <span className="zds-students-stat-label">Filtered</span>
-                    <span className="zds-students-stat-value">{filteredApplications.length}</span>
-                  </div>
+                    </thead>
+                    <tbody>
+                      {filteredEnquiries.map((r) => (
+                        <tr key={r.id} className="zds-students-row">
+                          <td>{properCase(r.name || '-')}</td>
+                          <td>
+                            <div>{r.email || '-'}</div>
+                            <div className="zds-inquiries-phone">{r.phone || ''}</div>
+                          </td>
+                          <td>{r.subject || 'General Inquiry'}</td>
+                          <td>{renderMessageCell(r.message, r.id)}</td>
+                          <td>{new Date(r.createdAt?.seconds ? r.createdAt.seconds * 1000 : r.createdAt).toLocaleString?.() || ''}</td>
+                        </tr>
+                      ))}
+                      {filteredEnquiries.length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="zds-students-empty">
+                            <div className="zds-students-empty-content">
+                              <p className="zds-students-empty-title">No enquiries found</p>
+                              <p className="zds-students-empty-desc">Try adjusting the search or month filter</p>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                ) : (
+                  <table className="zds-students-table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Course</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Submitted</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredApplications.map((r) => (
+                        <tr key={r.id} className="zds-students-row">
+                          <td>{properCase(`${r.firstName || ''} ${r.lastName || ''}`.trim()) || '-'}</td>
+                          <td>{r.course || '-'}</td>
+                          <td>{r.email || '-'}</td>
+                          <td>{r.phone || '-'}</td>
+                          <td>{new Date(r.createdAt?.seconds ? r.createdAt.seconds * 1000 : r.createdAt).toLocaleString?.() || ''}</td>
+                        </tr>
+                      ))}
+                      {filteredApplications.length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="zds-students-empty">
+                            <div className="zds-students-empty-content">
+                              <p className="zds-students-empty-title">No applications found</p>
+                              <p className="zds-students-empty-desc">Try adjusting the search or month filter</p>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 )}
-              </div>
-
-              <div className="zds-students-header-actions" style={{ padding: '0 1.5rem 1rem' }}>
-                <div className="zds-students-search">
-                  <svg className="zds-students-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                  <input className="zds-students-search-input" placeholder="Search name, course, email or phone..." value={qApp} onChange={(e) => setQApp(e.target.value)} />
-                </div>
-                <div className="zds-students-month-filter">
-                  <label className="zds-students-month-label">Month</label>
-                  <input type="month" className="zds-students-month-input" value={monthApp} onChange={(e) => setMonthApp(e.target.value)} />
-                  {monthApp && (
-                    <button className="zds-students-add-btn" style={{ padding: '6px 10px' }} onClick={() => setMonthApp('')}>Clear</button>
-                  )}
-                </div>
-              </div>
-
-              <div className="zds-students-table-wrap">
-                <table className="zds-students-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Course</th>
-                      <th>Email</th>
-                      <th>Phone</th>
-                      <th>Submitted</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredApplications.map((r) => (
-                      <tr key={r.id} className="zds-students-row">
-                        <td>{properCase(`${r.firstName || ''} ${r.lastName || ''}`.trim())}</td>
-                        <td>{r.course || '-'}</td>
-                        <td>{r.email || '-'}</td>
-                        <td>{r.phone || '-'}</td>
-                        <td>{new Date(r.createdAt?.seconds ? r.createdAt.seconds * 1000 : r.createdAt).toLocaleString?.() || ''}</td>
-                      </tr>
-                    ))}
-                    {filteredApplications.length === 0 && (
-                      <tr>
-                        <td colSpan={5} className="zds-students-empty">
-                          <div className="zds-students-empty-content">
-                            <p className="zds-students-empty-title">No applications found</p>
-                            <p className="zds-students-empty-desc">Try adjusting the search or month filter</p>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
               </div>
             </>
           )}
