@@ -26,6 +26,7 @@ import StudentDetail from './admin/components/StudentDetail';
 import AdminFees from './admin/components/AdminFees';
 import AdminPaymentHistory from './admin/components/AdminPaymentHistory';
 import AdminInquiries from './admin/components/AdminInquiries';
+import AdminFuel from './admin/components/AdminFuel';
 
 const MainApp = () => (
   <>
@@ -45,6 +46,7 @@ const MainApp = () => (
       <Route path="/admin/login" element={<Login />} />
       <Route path="/admin/signup" element={<Signup />} />
       <Route path="/admin/enquiries" element={<AdminInquiries />} />
+      <Route path="/admin/fuel" element={<AdminFuel />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
     <Footer />
@@ -97,7 +99,7 @@ const AdminApp = () => (
     } />
     <Route path="/admin/fuel" element={
       <ProtectedAdminRoute>
-        <div>Fuel Tracking</div>
+        <AdminFuel />
       </ProtectedAdminRoute>
     } />
     <Route path="/admin/enquiries" element={

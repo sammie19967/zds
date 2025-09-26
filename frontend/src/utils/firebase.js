@@ -1,7 +1,7 @@
 // Firebase initialization and Firestore helpers
 // Ensure you set the env vars in your .env (see .env.example)
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, serverTimestamp, addDoc, collection, getDocs, query, orderBy, limit, doc, getDoc, updateDoc, deleteDoc, startAfter, where, runTransaction } from 'firebase/firestore';
+import { getFirestore, serverTimestamp, addDoc, collection, getDocs, query, orderBy, limit, doc, getDoc, updateDoc, deleteDoc, startAfter, where, runTransaction, collectionGroup, getCountFromServer } from 'firebase/firestore';
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
@@ -357,6 +357,7 @@ export async function addFuelLog(log) {
   const dateISO = log.dateISO || new Date().toISOString().slice(0, 10);
   const dateMs = log.dateMs || new Date(`${dateISO}T00:00:00`).getTime();
   const payload = {
+    type: log.type === 'fueling' ? 'fueling' : 'daily',
     dateISO,
     dateMs,
     vehicleId: log.vehicleId || '',
@@ -374,13 +375,17 @@ export async function addFuelLog(log) {
   return payload;
 }
 
-export async function listFuelLogs({ take = 200, month = '', startMs = null, endMs = null } = {}) {
+export async function listFuelLogs({ take = 200, month = '', startMs = null, endMs = null, type = '' } = {}) {
   const colRef = collection(db, 'fuel_logs');
   let qParts = [];
+  if (type === 'daily' || type === 'fueling') {
+    qParts.push(where('type', '==', type));
+  }
   // Filter by month (YYYY-MM) or by range
   if (month && /^\d{4}-\d{2}$/.test(month)) {
     const start = new Date(`${month}-01T00:00:00`).getTime();
-    const end = new Date(new Date(`${month}-01T00:00:00`).getFullYear(), new Date(`${month}-01T00:00:00`).getMonth() + 1, 1).getTime();
+    const endBase = new Date(`${month}-01T00:00:00`);
+    const end = new Date(endBase.getFullYear(), endBase.getMonth() + 1, 1).getTime();
     qParts.push(where('dateMs', '>=', start));
     qParts.push(where('dateMs', '<', end));
   } else if (typeof startMs === 'number' && typeof endMs === 'number') {
@@ -392,4 +397,55 @@ export async function listFuelLogs({ take = 200, month = '', startMs = null, end
   const qRef = query(colRef, ...qParts);
   const snap = await getDocs(qRef);
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+// ===== Dashboard Helpers =====
+function monthRange(monthYYYYMM) {
+  // monthYYYYMM: 'YYYY-MM'
+  const base = monthYYYYMM ? new Date(`${monthYYYYMM}-01T00:00:00`) : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const start = new Date(base.getFullYear(), base.getMonth(), 1);
+  const end = new Date(base.getFullYear(), base.getMonth() + 1, 1);
+  return { start, end };
+}
+
+export async function getCountAdminAdmissions() {
+  const qRef = query(collection(db, 'admin_admissions'));
+  const snapshot = await getCountFromServer(qRef);
+  return snapshot.data().count || 0;
+}
+
+export async function getMonthlyEnquiriesCount(month = '') {
+  const { start, end } = monthRange(month);
+  const qRef = query(collection(db, 'submissions'), where('createdAt', '>=', start), where('createdAt', '<', end));
+  const snap = await getDocs(qRef);
+  return snap.size;
+}
+
+export async function getMonthlyApplicationsCount(month = '') {
+  const { start, end } = monthRange(month);
+  const qRef = query(collection(db, 'admissions'), where('createdAt', '>=', start), where('createdAt', '<', end));
+  const snap = await getDocs(qRef);
+  return snap.size;
+}
+
+export async function getMonthlyPaymentsTotal(month = '') {
+  const { start, end } = monthRange(month);
+  // Query all payments across admin_admissions/*/payments via collection group
+  const qRef = query(collectionGroup(db, 'payments'), where('createdAt', '>=', start), where('createdAt', '<', end));
+  const snap = await getDocs(qRef);
+  return snap.docs.reduce((sum, d) => sum + (Number(d.data()?.amount) || 0), 0);
+}
+
+export async function getMonthlyFuelCost(month = '') {
+  const { start, end } = monthRange(month);
+  const qRef = query(
+    collection(db, 'fuel_logs'),
+    where('type', '==', 'fueling'),
+    where('dateMs', '>=', start.getTime()),
+    where('dateMs', '<', end.getTime()),
+    orderBy('dateMs', 'desc'),
+    limit(1000)
+  );
+  const snap = await getDocs(qRef);
+  return snap.docs.reduce((sum, d) => sum + (Number(d.data()?.fuelCost) || 0), 0);
 }
