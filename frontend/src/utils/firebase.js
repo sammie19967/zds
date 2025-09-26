@@ -115,6 +115,20 @@ export async function fetchRecentSubmissions({ take = 50 } = {}) {
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
+// List enquiries (contact form submissions) from 'submissions'
+export async function listEnquiries({ take = 100 } = {}) {
+  const qRef = query(collection(db, 'submissions'), orderBy('createdAt', 'desc'), limit(take));
+  const snap = await getDocs(qRef);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+// List applications (public site applications) from 'admissions'
+export async function listApplications({ take = 100 } = {}) {
+  const qRef = query(collection(db, 'admissions'), orderBy('createdAt', 'desc'), limit(take));
+  const snap = await getDocs(qRef);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
 // Auth helpers with 15-minute session timeout
 let sessionTimer;
 const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds

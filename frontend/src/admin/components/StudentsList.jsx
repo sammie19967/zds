@@ -19,11 +19,25 @@ const formatDate = (ts) => {
   }
 };
 
+// Helper to get YYYY-MM from a timestamp
+const toYYYYMM = (ts) => {
+  try {
+    const d = ts?.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
+    if (Number.isNaN(d.getTime())) return '';
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    return `${y}-${m}`;
+  } catch {
+    return '';
+  }
+};
+
 const StudentsList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [rows, setRows] = useState([]);
   const [query, setQuery] = useState('');
+  const [month, setMonth] = useState(''); // YYYY-MM
 
   useEffect(() => {
     let mounted = true;
@@ -42,18 +56,24 @@ const StudentsList = () => {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter((r) =>
-      [
-        r.firstName,
-        r.lastName,
-        r.course,
-        r.admissionNumber,
-      ]
-        .filter(Boolean)
-        .some((v) => String(v).toLowerCase().includes(q))
-    );
-  }, [rows, query]);
+    const hasQuery = q.length > 0;
+    const hasMonth = !!month;
+    return rows.filter((r) => {
+      // Month filter by createdAt
+      if (hasMonth) {
+        const rowMonth = toYYYYMM(r.createdAt);
+        if (rowMonth !== month) return false;
+      }
+      // Text search
+      if (hasQuery) {
+        const fields = [r.firstName, r.lastName, r.course, r.admissionNumber]
+          .filter(Boolean)
+          .map((v) => String(v).toLowerCase());
+        return fields.some((v) => v.includes(q));
+      }
+      return true;
+    });
+  }, [rows, query, month]);
 
   return (
     <div className="zds-students-container">
@@ -75,6 +95,20 @@ const StudentsList = () => {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
+            </div>
+            <div className="zds-students-month-filter">
+              <label className="zds-students-month-label">Month</label>
+              <input
+                type="month"
+                className="zds-students-month-input"
+                value={month}
+                onChange={(e) => setMonth(e.target.value)}
+              />
+              {month && (
+                <button className="zds-students-add-btn" style={{ padding: '6px 10px' }} onClick={() => setMonth('')}>
+                  Clear
+                </button>
+              )}
             </div>
             <Link className="zds-students-add-btn" to="/admin/register">
               <svg className="zds-students-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,7 +143,7 @@ const StudentsList = () => {
                   <span className="zds-students-stat-label">Total Students</span>
                   <span className="zds-students-stat-value">{rows.length}</span>
                 </div>
-                {query && (
+                {(query || month) && (
                   <div className="zds-students-stat">
                     <span className="zds-students-stat-label">Filtered Results</span>
                     <span className="zds-students-stat-value">{filtered.length}</span>
@@ -219,7 +253,7 @@ const StudentsList = () => {
                             </svg>
                             <p className="zds-students-empty-title">No students found</p>
                             <p className="zds-students-empty-desc">
-                              {query ? 'Try adjusting your search terms' : 'No students have been registered yet'}
+                              {query || month ? 'Try adjusting the search or month filter' : 'No students have been registered yet'}
                             </p>
                           </div>
                         </td>

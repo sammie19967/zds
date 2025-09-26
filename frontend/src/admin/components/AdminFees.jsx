@@ -20,6 +20,8 @@ const AdminFees = () => {
   const [students, setStudents] = useState([]); 
   const [query, setQuery] = useState('');
   const [refreshToggle, setRefreshToggle] = useState(0);
+  // Simple navbar/tabs
+  const [activeTab, setActiveTab] = useState('record'); // 'fees' | 'record' | 'students'
 
   // Drafts to avoid auto-save on blur
   const [drivingDraft, setDrivingDraft] = useState({}); // { cls: { type: value } }
@@ -225,9 +227,35 @@ const AdminFees = () => {
 
   return (
     <div style={{ padding: 20 }}>
-      <h1 style={{ marginBottom: 16 }}>Admin: Fees Management</h1>
+      <h1 style={{ marginBottom: 12 }}>Admin: Fees Management</h1>
+
+      {/* Tabs navbar */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16, borderBottom: '1px solid #e5e7eb' }}>
+        <button
+          className={`student-detail-edit-button ${activeTab === 'record' ? 'is-active' : ''}`}
+          onClick={() => setActiveTab('record')}
+          style={{ padding: '8px 12px', borderBottom: activeTab === 'record' ? '2px solid #2563eb' : '2px solid transparent' }}
+        >
+          Record Payment
+        </button>
+        <button
+          className={`student-detail-edit-button ${activeTab === 'students' ? 'is-active' : ''}`}
+          onClick={() => setActiveTab('students')}
+          style={{ padding: '8px 12px', borderBottom: activeTab === 'students' ? '2px solid #2563eb' : '2px solid transparent' }}
+        >
+          Students & Balances
+        </button>
+        <button
+          className={`student-detail-edit-button ${activeTab === 'fees' ? 'is-active' : ''}`}
+          onClick={() => setActiveTab('fees')}
+          style={{ padding: '8px 12px', marginLeft: 'auto', borderBottom: activeTab === 'fees' ? '2px solid #2563eb' : '2px solid transparent' }}
+        >
+          Course Fees
+        </button>
+      </div>
 
       {/* Course Fees Editor */}
+      {activeTab === 'fees' && (
       <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <h2 style={{ margin: 0, marginBottom: 12 }}>Course Fees</h2>
@@ -418,8 +446,10 @@ const AdminFees = () => {
           </div>
         </div>
       </div>
-
+      )}
+ 
       {/* Payment Form */}
+      {activeTab === 'record' && (
       <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, marginBottom: 16 }}>
         <h2 style={{ margin: 0, marginBottom: 12 }}>Record Payment</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
@@ -530,8 +560,10 @@ const AdminFees = () => {
           </button>
         </div>
       </div>
-
+      )}
+ 
       {/* Students & Balances */}
+      {activeTab === 'students' && (
       <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
         <h2 style={{ margin: 0, marginBottom: 12 }}>Students & Balances</h2>
         <div style={{ marginBottom: 12 }}>
@@ -575,9 +607,10 @@ const AdminFees = () => {
           </table>
         </div>
       </div>
-      {loading && <div style={{ marginTop: 8, color: '#6b7280' }}>Loading...</div>}
-    </div>
-  );
+      )}
+       {loading && <div style={{ marginTop: 8, color: '#6b7280' }}>Loading...</div>}
+     </div>
+   );
 };
 
 export default AdminFees;
