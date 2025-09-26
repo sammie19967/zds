@@ -9,6 +9,8 @@ import {
   getStudentPaymentsTotal,
 } from '../../utils/firebase';
 
+import '../styles/AdminFees.css';
+
 const ALL_DRIVING_CLASSES = ['A1/A2','B1/B2','C1/C2','D1/D2'];
 const currency = (n) => `KSh ${Number(n || 0).toLocaleString()}`;
 
@@ -226,391 +228,303 @@ const AdminFees = () => {
   }, [selectedStudent, displayBaseFee]);
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1 style={{ marginBottom: 12 }}>Admin: Fees Management</h1>
+    <div className="admin-fees-container">
+      <div className="admin-fees-card">
+        <div className="admin-fees-card-header">
+          <div className="admin-fees-header-content">
+            <h1 className="admin-fees-page-title">Fees Management</h1>
+            <p className="admin-fees-page-subtitle">Manage course fees, record payments, and track student balances</p>
+          </div>
+          <div className="admin-fees-header-actions">
+            <div className="admin-fees-search">
+              <svg className="admin-fees-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search students..."
+                className="admin-fees-search-input"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
 
-      {/* Tabs navbar */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16, borderBottom: '1px solid #e5e7eb' }}>
-        <button
-          className={`student-detail-edit-button ${activeTab === 'record' ? 'is-active' : ''}`}
-          onClick={() => setActiveTab('record')}
-          style={{ padding: '8px 12px', borderBottom: activeTab === 'record' ? '2px solid #2563eb' : '2px solid transparent' }}
-        >
-          Record Payment
-        </button>
-        <button
-          className={`student-detail-edit-button ${activeTab === 'students' ? 'is-active' : ''}`}
-          onClick={() => setActiveTab('students')}
-          style={{ padding: '8px 12px', borderBottom: activeTab === 'students' ? '2px solid #2563eb' : '2px solid transparent' }}
-        >
-          Students & Balances
-        </button>
-        <button
-          className={`student-detail-edit-button ${activeTab === 'fees' ? 'is-active' : ''}`}
-          onClick={() => setActiveTab('fees')}
-          style={{ padding: '8px 12px', marginLeft: 'auto', borderBottom: activeTab === 'fees' ? '2px solid #2563eb' : '2px solid transparent' }}
-        >
-          Course Fees
-        </button>
-      </div>
+        {/* Stats Section */}
+        <div className="admin-fees-stats">
+          <div className="admin-fees-stat">
+            <span className="admin-fees-stat-label">Total Students</span>
+            <span className="admin-fees-stat-value">{filtered.length}</span>
+          </div>
+          <div className="admin-fees-stat">
+            <span className="admin-fees-stat-label">Outstanding Balance</span>
+            <span className="admin-fees-stat-value">KSh {filtered.reduce((acc, student) => acc + student.balance, 0).toLocaleString()}</span>
+          </div>
+          <div className="admin-fees-stat">
+            <span className="admin-fees-stat-label">Total Collected</span>
+            <span className="admin-fees-stat-value">KSh {filtered.reduce((acc, student) => acc + student.paymentsTotal, 0).toLocaleString()}</span>
+          </div>
+        </div>
 
-      {/* Course Fees Editor */}
-      {activeTab === 'fees' && (
-      <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h2 style={{ margin: 0, marginBottom: 12 }}>Course Fees</h2>
-          {!loading && (
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button
-                className="student-detail-edit-button"
-                onClick={() => setEditingDriving((v) => !v)}
-                style={{ padding: '8px 10px' }}
-              >
-                {editingDriving ? 'Done (Driving)' : 'Edit Driving'}
-              </button>
-              <button
-                className="student-detail-edit-button"
-                onClick={() => setEditingComputing((v) => !v)}
-                style={{ padding: '8px 10px' }}
-              >
-                {editingComputing ? 'Done (Computing)' : 'Edit Computing'}
-              </button>
+        {/* Navigation Tabs */}
+        <div className="admin-fees-nav">
+          <button
+            className={`admin-fees-tab ${activeTab === 'fees' ? 'admin-fees-tab-active' : ''}`}
+            onClick={() => setActiveTab('fees')}
+          >
+            Course Fees
+          </button>
+          <button
+            className={`admin-fees-tab ${activeTab === 'record' ? 'admin-fees-tab-active' : ''}`}
+            onClick={() => setActiveTab('record')}
+          >
+            Record Payment
+          </button>
+          <button
+            className={`admin-fees-tab ${activeTab === 'students' ? 'admin-fees-tab-active' : ''}`}
+            onClick={() => setActiveTab('students')}
+          >
+            Student Balances
+          </button>
+        </div>
+
+        <div className="admin-fees-card-content">
+          {activeTab === 'fees' && (
+            <div>
+              <h2 className="admin-fees-section-title">Course Fee Structure</h2>
+              <div className="admin-fees-grid admin-fees-grid-2">
+                {/* Driving Course Fees */}
+                <div className="admin-fees-fee-card">
+                  <div className="admin-fees-fee-card-header">Driving Course Fees</div>
+                  <div className="admin-fees-grid">
+                    {Object.keys(drivingFees).length === 0 ? (
+                      <div style={{ fontSize: 13, color: '#6b7280' }}>No driving fees set yet. Click "Edit Driving" to configure.</div>
+                    ) : (
+                      Object.entries(drivingFees).map(([cls, types]) => (
+                        <div key={cls} style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, marginBottom: 10 }}>
+                          <div style={{ fontWeight: 600, marginBottom: 8 }}>{cls}</div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+                            {['New Student','Endorsement','Refresher'].map((type) => (
+                              <div key={type}>
+                                <div style={{ fontSize: 12, color: '#6b7280' }}>{type}</div>
+                                <div style={{ fontWeight: 600 }}>{currency(types?.[type] || 0)}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* Computing Course Fees */}
+                <div className="admin-fees-fee-card">
+                  <div className="admin-fees-fee-card-header">Computing Course Fees</div>
+                  <div className="admin-fees-grid">
+                    {['Beginner','Intermediate'].map((level) => (
+                      <div key={level}>
+                        <div style={{ fontSize: 12, color: '#6b7280' }}>{level}</div>
+                        <div style={{ fontWeight: 600 }}>{currency(computingFees?.[level] || 0)}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'record' && (
+            <div>
+              <h2 className="admin-fees-section-title">Record Payment</h2>
+              
+              {/* Student Selection */}
+              <div className="admin-fees-student-selector">
+                <label className="admin-fees-label">Select Student</label>
+                <input
+                  type="text"
+                  className="admin-fees-input"
+                  placeholder="Type student name or ID..."
+                  value={studentQuery}
+                  onChange={(e) => {
+                    setStudentQuery(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
+                />
+                
+                {showSuggestions && studentQuery && (
+                  <div className="admin-fees-suggestions">
+                    {studentSuggestions.map((s) => (
+                      <div
+                        key={s.id}
+                        className="admin-fees-suggestion-item"
+                        onClick={() => {
+                          setSelectedStudentId(s.id);
+                          setStudentQuery(`${s.firstName || ''} ${s.lastName || ''} ${s.admissionNumber ? `(${s.admissionNumber})` : ''}`.trim());
+                          setShowSuggestions(false);
+                        }}
+                      >
+                        <div className="admin-fees-suggestion-name">{s.firstName} {s.lastName}</div>
+                        <div className="admin-fees-suggestion-details">
+                          ID: {s.admissionNumber || '-'} • {s.course}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Selected Student Details */}
+              {selectedStudent && (
+                <div className="admin-fees-selected-student">
+                  <h3 className="admin-fees-selected-student-name">{selectedStudent.firstName} {selectedStudent.lastName}</h3>
+                  <div className="admin-fees-selected-student-details">
+                    <div className="admin-fees-selected-student-detail">
+                      <span className="admin-fees-selected-student-detail-label">Student ID</span>
+                      <span className="admin-fees-selected-student-detail-value">{selectedStudent.admissionNumber || '-'}</span>
+                    </div>
+                    <div className="admin-fees-selected-student-detail">
+                      <span className="admin-fees-selected-student-detail-label">Course</span>
+                      <span className="admin-fees-selected-student-detail-value">{selectedStudent.course || '-'}</span>
+                    </div>
+                    <div className="admin-fees-selected-student-detail">
+                      <span className="admin-fees-selected-student-detail-label">Total Fees</span>
+                      <span className="admin-fees-selected-student-detail-value">KSh {selectedStudent.baseFee?.toLocaleString()}</span>
+                    </div>
+                    <div className="admin-fees-selected-student-detail">
+                      <span className="admin-fees-selected-student-detail-label">Paid Amount</span>
+                      <span className="admin-fees-selected-student-detail-value">KSh {selectedStudent.paymentsTotal?.toLocaleString()}</span>
+                    </div>
+                    <div className="admin-fees-selected-student-detail">
+                      <span className="admin-fees-selected-student-detail-label">Balance</span>
+                      <span className="admin-fees-selected-student-detail-value">KSh {(selectedStudent.baseFee - selectedStudent.paymentsTotal)?.toLocaleString()}</span>
+                    </div>
+                    <div className="admin-fees-selected-student-detail">
+                      <span className="admin-fees-selected-student-detail-label">Status</span>
+                      <select
+                        className="admin-fees-select"
+                        value={selectedStudent.feeStatus}
+                        onChange={(e) => {
+                          // Update student status
+                        }}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="partial">Partial</option>
+                        <option value="paid">Paid</option>
+                      </select>
+                    </div>
+                  </div>
+                  <p className="admin-fees-selected-student-note">
+                    Last payment: {selectedStudent.lastPayment ? new Date(selectedStudent.lastPayment).toLocaleDateString() : 'No payments yet'}
+                  </p>
+                </div>
+              )}
+
+              {/* Payment Form */}
+              {selectedStudent && (
+                <div className="admin-fees-grid admin-fees-grid-2" style={{ marginTop: '2rem' }}>
+                  <div className="admin-fees-fee-card">
+                    <div className="admin-fees-fee-card-header">Payment Details</div>
+                    <div className="admin-fees-grid">
+                      <div>
+                        <label className="admin-fees-label">Payment Amount</label>
+                        <input
+                          type="number"
+                          className="admin-fees-input"
+                          value={payment.amount}
+                          onChange={(e) => setPayment((p) => ({ ...p, amount: e.target.value }))}
+                          placeholder="Enter amount"
+                          max={selectedStudent.baseFee - selectedStudent.paymentsTotal}
+                        />
+                      </div>
+                      <div>
+                        <label className="admin-fees-label">Payment Method</label>
+                        <select
+                          className="admin-fees-select"
+                          value={payment.confirmationCode}
+                          onChange={(e) => setPayment((p) => ({ ...p, confirmationCode: e.target.value }))}
+                        >
+                          <option value="cash">Cash</option>
+                          <option value="card">Card</option>
+                          <option value="upi">UPI</option>
+                          <option value="bank_transfer">Bank Transfer</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="admin-fees-label">Transaction Reference</label>
+                        <input
+                          type="text"
+                          className="admin-fees-input"
+                          value={payment.note}
+                          onChange={(e) => setPayment((p) => ({ ...p, note: e.target.value }))}
+                          placeholder="Optional reference number"
+                        />
+                      </div>
+                    </div>
+                    <div style={{ marginTop: '1.5rem' }}>
+                      <button
+                        className="admin-fees-btn"
+                        onClick={submitPayment}
+                        disabled={!payment.amount || submittingPayment}
+                      >
+                        {submittingPayment ? 'Saving...' : 'Add Payment'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'students' && (
+            <div>
+              <h2 className="admin-fees-section-title">Student Fee Balances</h2>
+              
+              {loading ? (
+                <div className="admin-fees-loading">
+                  <div className="admin-fees-loading-spinner"></div>
+                  <p className="admin-fees-loading-text">Loading student data...</p>
+                </div>
+              ) : (
+                <div className="admin-fees-table-wrap">
+                  <table className="admin-fees-table">
+                    <thead>
+                      <tr>
+                        <th>Student</th>
+                        <th>Admission No.</th>
+                        <th>Course</th>
+                        <th>Course Fee</th>
+                        <th>Total Payments</th>
+                        <th>Balance</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filtered.map((s) => (
+                        <tr key={s.id}>
+                          <td>{s.firstName} {s.lastName}</td>
+                          <td>{s.admissionNumber || '-'}</td>
+                          <td>{s.course || '-'}</td>
+                          <td>{currency(s.baseFee || 0)}</td>
+                          <td>{currency(s.paymentsTotal || 0)}</td>
+                          <td><strong>{currency(s.balance || 0)}</strong></td>
+                        </tr>
+                      ))}
+                      {filtered.length === 0 && (
+                        <tr>
+                          <td colSpan={6} style={{ textAlign: 'center', padding: 16, color: '#6b7280' }}>No students found</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
         </div>
-
-        {/* DRIVING SECTION */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
-          <div>
-            <h3 style={{ margin: '6px 0' }}>Driving (by Class and Type)</h3>
-            {/* View mode */}
-            {!editingDriving && (
-              <div>
-                {Object.keys(drivingFees).length === 0 ? (
-                  <div style={{ fontSize: 13, color: '#6b7280' }}>No driving fees set yet. Click "Edit Driving" to configure.</div>
-                ) : (
-                  Object.entries(drivingFees).map(([cls, types]) => (
-                    <div key={cls} style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, marginBottom: 10 }}>
-                      <div style={{ fontWeight: 600, marginBottom: 8 }}>{cls}</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
-                        {['New Student','Endorsement','Refresher'].map((type) => (
-                          <div key={type}>
-                            <div style={{ fontSize: 12, color: '#6b7280' }}>{type}</div>
-                            <div style={{ fontWeight: 600 }}>{currency(types?.[type] || 0)}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-
-            {/* Edit mode */}
-            {editingDriving && (
-              <div>
-                {/* Add missing class control */}
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 10 }}>
-                  <label style={{ fontWeight: 600 }}>Add Class:</label>
-                  <select
-                    className="student-detail-select"
-                    value={newDrivingClass}
-                    onChange={(e) => setNewDrivingClass(e.target.value)}
-                    style={{ minWidth: 140 }}
-                  >
-                    <option value="">Select class</option>
-                    {ALL_DRIVING_CLASSES.filter((c) => !Object.keys(drivingDraft).includes(c)).map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                  <button
-                    className="student-detail-save-button"
-                    onClick={() => {
-                      if (!newDrivingClass) return;
-                      setDrivingDraft((prev) => ({
-                        ...prev,
-                        [newDrivingClass]: { 'New Student': '', 'Endorsement': '', 'Refresher': '' },
-                      }));
-                      setNewDrivingClass('');
-                    }}
-                    disabled={!ALL_DRIVING_CLASSES.some((c) => c === newDrivingClass) || Object.keys(drivingDraft).includes(newDrivingClass)}
-                    style={{ padding: '8px 10px' }}
-                  >
-                    Add Class
-                  </button>
-                </div>
-                {Object.keys(drivingDraft).length === 0 && (
-                  <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 8 }}>Initialize classes below, then Save per field.</div>
-                )}
-                {Object.entries(drivingDraft).map(([cls, types]) => (
-                  <div key={cls} style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, marginBottom: 10 }}>
-                    <div style={{ fontWeight: 600, marginBottom: 8 }}>{cls}</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
-                      {['New Student','Endorsement','Refresher'].map((type) => (
-                        <div key={type}>
-                          <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>{type}</label>
-                          <div style={{ display: 'flex', gap: 8 }}>
-                            <input
-                              type="number"
-                              className="student-detail-input"
-                              value={types?.[type] ?? ''}
-                              onChange={(e) => setDrivingDraft((prev) => ({
-                                ...prev,
-                                [cls]: { ...(prev[cls] || {}), [type]: e.target.value }
-                              }))}
-                              placeholder="e.g., 15000"
-                              onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
-                            />
-                            <button
-                              className="student-detail-save-button"
-                              onClick={() => saveDriving(cls, type)}
-                              disabled={savingFees}
-                            >
-                              Save
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-                {/* Quick setup */}
-                {Object.keys(drivingDraft).length === 0 && (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
-                    {['A1/A2','B1/B2','C1/C2','D1/D2'].map((cls) => (
-                      <div key={cls} style={{ border: '1px dashed #e5e7eb', borderRadius: 8, padding: 12 }}>
-                        <div style={{ fontWeight: 600, marginBottom: 8 }}>{cls}</div>
-                        {['New Student','Endorsement','Refresher'].map((type) => (
-                          <div key={type} style={{ marginBottom: 8 }}>
-                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>{type}</label>
-                            <div style={{ display: 'flex', gap: 8 }}>
-                              <input
-                                type="number"
-                                className="student-detail-input"
-                                value={drivingDraft?.[cls]?.[type] ?? ''}
-                                onChange={(e) => setDrivingDraft((prev) => ({
-                                  ...prev,
-                                  [cls]: { ...(prev[cls] || {}), [type]: e.target.value }
-                                }))}
-                                placeholder="e.g., 15000"
-                                onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
-                              />
-                              <button className="student-detail-save-button" onClick={() => saveDriving(cls, type)} disabled={savingFees}>Save</button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* COMPUTING SECTION */}
-          <div>
-            <h3 style={{ margin: '6px 0' }}>Computing (by Level)</h3>
-            {/* View mode */}
-            {!editingComputing && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
-                {['Beginner','Intermediate'].map((level) => (
-                  <div key={level}>
-                    <div style={{ fontSize: 12, color: '#6b7280' }}>{level}</div>
-                    <div style={{ fontWeight: 600 }}>{currency(computingFees?.[level] || 0)}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Edit mode */}
-            {editingComputing && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
-                {['Beginner','Intermediate'].map((level) => (
-                  <div key={level}>
-                    <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>{level}</label>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <input
-                        type="number"
-                        className="student-detail-input"
-                        value={computingDraft?.[level] ?? ''}
-                        onChange={(e) => setComputingDraft((prev) => ({ ...prev, [level]: e.target.value }))}
-                        placeholder="e.g., 6000"
-                        onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
-                      />
-                      <button className="student-detail-save-button" onClick={() => saveComputing(level)} disabled={savingFees}>Save</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
       </div>
-      )}
- 
-      {/* Payment Form */}
-      {activeTab === 'record' && (
-      <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, marginBottom: 16 }}>
-        <h2 style={{ margin: 0, marginBottom: 12 }}>Record Payment</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
-          <div style={{ position: 'relative' }}>
-            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Find Student (Name or Admission No.)</label>
-            <input
-              className="student-detail-input"
-              placeholder="Start typing... e.g., Jane, John Doe, 0007"
-              value={studentQuery}
-              onChange={(e) => { setStudentQuery(e.target.value); setShowSuggestions(true); }}
-              onFocus={() => setShowSuggestions(true)}
-              onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
-            />
-            {showSuggestions && studentSuggestions.length > 0 && (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: 0,
-                  right: 0,
-                  background: '#fff',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: 8,
-                  marginTop: 4,
-                  zIndex: 20,
-                  maxHeight: 260,
-                  overflowY: 'auto',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.08)'
-                }}
-                onMouseLeave={() => setShowSuggestions(false)}
-              >
-                {studentSuggestions.map((s) => (
-                  <div
-                    key={s.id}
-                    onClick={() => {
-                      setSelectedStudentId(s.id);
-                      setStudentQuery(`${s.firstName || ''} ${s.lastName || ''} ${s.admissionNumber ? `(${s.admissionNumber})` : ''}`.trim());
-                      setShowSuggestions(false);
-                    }}
-                    style={{ padding: '8px 10px', cursor: 'pointer' }}
-                    className="zds-suggestion-item"
-                  >
-                    <div style={{ fontWeight: 600 }}>{s.firstName} {s.lastName} {s.admissionNumber ? `(${s.admissionNumber})` : ''}</div>
-                    <div style={{ fontSize: 12, color: '#6b7280' }}>{s.course || '-'}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {selectedStudent && (
-              <div style={{ fontSize: 12, color: '#374151', marginTop: 8, background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 8, padding: 10 }}>
-                <div><strong>Selected:</strong> {selectedStudent.firstName} {selectedStudent.lastName} {selectedStudent.admissionNumber ? `(${selectedStudent.admissionNumber})` : ''}</div>
-                <div style={{ display: 'flex', gap: 12, marginTop: 4, color: '#6b7280', flexWrap: 'wrap' }}>
-                  <span>Course: <strong>{selectedStudent.course || '-'}</strong></span>
-                  {selectedStudent.course === 'Driving' && (
-                    <>
-                      <span>
-                        Type:
-                        <select className="student-detail-select" value={payDrivingType} onChange={(e) => setPayDrivingType(e.target.value)} style={{ marginLeft: 6 }}>
-                          <option value="New Student">New Student</option>
-                          <option value="Endorsement">Endorsement</option>
-                          <option value="Refresher">Refresher</option>
-                        </select>
-                      </span>
-                      <span>
-                        Class:
-                        <select className="student-detail-select" value={payDrivingClass} onChange={(e) => setPayDrivingClass(e.target.value)} style={{ marginLeft: 6 }}>
-                          {ALL_DRIVING_CLASSES.map((c) => (<option key={c} value={c}>{c}</option>))}
-                        </select>
-                      </span>
-                    </>
-                  )}
-                  {selectedStudent.course === 'Computing' && (
-                    <span>
-                      Level:
-                      <select className="student-detail-select" value={payComputingLevel} onChange={(e) => setPayComputingLevel(e.target.value)} style={{ marginLeft: 6 }}>
-                        <option value="Beginner">Beginner</option>
-                        <option value="Intermediate">Intermediate</option>
-                      </select>
-                    </span>
-                  )}
-                  <span>Base fee: <strong>{currency(displayBaseFee || 0)}</strong></span>
-                  <span>Total paid: <strong>{currency(selectedStudent.paymentsTotal || 0)}</strong></span>
-                  <span>Balance: <strong>{currency(displayBalance || 0)}</strong></span>
-                </div>
-                <div style={{ color: '#6b7280', marginTop: 6 }}>
-                  This selection only affects the fee context for this payment guidance. To permanently set a student's class/level, edit their profile.
-                </div>
-              </div>
-            )}
-          </div>
-          <div>
-            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Amount</label>
-            <input type="number" className="student-detail-input" value={payment.amount} onChange={(e) => setPayment((p) => ({ ...p, amount: e.target.value }))} placeholder="e.g., 5000" onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }} />
-          </div>
-          <div>
-            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Confirmation Code</label>
-            <input type="text" className="student-detail-input" value={payment.confirmationCode} onChange={(e) => setPayment((p) => ({ ...p, confirmationCode: e.target.value }))} placeholder="e.g., MPESA/Bank ref" onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }} />
-          </div>
-          {/* Paid At auto-recorded using current time; no manual entry needed */}
-          <div style={{ gridColumn: '1 / -1' }}>
-            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Note (optional)</label>
-            <input type="text" className="student-detail-input" value={payment.note} onChange={(e) => setPayment((p) => ({ ...p, note: e.target.value }))} placeholder="e.g., Paid at branch X" onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }} />
-          </div>
-        </div>
-        <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-          <button className="student-detail-save-button" onClick={submitPayment} disabled={submittingPayment || !selectedStudentId || !Number(payment.amount)}>
-            {submittingPayment ? 'Saving...' : 'Add Payment'}
-          </button>
-        </div>
-      </div>
-      )}
- 
-      {/* Students & Balances */}
-      {activeTab === 'students' && (
-      <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
-        <h2 style={{ margin: 0, marginBottom: 12 }}>Students & Balances</h2>
-        <div style={{ marginBottom: 12 }}>
-          <input
-            className="student-detail-input"
-            placeholder="Search by name, course, admission no..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
-          />
-        </div>
-        <div className="zds-students-table-wrap">
-          <table className="zds-students-table">
-            <thead>
-              <tr>
-                <th>Student</th>
-                <th>Admission No.</th>
-                <th>Course</th>
-                <th>Course Fee</th>
-                <th>Total Payments</th>
-                <th>Balance</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((s) => (
-                <tr key={s.id}>
-                  <td>{s.firstName} {s.lastName}</td>
-                  <td>{s.admissionNumber || '-'}</td>
-                  <td>{s.course || '-'}</td>
-                  <td>{currency(s.baseFee || 0)}</td>
-                  <td>{currency(s.paymentsTotal || 0)}</td>
-                  <td><strong>{currency(s.balance || 0)}</strong></td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: 16, color: '#6b7280' }}>No students found</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      )}
-       {loading && <div style={{ marginTop: 8, color: '#6b7280' }}>Loading...</div>}
-     </div>
-   );
+    </div>
+  );
 };
 
 export default AdminFees;

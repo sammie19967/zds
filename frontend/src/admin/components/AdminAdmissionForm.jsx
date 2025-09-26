@@ -3,7 +3,7 @@ import modal from '../../utils/modal';
 import { submitAdminAdmission } from '../../utils/firebase';
 import { uploadAdminPassportToCloudinary } from '../../utils/cloudinary';
 
-import '../../styles/AdmissionForm.css';
+import '../styles/AdmissionForm.css';
 import logo from '../../assets/logo.png';
 import { motion } from 'framer-motion';
 
@@ -255,36 +255,54 @@ const AdminAdmissionForm = () => {
   ];
 
   return (
-    <div className="multi-form-container">
-      <div className="form-header">
-        <div className="form-logo">
-          <img src={logo} alt="Logo" className="logo-img" />
+    <div className="admin-admission-container">
+      <div className="admin-admission-header">
+        <div className="admin-admission-logo">
+          <img src={logo} alt="Logo" className="admin-admission-logo-img" />
         </div>
-        <h1 className="form-title">Admin: Register New Student</h1>
+        <h1 className="admin-admission-title">Admin: Register New Student</h1>
       </div>
 
-      <div className="multi-progress-bar">
-        <div className="multi-progress" style={{ width: `${(step / 3) * 100}%` }}></div>
+      <div className="admin-admission-progress-bar">
+        <div className="admin-admission-progress" style={{ width: `${(step / 3) * 100}%` }}></div>
       </div>
 
       {step === 1 && (
-        <motion.div className="multi-form-step active" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
+        <motion.div className="admin-admission-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
           <h2>Step 1: Personal Information</h2>
-          <div className="form-row">
-            <div className="form-group">
+          <div className="admin-admission-row">
+            <div className="admin-admission-group">
               <label htmlFor="firstName">First Name *</label>
-              <input id="firstName" type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="Enter first name" className={errors.firstName ? 'error' : ''} required />
-              {errors.firstName && <span className="error-text">{errors.firstName}</span>}
+              <input 
+                id="firstName" 
+                type="text" 
+                name="firstName" 
+                value={formData.firstName} 
+                onChange={handleChange} 
+                placeholder="Enter first name" 
+                className={`admin-admission-input ${errors.firstName ? 'admin-admission-error' : ''}`} 
+                required 
+              />
+              {errors.firstName && <span className="admin-admission-error-text">{errors.firstName}</span>}
             </div>
-            <div className="form-group">
+            <div className="admin-admission-group">
               <label htmlFor="lastName">Last Name *</label>
-              <input id="lastName" type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Enter last name" className={errors.lastName ? 'error' : ''} required />
-              {errors.lastName && <span className="error-text">{errors.lastName}</span>}
+              <input 
+                id="lastName" 
+                type="text" 
+                name="lastName" 
+                value={formData.lastName} 
+                onChange={handleChange} 
+                placeholder="Enter last name" 
+                className={`admin-admission-input ${errors.lastName ? 'admin-admission-error' : ''}`} 
+                required 
+              />
+              {errors.lastName && <span className="admin-admission-error-text">{errors.lastName}</span>}
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
+          <div className="admin-admission-row">
+            <div className="admin-admission-group">
               <label htmlFor="dateOfBirth">Date of Birth *</label>
               <input
                 id="dateOfBirth"
@@ -292,15 +310,22 @@ const AdminAdmissionForm = () => {
                 name="dateOfBirth"
                 value={formData.dateOfBirth}
                 onChange={handleChange}
-                className={errors.dateOfBirth ? 'error' : ''}
+                className={`admin-admission-input ${errors.dateOfBirth ? 'admin-admission-error' : ''}`}
                 required
                 max={new Date().toISOString().split('T')[0]}
               />
-              {errors.dateOfBirth && <span className="error-text">{errors.dateOfBirth}</span>}
+              {errors.dateOfBirth && <span className="admin-admission-error-text">{errors.dateOfBirth}</span>}
             </div>
-            <div className="form-group">
+            <div className="admin-admission-group">
               <label htmlFor="nationality">Nationality *</label>
-              <select id="nationality" name="nationality" value={formData.nationality} onChange={handleChange} className={errors.nationality ? 'error' : ''} required>
+              <select 
+                id="nationality" 
+                name="nationality" 
+                value={formData.nationality} 
+                onChange={handleChange} 
+                className={`admin-admission-select ${errors.nationality ? 'admin-admission-error' : ''}`} 
+                required
+              >
                 <option value="">Select Country</option>
                 <option value="Kenya">Kenya</option>
                 <option value="Uganda">Uganda</option>
@@ -310,42 +335,42 @@ const AdminAdmissionForm = () => {
                 <option value="South Sudan">South Sudan</option>
                 <option value="Other">Other</option>
               </select>
-              {errors.nationality && <span className="error-text">{errors.nationality}</span>}
+              {errors.nationality && <span className="admin-admission-error-text">{errors.nationality}</span>}
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
+          <div className="admin-admission-row">
+            <div className="admin-admission-group">
               <label htmlFor="nationalIdOrPassport">National ID / Passport *</label>
-              <input id="nationalIdOrPassport" type="text" name="nationalIdOrPassport" value={formData.nationalIdOrPassport} onChange={handleChange} placeholder="Enter ID or Passport number" className={errors.nationalIdOrPassport ? 'error' : ''} required />
-              {errors.nationalIdOrPassport && <span className="error-text">{errors.nationalIdOrPassport}</span>}
+              <input 
+                id="nationalIdOrPassport" 
+                type="text" 
+                name="nationalIdOrPassport" 
+                value={formData.nationalIdOrPassport} 
+                onChange={handleChange} 
+                placeholder="Enter ID or Passport number" 
+                className={`admin-admission-input ${errors.nationalIdOrPassport ? 'admin-admission-error' : ''}`} 
+                required 
+              />
+              {errors.nationalIdOrPassport && <span className="admin-admission-error-text">{errors.nationalIdOrPassport}</span>}
             </div>
-            <div className="form-group">
+            <div className="admin-admission-group">
               <label htmlFor="passportFile">Passport Photo (JPEG/PNG, max 2MB) *</label>
               <div
+                className={`admin-admission-upload-area ${dragActive ? 'admin-admission-drag-active' : ''}`}
                 onDragOver={onDragOver}
                 onDragLeave={onDragLeave}
                 onDrop={onDrop}
-                style={{
-                  border: `2px dashed ${dragActive ? '#2563eb' : '#e5e7eb'}`,
-                  background: dragActive ? 'rgba(37,99,235,0.03)' : '#fff',
-                  borderRadius: 8,
-                  padding: 16,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 8,
-                  alignItems: 'flex-start',
-                }}
               >
                 <input id="passportFile" type="file" name="passportFile" accept="image/*" onChange={handleChange} style={{ display: 'none' }} />
-                <label htmlFor="passportFile" style={{ cursor: 'pointer', color: '#2563eb', fontWeight: 600 }}>
+                <label htmlFor="passportFile" className="admin-admission-upload-label">
                   Click to choose a file or drag & drop here
                 </label>
-                {errors.passportFile && <span className="error-text">{errors.passportFile}</span>}
+                {errors.passportFile && <span className="admin-admission-error-text">{errors.passportFile}</span>}
                 {passportPreview && (
-                  <div className="image-preview" style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <img src={passportPreview} alt="Passport preview" style={{ width: 96, height: 96, objectFit: 'cover', borderRadius: 8, border: '1px solid #e5e7eb' }} />
-                    <button type="button" className="multi-button" onClick={removePassport} style={{ padding: '6px 10px' }}>
+                  <div className="admin-admission-image-preview">
+                    <img src={passportPreview} alt="Passport preview" className="admin-admission-preview-img" />
+                    <button type="button" className="admin-admission-button admin-admission-button-secondary admin-admission-button-small" onClick={removePassport}>
                       Remove
                     </button>
                   </div>
@@ -354,35 +379,46 @@ const AdminAdmissionForm = () => {
             </div>
           </div>
 
-          <motion.button className="multi-button right" onClick={nextStep} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            Next
-          </motion.button>
+          <div className="admin-admission-button-group">
+            <div className="admin-admission-button-right">
+              <motion.button className="admin-admission-button admin-admission-button-primary" onClick={nextStep} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                Next
+              </motion.button>
+            </div>
+          </div>
         </motion.div>
       )}
 
       {step === 2 && (
-        <motion.div className="multi-form-step active" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
+        <motion.div className="admin-admission-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
           <h2>Step 2: Course Selection</h2>
-          <div className="form-group">
+          <div className="admin-admission-group">
             <label htmlFor="course">Course *</label>
-            <select id="course" name="course" value={formData.course} onChange={handleChange} className={errors.course ? 'error' : ''} required>
+            <select 
+              id="course" 
+              name="course" 
+              value={formData.course} 
+              onChange={handleChange} 
+              className={`admin-admission-select ${errors.course ? 'admin-admission-error' : ''}`} 
+              required
+            >
               <option value="">Select Course</option>
               <option value="Driving">Driving</option>
               <option value="Computing">Computing</option>
             </select>
-            {errors.course && <span className="error-text">{errors.course}</span>}
+            {errors.course && <span className="admin-admission-error-text">{errors.course}</span>}
           </div>
 
           {formData.course === 'Driving' && (
             <>
-              <div className="form-group">
+              <div className="admin-admission-group">
                 <label htmlFor="drivingType">Driving Type *</label>
                 <select
                   id="drivingType"
                   name="drivingType"
                   value={formData.drivingType}
                   onChange={handleChange}
-                  className={errors.drivingType ? 'error' : ''}
+                  className={`admin-admission-select ${errors.drivingType ? 'admin-admission-error' : ''}`}
                   required
                 >
                   <option value="">Select Type</option>
@@ -390,18 +426,18 @@ const AdminAdmissionForm = () => {
                   <option value="Endorsement">Endorsement</option>
                   <option value="Refresher">Refresher</option>
                 </select>
-                {errors.drivingType && <span className="error-text">{errors.drivingType}</span>}
+                {errors.drivingType && <span className="admin-admission-error-text">{errors.drivingType}</span>}
               </div>
 
               {formData.drivingType === 'Endorsement' && (
-                <div className="form-group">
+                <div className="admin-admission-group">
                   <label htmlFor="endorsementClass">Endorsement Class *</label>
                   <select
                     id="endorsementClass"
                     name="endorsementClass"
                     value={formData.endorsementClass}
                     onChange={handleChange}
-                    className={errors.endorsementClass ? 'error' : ''}
+                    className={`admin-admission-select ${errors.endorsementClass ? 'admin-admission-error' : ''}`}
                     required
                   >
                     <option value="">Select Class</option>
@@ -409,7 +445,7 @@ const AdminAdmissionForm = () => {
                       <option key={opt} value={opt}>{opt}</option>
                     ))}
                   </select>
-                  {errors.endorsementClass && <span className="error-text">{errors.endorsementClass}</span>}
+                  {errors.endorsementClass && <span className="admin-admission-error-text">{errors.endorsementClass}</span>}
                 </div>
               )}
             </>
@@ -417,39 +453,39 @@ const AdminAdmissionForm = () => {
 
           {formData.course === 'Computing' && (
             <>
-              <div className="form-group">
+              <div className="admin-admission-group">
                 <label htmlFor="computingLevel">Experience Level *</label>
                 <select
                   id="computingLevel"
                   name="computingLevel"
                   value={formData.computingLevel}
                   onChange={handleChange}
-                  className={errors.computingLevel ? 'error' : ''}
+                  className={`admin-admission-select ${errors.computingLevel ? 'admin-admission-error' : ''}`}
                   required
                 >
                   <option value="">Select Level</option>
                   <option value="Beginner">Beginner</option>
                   <option value="Intermediate">Intermediate</option>
                 </select>
-                {errors.computingLevel && <span className="error-text">{errors.computingLevel}</span>}
+                {errors.computingLevel && <span className="admin-admission-error-text">{errors.computingLevel}</span>}
               </div>
 
               {formData.computingLevel === 'Beginner' && (
-                <div className="form-group">
+                <div className="admin-admission-group">
                   <label>Beginner Courses (All included)</label>
-                  <div className="courses-list">
+                  <div className="admin-admission-courses-list">
                     {beginnerCourses.map((course) => (
-                      <div key={course} className="course-item">{course}</div>
+                      <div key={course} className="admin-admission-course-item">{course}</div>
                     ))}
                   </div>
                 </div>
               )}
               {formData.computingLevel === 'Intermediate' && (
-                <div className="form-group">
+                <div className="admin-admission-group">
                   <label>Intermediate Courses (All included)</label>
-                  <div className="courses-list">
+                  <div className="admin-admission-courses-list">
                     {intermediateCourses.map((course) => (
-                      <div key={course} className="course-item">{course}</div>
+                      <div key={course} className="admin-admission-course-item">{course}</div>
                     ))}
                   </div>
                 </div>
@@ -457,11 +493,11 @@ const AdminAdmissionForm = () => {
             </>
           )}
 
-          <div className="multi-button-group">
-            <motion.button className="multi-button" onClick={prevStep} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <div className="admin-admission-button-group">
+            <motion.button className="admin-admission-button admin-admission-button-secondary" onClick={prevStep} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               Back
             </motion.button>
-            <motion.button className="multi-button right" onClick={nextStep} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <motion.button className="admin-admission-button admin-admission-button-primary" onClick={nextStep} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               Next
             </motion.button>
           </div>
@@ -469,39 +505,39 @@ const AdminAdmissionForm = () => {
       )}
 
       {step === 3 && (
-        <motion.div className="multi-form-step active" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
+        <motion.div className="admin-admission-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
           <h2>Step 3: Review & Submit</h2>
 
-          <div className="summary-section">
+          <div className="admin-admission-summary-section">
             <h3>Summary</h3>
-            <div className="summary-grid">
-              <div className="summary-item"><strong>Name:</strong> {formData.firstName} {formData.lastName}</div>
-              <div className="summary-item"><strong>DOB:</strong> {formData.dateOfBirth}</div>
-              <div className="summary-item"><strong>Nationality:</strong> {formData.nationality}</div>
-              <div className="summary-item"><strong>ID/Passport:</strong> {formData.nationalIdOrPassport}</div>
-              <div className="summary-item"><strong>Course:</strong> {formData.course}</div>
+            <div className="admin-admission-summary-grid">
+              <div className="admin-admission-summary-item"><strong>Name:</strong> {formData.firstName} {formData.lastName}</div>
+              <div className="admin-admission-summary-item"><strong>DOB:</strong> {formData.dateOfBirth}</div>
+              <div className="admin-admission-summary-item"><strong>Nationality:</strong> {formData.nationality}</div>
+              <div className="admin-admission-summary-item"><strong>ID/Passport:</strong> {formData.nationalIdOrPassport}</div>
+              <div className="admin-admission-summary-item"><strong>Course:</strong> {formData.course}</div>
               {formData.course === 'Driving' && (
                 <>
-                  <div className="summary-item"><strong>Driving Type:</strong> {formData.drivingType}</div>
+                  <div className="admin-admission-summary-item"><strong>Driving Type:</strong> {formData.drivingType}</div>
                   {formData.drivingType !== 'Endorsement' && (
-                    <div className="summary-item"><strong>Driving Class:</strong> {formData.drivingClass || 'B1/B2'}</div>
+                    <div className="admin-admission-summary-item"><strong>Driving Class:</strong> {formData.drivingClass || 'B1/B2'}</div>
                   )}
                   {formData.drivingType === 'Endorsement' && (
-                    <div className="summary-item"><strong>Endorsement Class:</strong> {formData.endorsementClass}</div>
+                    <div className="admin-admission-summary-item"><strong>Endorsement Class:</strong> {formData.endorsementClass}</div>
                   )}
                 </>
               )}
               {formData.course === 'Computing' && (
-                <div className="summary-item"><strong>Experience Level:</strong> {formData.computingLevel}</div>
+                <div className="admin-admission-summary-item"><strong>Experience Level:</strong> {formData.computingLevel}</div>
               )}
             </div>
           </div>
 
-          <div className="multi-button-group">
-            <motion.button className="multi-button" onClick={prevStep} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <div className="admin-admission-button-group">
+            <motion.button className="admin-admission-button admin-admission-button-secondary" onClick={prevStep} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               Back
             </motion.button>
-            <motion.button className="multi-button right" onClick={handleSubmit} disabled={isSubmitting} whileHover={{ scale: isSubmitting ? 1 : 1.05 }} whileTap={{ scale: isSubmitting ? 1 : 0.95 }}>
+            <motion.button className="admin-admission-button admin-admission-button-primary" onClick={handleSubmit} disabled={isSubmitting} whileHover={{ scale: isSubmitting ? 1 : 1.05 }} whileTap={{ scale: isSubmitting ? 1 : 0.95 }}>
               {isSubmitting ? 'Submitting...' : 'Submit Admission'}
             </motion.button>
           </div>

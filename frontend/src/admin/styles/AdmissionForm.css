@@ -1,0 +1,395 @@
+/* Admin Admission Form Styles - Unique Classnames */
+:root {
+  --admin-admission-primary: #3b82f6;
+  --admin-admission-primary-hover: #2563eb;
+  --admin-admission-primary-light: rgba(59, 130, 246, 0.1);
+  --admin-admission-text-primary: #1e293b;
+  --admin-admission-text-secondary: #64748b;
+  --admin-admission-text-muted: #94a3b8;
+  --admin-admission-background: #f8fafc;
+  --admin-admission-card-bg: #ffffff;
+  --admin-admission-border: #e2e8f0;
+  --admin-admission-border-light: #f1f5f9;
+  --admin-admission-error: #ef4444;
+  --admin-admission-success: #10b981;
+  --admin-admission-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --admin-admission-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Main Container */
+.admin-admission-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: var(--admin-admission-background);
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Form Header */
+.admin-admission-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  background: var(--admin-admission-card-bg);
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: var(--admin-admission-shadow);
+  border: 1px solid var(--admin-admission-border-light);
+}
+
+.admin-admission-logo {
+  margin-bottom: 1rem;
+}
+
+.admin-admission-logo-img {
+  height: 64px;
+  width: auto;
+  object-fit: contain;
+}
+
+.admin-admission-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--admin-admission-text-primary);
+  margin: 0;
+  background: linear-gradient(135deg, var(--admin-admission-primary), #1e40af);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Progress Bar */
+.admin-admission-progress-bar {
+  background: var(--admin-admission-border-light);
+  height: 8px;
+  border-radius: 4px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.admin-admission-progress {
+  height: 100%;
+  background: linear-gradient(90deg, var(--admin-admission-primary), #1e40af);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  box-shadow: 0 1px 2px rgba(59, 130, 246, 0.3);
+}
+
+/* Form Steps */
+.admin-admission-step {
+  background: var(--admin-admission-card-bg);
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: var(--admin-admission-shadow);
+  border: 1px solid var(--admin-admission-border-light);
+  margin-bottom: 1rem;
+}
+
+.admin-admission-step h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--admin-admission-text-primary);
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--admin-admission-border-light);
+}
+
+/* Form Layout */
+.admin-admission-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .admin-admission-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.admin-admission-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-admission-group label {
+  font-weight: 500;
+  color: var(--admin-admission-text-primary);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Form Inputs */
+.admin-admission-input,
+.admin-admission-select {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--admin-admission-border);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--admin-admission-text-primary);
+  background: var(--admin-admission-card-bg);
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.admin-admission-input:focus,
+.admin-admission-select:focus {
+  outline: none;
+  border-color: var(--admin-admission-primary);
+  box-shadow: 0 0 0 3px var(--admin-admission-primary-light);
+}
+
+.admin-admission-input::placeholder {
+  color: var(--admin-admission-text-muted);
+}
+
+.admin-admission-input.admin-admission-error,
+.admin-admission-select.admin-admission-error {
+  border-color: var(--admin-admission-error);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Error Text */
+.admin-admission-error-text {
+  color: var(--admin-admission-error);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+/* File Upload Area */
+.admin-admission-upload-area {
+  border: 2px dashed var(--admin-admission-border);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.2s ease;
+  background: var(--admin-admission-card-bg);
+}
+
+.admin-admission-upload-area.admin-admission-drag-active {
+  border-color: var(--admin-admission-primary);
+  background: var(--admin-admission-primary-light);
+}
+
+.admin-admission-upload-label {
+  cursor: pointer;
+  color: var(--admin-admission-primary);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.admin-admission-upload-label:hover {
+  color: var(--admin-admission-primary-hover);
+}
+
+/* Image Preview */
+.admin-admission-image-preview {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-admission-preview-img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  border: 1px solid var(--admin-admission-border);
+  box-shadow: var(--admin-admission-shadow);
+}
+
+/* Buttons */
+.admin-admission-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  min-height: 44px;
+}
+
+.admin-admission-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-admission-button-primary {
+  background: linear-gradient(135deg, var(--admin-admission-primary), #1e40af);
+  color: white;
+  box-shadow: var(--admin-admission-shadow);
+}
+
+.admin-admission-button-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--admin-admission-primary-hover), #1e3a8a);
+  transform: translateY(-1px);
+  box-shadow: var(--admin-admission-shadow-lg);
+}
+
+.admin-admission-button-secondary {
+  background: var(--admin-admission-card-bg);
+  color: var(--admin-admission-text-primary);
+  border: 1px solid var(--admin-admission-border);
+}
+
+.admin-admission-button-secondary:hover:not(:disabled) {
+  background: var(--admin-admission-background);
+  transform: translateY(-1px);
+  box-shadow: var(--admin-admission-shadow);
+}
+
+.admin-admission-button-small {
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+}
+
+/* Button Groups */
+.admin-admission-button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--admin-admission-border-light);
+}
+
+.admin-admission-button-right {
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .admin-admission-button-group {
+    flex-direction: column;
+  }
+  
+  .admin-admission-button-right {
+    margin-left: 0;
+  }
+}
+
+/* Course Lists */
+.admin-admission-courses-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--admin-admission-background);
+  border-radius: 0.5rem;
+  border: 1px solid var(--admin-admission-border-light);
+}
+
+.admin-admission-course-item {
+  padding: 0.5rem 0.75rem;
+  background: var(--admin-admission-card-bg);
+  border: 1px solid var(--admin-admission-border);
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--admin-admission-text-secondary);
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Summary Section */
+.admin-admission-summary-section {
+  margin-bottom: 2rem;
+}
+
+.admin-admission-summary-section h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--admin-admission-text-primary);
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--admin-admission-border-light);
+}
+
+.admin-admission-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.admin-admission-summary-item {
+  padding: 0.75rem;
+  background: var(--admin-admission-background);
+  border: 1px solid var(--admin-admission-border-light);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--admin-admission-text-secondary);
+}
+
+.admin-admission-summary-item strong {
+  color: var(--admin-admission-text-primary);
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-admission-container {
+    padding: 1rem;
+  }
+  
+  .admin-admission-header {
+    padding: 1.5rem;
+  }
+  
+  .admin-admission-step {
+    padding: 1.5rem;
+  }
+  
+  .admin-admission-title {
+    font-size: 1.5rem;
+  }
+  
+  .admin-admission-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Loading and Error States */
+.admin-admission-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  color: var(--admin-admission-text-secondary);
+}
+
+.admin-admission-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--admin-admission-border);
+  border-top: 3px solid var(--admin-admission-primary);
+  border-radius: 50%;
+  animation: admin-admission-spin 1s linear infinite;
+}
+
+@keyframes admin-admission-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.admin-admission-error-state {
+  padding: 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 0.5rem;
+  color: var(--admin-admission-error);
+  font-weight: 500;
+  text-align: center;
+}
