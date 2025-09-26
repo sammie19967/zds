@@ -1,6 +1,12 @@
 /* Import Google Fonts to match other components */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
+/* CSS Custom Properties for consistent navbar height */
+:root {
+  --navbar-height: 80px;
+  --navbar-height-mobile: 70px;
+}
+
 /* Navbar Container */
 .navbar {
   position: fixed;
@@ -15,11 +21,28 @@
   transition: all 0.3s ease;
   padding: 0;
   font-family: 'Inter', sans-serif;
+  height: var(--navbar-height);
 }
 
-/* Add body padding to prevent content hiding behind fixed navbar */
-body {
-  padding-top: 80px;
+/* Universal solution: Add top margin to any direct child of body that comes after navbar */
+body > * {
+  margin-top: var(--navbar-height);
+}
+
+/* Reset margin for navbar itself */
+.navbar {
+  margin-top: 0 !important;
+}
+
+/* Reset margin for elements that should not be affected */
+.navbar,
+.navbar *,
+script,
+style,
+meta,
+title,
+head {
+  margin-top: 0 !important;
 }
 
 /* Scrolled state - more opaque background */
@@ -238,10 +261,6 @@ body {
 }
 
 @media (max-width: 768px) {
-  body {
-    padding-top: 70px;
-  }
-
   .navbar-container {
     height: 70px;
     padding: 0 1rem 0 1rem; /* Keep left padding, remove right padding */
