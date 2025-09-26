@@ -47,6 +47,8 @@ const MainApp = () => (
       <Route path="/admin/signup" element={<Signup />} />
       <Route path="/admin/enquiries" element={<AdminInquiries />} />
       <Route path="/admin/fuel" element={<AdminFuel />} />
+
+      <Route path="/navbar" element={<Navbar />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
     <Footer />
