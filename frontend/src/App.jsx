@@ -25,6 +25,7 @@ import StudentsList from './admin/components/StudentsList';
 import StudentDetail from './admin/components/StudentDetail';
 import AdminFees from './admin/components/AdminFees';
 import AdminPaymentHistory from './admin/components/AdminPaymentHistory';
+import AdminInquiries from './admin/components/AdminInquiries';
 
 const MainApp = () => (
   <>
@@ -43,6 +44,7 @@ const MainApp = () => (
       <Route path="/feesStructure" element={<FeesStructure />} />
       <Route path="/admin/login" element={<Login />} />
       <Route path="/admin/signup" element={<Signup />} />
+      <Route path="/admin/enquiries" element={<AdminInquiries />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
     <Footer />
@@ -100,7 +102,7 @@ const AdminApp = () => (
     } />
     <Route path="/admin/enquiries" element={
       <ProtectedAdminRoute>
-        <div>Enquiries Management</div>
+        <AdminInquiries />
       </ProtectedAdminRoute>
     } />
     {/* Optional: Catch-all for unmatched admin routes */}

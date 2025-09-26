@@ -305,3 +305,91 @@ export async function getStudentPaymentsTotal(studentId) {
   const payments = await listStudentPayments(studentId);
   return payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
 }
+
+// ===== Fuel Tracking Helpers =====
+// Settings doc: settings/fuel { pricePerLitre: number, updatedAt }
+export async function getFuelSettings() {
+  const ref = doc(db, 'settings', 'fuel');
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return { pricePerLitre: 0 };
+  const d = snap.data() || {};
+  return { pricePerLitre: Number(d.pricePerLitre || 0), ...d };
+}
+
+export async function setFuelPricePerLitre(price) {
+  const ref = doc(db, 'settings', 'fuel');
+  await runTransaction(db, async (txn) => {
+    const s = await txn.get(ref);
+    const payload = { pricePerLitre: Number(price) || 0, updatedAt: serverTimestamp() };
+    if (!s.exists()) txn.set(ref, { ...payload, createdAt: serverTimestamp() });
+    else txn.update(ref, payload);
+  });
+}
+
+// Fuel logs collection: fuel_logs
+// Each log shape:
+// {
+//   dateISO: 'YYYY-MM-DD',
+//   dateMs: number (midnight millis),
+//   vehicleId: string | '',
+//   startOdo: number,
+//   endOdo: number,
+//   distanceKm: number,
+//   litres: number,
+//   pricePerLitre: number, // resolved effective price (settings or override)
+//   fuelCost: number, // litres * pricePerLitre
+//   students: [{ id, name }],
+//   note: string,
+//   createdAt: serverTimestamp()
+// }
+export async function addFuelLog(log) {
+  const colRef = collection(db, 'fuel_logs');
+  const start = Number(log.startOdo) || 0;
+  const end = Number(log.endOdo) || 0;
+  const distanceKm = Math.max(0, end - start);
+  const litres = Number(log.litres) || 0;
+  let effectivePrice = Number(log.pricePerLitre);
+  if (!effectivePrice) {
+    const settings = await getFuelSettings();
+    effectivePrice = Number(settings.pricePerLitre || 0);
+  }
+  const fuelCost = Number((litres * effectivePrice).toFixed(2));
+  const dateISO = log.dateISO || new Date().toISOString().slice(0, 10);
+  const dateMs = log.dateMs || new Date(`${dateISO}T00:00:00`).getTime();
+  const payload = {
+    dateISO,
+    dateMs,
+    vehicleId: log.vehicleId || '',
+    startOdo: start,
+    endOdo: end,
+    distanceKm,
+    litres,
+    pricePerLitre: effectivePrice,
+    fuelCost,
+    students: Array.isArray(log.students) ? log.students.map(s => ({ id: s.id, name: s.name })) : [],
+    note: log.note || '',
+    createdAt: serverTimestamp(),
+  };
+  await addDoc(colRef, payload);
+  return payload;
+}
+
+export async function listFuelLogs({ take = 200, month = '', startMs = null, endMs = null } = {}) {
+  const colRef = collection(db, 'fuel_logs');
+  let qParts = [];
+  // Filter by month (YYYY-MM) or by range
+  if (month && /^\d{4}-\d{2}$/.test(month)) {
+    const start = new Date(`${month}-01T00:00:00`).getTime();
+    const end = new Date(new Date(`${month}-01T00:00:00`).getFullYear(), new Date(`${month}-01T00:00:00`).getMonth() + 1, 1).getTime();
+    qParts.push(where('dateMs', '>=', start));
+    qParts.push(where('dateMs', '<', end));
+  } else if (typeof startMs === 'number' && typeof endMs === 'number') {
+    qParts.push(where('dateMs', '>=', startMs));
+    qParts.push(where('dateMs', '<=', endMs));
+  }
+  qParts.push(orderBy('dateMs', 'desc'));
+  qParts.push(limit(take));
+  const qRef = query(colRef, ...qParts);
+  const snap = await getDocs(qRef);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
