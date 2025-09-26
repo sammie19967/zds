@@ -67,132 +67,142 @@ const AdminDashboard = () => {
   ]), [stats]);
 
   return (
-    <div className="dashboard">
+    <div className="admin-dashboard-container">
       {/* Header */}
-      <div className="dashboard-header">
-        <div>
-          <h1>Dashboard</h1>
-          <p>Key metrics and recent activity</p>
+      <div className="admin-dashboard-header">
+        <div className="admin-dashboard-header-content">
+          <h1 className="admin-dashboard-page-title">Dashboard</h1>
+          <p className="admin-dashboard-page-subtitle">Key metrics and recent activity</p>
         </div>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <div className="search">
-            <FaSearch className="search-icon" />
-            <input className="search-input" placeholder="Search students, enquiries..." />
+        <div className="admin-dashboard-header-actions">
+          <div className="admin-dashboard-search">
+            <FaSearch className="admin-dashboard-search-icon" />
+            <input className="admin-dashboard-search-input" placeholder="Search students, enquiries..." />
           </div>
-          <div className="zds-students-month-filter">
-            <label className="zds-students-month-label">Month</label>
-            <input type="month" className="zds-students-month-input" value={month} onChange={(e)=>setMonth(e.target.value)} />
+          <div className="admin-dashboard-month-filter">
+            <label className="admin-dashboard-month-label">Month</label>
+            <input type="month" className="admin-dashboard-month-input" value={month} onChange={(e)=>setMonth(e.target.value)} />
           </div>
         </div>
       </div>
 
-      {loading && <div style={{ padding: 16, color: '#6b7280' }}>Loading dashboard...</div>}
+      {loading && (
+        <div className="admin-dashboard-loading">
+          <div className="admin-dashboard-loading-spinner"></div>
+          <p className="admin-dashboard-loading-text">Loading dashboard...</p>
+        </div>
+      )}
+      
       {error && (
-        <div style={{ padding: 16, color: '#ef4444' }}>{error}</div>
+        <div className="admin-dashboard-error">
+          <span className="admin-dashboard-error-text">{error}</span>
+        </div>
       )}
 
       {!loading && !error && (
         <>
           {/* Stats Grid */}
-          <div className="stats-grid">
+          <div className="admin-dashboard-stats-grid">
             {cards.map((c) => (
-              <Link key={c.label} to={c.to} className="stat-card" style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div className={`stat-icon chip-${c.tone}`}>{c.icon}</div>
-                <div className="stat-info">
-                  <span className="stat-label">{c.label}</span>
-                  <strong className="stat-value">{c.value}</strong>
+              <Link key={c.label} to={c.to} className="admin-dashboard-stat-card">
+                <div className={`admin-dashboard-stat-icon admin-dashboard-chip-${c.tone}`}>{c.icon}</div>
+                <div className="admin-dashboard-stat-info">
+                  <span className="admin-dashboard-stat-label">{c.label}</span>
+                  <strong className="admin-dashboard-stat-value">{c.value}</strong>
                 </div>
               </Link>
             ))}
           </div>
 
           {/* Two-column layout */}
-          <div className="main-grid">
+          <div className="admin-dashboard-main-grid">
             {/* Quick Actions + Recent */}
-            <div className="left-column">
+            <div className="admin-dashboard-left-column">
               {/* Quick Actions */}
-              <div className="card">
-                <div className="card-header">
-                  <h2>Quick Actions</h2>
+              <div className="admin-dashboard-card">
+                <div className="admin-dashboard-card-header">
+                  <h2 className="admin-dashboard-card-title">Quick Actions</h2>
                 </div>
-                <div className="actions-grid">
-                  <Link to="/admin/register" className="btn action-btn">
-                    <span className="btn-icon"><FaPlus /></span>
-                    <span className="btn-label">Register Student</span>
+                <div className="admin-dashboard-actions-grid">
+                  <Link to="/admin/register" className="admin-dashboard-action-btn">
+                    <span className="admin-dashboard-btn-icon"><FaPlus /></span>
+                    <span className="admin-dashboard-btn-label">Register Student</span>
                   </Link>
-                  <Link to="/admin/fees" className="btn action-btn">
-                    <span className="btn-icon"><FaMoneyBillWave /></span>
-                    <span className="btn-label">Record Payment</span>
+                  <Link to="/admin/fees" className="admin-dashboard-action-btn">
+                    <span className="admin-dashboard-btn-icon"><FaMoneyBillWave /></span>
+                    <span className="admin-dashboard-btn-label">Record Payment</span>
                   </Link>
-                  <Link to="/admin/fuel" className="btn action-btn">
-                    <span className="btn-icon"><FaGasPump /></span>
-                    <span className="btn-label">Fuel Log</span>
+                  <Link to="/admin/fuel" className="admin-dashboard-action-btn">
+                    <span className="admin-dashboard-btn-icon"><FaGasPump /></span>
+                    <span className="admin-dashboard-btn-label">Fuel Log</span>
                   </Link>
-                  <Link to="/admin/enquiries" className="btn action-btn">
-                    <span className="btn-icon"><FaEnvelope /></span>
-                    <span className="btn-label">View Inquiries</span>
+                  <Link to="/admin/enquiries" className="admin-dashboard-action-btn">
+                    <span className="admin-dashboard-btn-icon"><FaEnvelope /></span>
+                    <span className="admin-dashboard-btn-label">View Inquiries</span>
                   </Link>
                 </div>
               </div>
 
               {/* Recent Students */}
-              <div className="card">
-                <div className="card-header">
-                  <h2>Recent Students</h2>
-                  <Link to="/admin/students" className="btn link">View all</Link>
+              <div className="admin-dashboard-card">
+                <div className="admin-dashboard-card-header">
+                  <h2 className="admin-dashboard-card-title">Recent Students</h2>
+                  <Link to="/admin/students" className="admin-dashboard-btn admin-dashboard-btn-link">View all</Link>
                 </div>
-                <ul className="activity-list">
+                <ul className="admin-dashboard-activity-list">
                   {recentStudents.map((s) => (
-                    <li key={s.id} className="activity-item">
-                      <span className="activity-time">{s.admissionNumber || s.id.slice(0,8)}</span>
-                      <span className="activity-text">{s.firstName} {s.lastName} — {s.course}</span>
+                    <li key={s.id} className="admin-dashboard-activity-item">
+                      <span className="admin-dashboard-activity-time">{s.admissionNumber || s.id.slice(0,8)}</span>
+                      <span className="admin-dashboard-activity-text">{s.firstName} {s.lastName} — {s.course}</span>
                     </li>
                   ))}
                   {recentStudents.length === 0 && (
-                    <li className="activity-item">No recent admissions</li>
+                    <li className="admin-dashboard-activity-item">No recent admissions</li>
                   )}
                 </ul>
               </div>
 
               {/* Recent Enquiries */}
-              <div className="card">
-                <div className="card-header">
-                  <h2>Recent Enquiries</h2>
-                  <Link to="/admin/enquiries" className="btn link">View all</Link>
+              <div className="admin-dashboard-card">
+                <div className="admin-dashboard-card-header">
+                  <h2 className="admin-dashboard-card-title">Recent Enquiries</h2>
+                  <Link to="/admin/enquiries" className="admin-dashboard-btn admin-dashboard-btn-link">View all</Link>
                 </div>
-                <ul className="activity-list">
+                <ul className="admin-dashboard-activity-list">
                   {recentEnquiries.map((e) => (
-                    <li key={e.id} className="activity-item">
-                      <span className="activity-time">{new Date(e.createdAt?.seconds ? e.createdAt.seconds * 1000 : e.createdAt).toLocaleDateString?.() || ''}</span>
-                      <span className="activity-text">{e.name} — {e.subject || 'General Inquiry'}</span>
+                    <li key={e.id} className="admin-dashboard-activity-item">
+                      <span className="admin-dashboard-activity-time">{new Date(e.createdAt?.seconds ? e.createdAt.seconds * 1000 : e.createdAt).toLocaleDateString?.() || ''}</span>
+                      <span className="admin-dashboard-activity-text">{e.name} — {e.subject || 'General Inquiry'}</span>
                     </li>
                   ))}
                   {recentEnquiries.length === 0 && (
-                    <li className="activity-item">No recent enquiries</li>
+                    <li className="admin-dashboard-activity-item">No recent enquiries</li>
                   )}
                 </ul>
               </div>
             </div>
 
             {/* Sidebar: Summary cards */}
-            <div className="card schedule">
-              <h2>Summary</h2>
-              <ul className="schedule-list">
-                <li className="schedule-row">
-                  <span>Fees (MoM)</span>
-                  <strong>{currency(stats.paymentsMonth)}</strong>
+            <div className="admin-dashboard-summary">
+              <div className="admin-dashboard-summary-header">
+                <h2 className="admin-dashboard-summary-title">Summary</h2>
+              </div>
+              <ul className="admin-dashboard-summary-list">
+                <li className="admin-dashboard-summary-row">
+                  <span className="admin-dashboard-summary-label">Fees (MoM)</span>
+                  <strong className="admin-dashboard-summary-value">{currency(stats.paymentsMonth)}</strong>
                 </li>
-                <li className="schedule-row">
-                  <span>Fuel Cost (MoM)</span>
-                  <strong>{currency(stats.fuelCostMonth)}</strong>
+                <li className="admin-dashboard-summary-row">
+                  <span className="admin-dashboard-summary-label">Fuel Cost (MoM)</span>
+                  <strong className="admin-dashboard-summary-value">{currency(stats.fuelCostMonth)}</strong>
                 </li>
-                <li className="schedule-row">
-                  <span>Enquiries (MoM)</span>
-                  <strong>{stats.enquiriesMonth}</strong>
+                <li className="admin-dashboard-summary-row">
+                  <span className="admin-dashboard-summary-label">Enquiries (MoM)</span>
+                  <strong className="admin-dashboard-summary-value">{stats.enquiriesMonth}</strong>
                 </li>
-                <li className="schedule-row">
-                  <span>Applications (MoM)</span>
-                  <strong>{stats.applicationsMonth}</strong>
+                <li className="admin-dashboard-summary-row">
+                  <span className="admin-dashboard-summary-label">Applications (MoM)</span>
+                  <strong className="admin-dashboard-summary-value">{stats.applicationsMonth}</strong>
                 </li>
               </ul>
             </div>
