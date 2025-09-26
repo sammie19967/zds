@@ -260,6 +260,7 @@
 .admin-inquiries-message-content {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -268,6 +269,7 @@
 .admin-inquiries-message-full {
   display: block;
   -webkit-line-clamp: unset;
+  line-clamp: unset;
 }
 
 .admin-inquiries-message-toggle {
@@ -517,6 +519,7 @@
 .zds-inquiries-message-content {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -525,6 +528,7 @@
 
 .zds-inquiries-message-expanded {
   -webkit-line-clamp: unset;
+  line-clamp: unset;
   max-height: none;
   overflow: visible;
 }

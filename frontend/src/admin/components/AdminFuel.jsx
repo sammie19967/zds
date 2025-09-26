@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import PropTypes from 'prop-types';
 import {
   getFuelSettings,
   setFuelPricePerLitre,
@@ -64,7 +65,9 @@ const AdminFuel = () => {
       try {
         const sts = await listAdminAdmissions({ take: 400 });
         setStudents(sts || []);
-      } catch {}
+      } catch (error) {
+        console.error('Failed to load students:', error);
+      }
     })();
   }, []);
 
@@ -610,5 +613,11 @@ function FuelTable({ loading, rows, showFuel }) {
     </div>
   );
 }
+
+FuelTable.propTypes = {
+  loading: PropTypes.bool,
+  rows: PropTypes.array,
+  showFuel: PropTypes.bool,
+};
 
 export default AdminFuel;

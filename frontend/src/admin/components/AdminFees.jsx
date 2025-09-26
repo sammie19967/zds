@@ -2,8 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import modal from '../../utils/modal';
 import {
   getStructuredFees,
-  setDrivingFee,
-  setComputingFee,
+
   listAdminAdmissions,
   addStudentPayment,
   getStudentPaymentsTotal,
@@ -11,12 +10,10 @@ import {
 
 import '../styles/AdminFees.css';
 
-const ALL_DRIVING_CLASSES = ['A1/A2','B1/B2','C1/C2','D1/D2'];
 const currency = (n) => `KSh ${Number(n || 0).toLocaleString()}`;
 
 const AdminFees = () => {
   const [loading, setLoading] = useState(true);
-  const [savingFees, setSavingFees] = useState(false);
   const [drivingFees, setDrivingFees] = useState({}); 
   const [computingFees, setComputingFees] = useState({}); 
   const [students, setStudents] = useState([]); 
@@ -25,20 +22,10 @@ const AdminFees = () => {
   // Simple navbar/tabs
   const [activeTab, setActiveTab] = useState('record'); // 'fees' | 'record' | 'students'
 
-  // Drafts to avoid auto-save on blur
-  const [drivingDraft, setDrivingDraft] = useState({}); // { cls: { type: value } }
-  const [computingDraft, setComputingDraft] = useState({}); // { level: value }
-
-  // Edit toggles
-  const [editingDriving, setEditingDriving] = useState(false);
-  const [editingComputing, setEditingComputing] = useState(false);
-  // Add-class control
-  const [newDrivingClass, setNewDrivingClass] = useState('');
-
   // Payment form
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [payment, setPayment] = useState({ amount: '', method: 'cash', confirmationCode: '', note: '' });
-  const [submittingPayment, setSubmittingPayment] = useState(false);
+  const [submittingPayment] = useState(false);
   // Typeahead for student selection
   const [studentQuery, setStudentQuery] = useState('');
   const [studentSuggestions, setStudentSuggestions] = useState([]);
@@ -58,13 +45,6 @@ const AdminFees = () => {
         if (mounted) {
           setDrivingFees(driving || {});
           setComputingFees(computing || {});
-          // Initialize drafts
-          const dd = {};
-          Object.entries(driving || {}).forEach(([cls, types]) => {
-            dd[cls] = { ...(types || {}) };
-          });
-          setDrivingDraft(dd);
-          setComputingDraft({ ...(computing || {}) });
         }
 
         // Load students
@@ -142,34 +122,6 @@ const AdminFees = () => {
     );
   }, [students, query]);
 
-  const saveDriving = async (cls, type) => {
-    const val = Number(drivingDraft?.[cls]?.[type] ?? 0);
-    try {
-      setSavingFees(true);
-      await setDrivingFee(cls, type, val);
-      await modal.success({ title: 'Saved', text: `Driving fee updated for ${cls} • ${type}.` });
-      setRefreshToggle((x) => x + 1);
-    } catch (e) {
-      await modal.error({ title: 'Failed to save fee', text: e?.message || 'Please try again.' });
-    } finally {
-      setSavingFees(false);
-    }
-  };
-
-  const saveComputing = async (level) => {
-    const val = Number(computingDraft?.[level] ?? 0);
-    try {
-      setSavingFees(true);
-      await setComputingFee(level, val);
-      await modal.success({ title: 'Saved', text: `Computing fee updated for ${level}.` });
-      setRefreshToggle((x) => x + 1);
-    } catch (e) {
-      await modal.error({ title: 'Failed to save fee', text: e?.message || 'Please try again.' });
-    } finally {
-      setSavingFees(false);
-    }
-  };
-
   const submitPayment = async () => {
     if (!selectedStudentId) {
       await modal.error({ title: 'Select a student', text: 'Please choose a student to record the payment for.' });
@@ -187,7 +139,6 @@ const AdminFees = () => {
     });
     if (!confirm) return;
     try {
-      setSubmittingPayment(true);
       await addStudentPayment(selectedStudentId, {
         amount: amt,
         method: payment.method,
@@ -199,8 +150,6 @@ const AdminFees = () => {
       setRefreshToggle((x) => x + 1);
     } catch (e) {
       await modal.error({ title: 'Failed to add payment', text: e?.message || 'Please try again.' });
-    } finally {
-      setSubmittingPayment(false);
     }
   };
 
@@ -222,11 +171,6 @@ const AdminFees = () => {
     }
     return 0;
   }, [selectedStudent, payDrivingType, payDrivingClass, payComputingLevel, drivingFees, computingFees]);
-
-  const displayBalance = useMemo(() => {
-    if (!selectedStudent) return 0;
-    return Math.max(0, Number(displayBaseFee) - Number(selectedStudent.paymentsTotal || 0));
-  }, [selectedStudent, displayBaseFee]);
 
   return (
     <div className="admin-fees-container">
@@ -422,7 +366,7 @@ const AdminFees = () => {
                           value={payment.amount}
                           onChange={(e) => setPayment((p) => ({ ...p, amount: e.target.value }))}
                           placeholder="Enter amount"
-                          max={selectedStudent.baseFee - selectedStudent.paymentsTotal}
+                          max={displayBaseFee - selectedStudent.paymentsTotal}
                         />
                       </div>
                       <div>
