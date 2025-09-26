@@ -11,7 +11,7 @@ import Enroll from './pages/Enroll';
 import ComputingCatalog from './pages/ComputingCatalog';
 import DrivingCatalog from './pages/DrivingCatalog';
 import AdmissionForm from './components/AdmissionForm';
-import WhatsAppIcon from './components/WhatsAppIcon';
+import WhatsAppIcon from './components/WhatsappIcon';
 import FeesStructure from './pages/FeesStructure';
 import AdminDashboard from './admin/components/AdminDashboard';
 import AdminAdmissionForm from './admin/components/AdminAdmissionForm';
