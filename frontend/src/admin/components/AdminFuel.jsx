@@ -6,7 +6,7 @@ import {
   listFuelLogs,
   listAdminAdmissions,
 } from '../../utils/firebase';
-import '../styles/StudentsList.css';
+import '../styles/AdminFuel.css';
 import modal from '../../utils/modal';
 
 const currency = (n) => `KSh ${Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
@@ -227,116 +227,255 @@ const AdminFuel = () => {
   }, [logs]);
 
   return (
-    <div className="zds-students-container">
-      <div className="zds-students-card">
-        <div className="zds-students-card-header" style={{ paddingBottom: 0 }}>
-          <div className="zds-students-header-content">
-            <h2 className="zds-students-page-title">Fuel Tracking</h2>
-            <p className="zds-students-page-subtitle">Log daily mileage and fuel, track costs and efficiency</p>
+    <div className="admin-fuel-container">
+      <div className="admin-fuel-card">
+        <div className="admin-fuel-card-header">
+          <div className="admin-fuel-header-content">
+            <h1 className="admin-fuel-page-title">Fuel Tracking</h1>
+            <p className="admin-fuel-page-subtitle">Log daily mileage and fuel, track costs and efficiency</p>
           </div>
-          <div className="zds-students-header-actions">
-            <button className="zds-students-add-btn" style={{ background: activeTab==='log'?'linear-gradient(135deg, #3b82f6, #2563eb)':'#e5e7eb', color: activeTab==='log'?'#fff':'#111827' }} onClick={() => setActiveTab('log')}>Log Entry</button>
-            <button className="zds-students-add-btn" style={{ background: activeTab==='logs'?'linear-gradient(135deg, #3b82f6, #2563eb)':'#e5e7eb', color: activeTab==='logs'?'#fff':'#111827' }} onClick={() => setActiveTab('logs')}>Daily Logs</button>
-            <button className="zds-students-add-btn" style={{ background: activeTab==='reports'?'linear-gradient(135deg, #3b82f6, #2563eb)':'#e5e7eb', color: activeTab==='reports'?'#fff':'#111827' }} onClick={() => setActiveTab('reports')}>Reports</button>
-            <button className="zds-students-add-btn" style={{ background: activeTab==='settings'?'linear-gradient(135deg, #3b82f6, #2563eb)':'#e5e7eb', color: activeTab==='settings'?'#fff':'#111827' }} onClick={() => setActiveTab('settings')}>Settings</button>
+          <div className="admin-fuel-header-actions">
+            <div className="admin-fuel-month-filter">
+              <label className="admin-fuel-label">Month</label>
+              <input 
+                type="month" 
+                className="admin-fuel-month-input" 
+                value={month} 
+                onChange={(e) => setMonth(e.target.value)} 
+              />
+            </div>
           </div>
         </div>
 
-        <div className="zds-students-card-content" style={{ padding: '1rem 1.5rem 1.5rem' }}>
+        {/* Stats Section */}
+        <div className="admin-fuel-stats">
+          <div className="admin-fuel-stat">
+            <span className="admin-fuel-stat-label">Total Distance</span>
+            <span className="admin-fuel-stat-value">{totals.distanceKm} km</span>
+          </div>
+          <div className="admin-fuel-stat">
+            <span className="admin-fuel-stat-label">Total Litres</span>
+            <span className="admin-fuel-stat-value">{totals.litres}</span>
+          </div>
+          <div className="admin-fuel-stat">
+            <span className="admin-fuel-stat-label">Fuel Cost</span>
+            <span className="admin-fuel-stat-value">{currency(totals.fuelCost)}</span>
+          </div>
+          <div className="admin-fuel-stat">
+            <span className="admin-fuel-stat-label">Efficiency</span>
+            <span className="admin-fuel-stat-value">{(totals.distanceKm && totals.litres) ? `${(totals.distanceKm / totals.litres).toFixed(2)} km/L` : '-'}</span>
+          </div>
+        </div>
+
+        {/* Navigation Tabs */}
+        <div className="admin-fuel-nav">
+          <button
+            className={`admin-fuel-tab ${activeTab === 'log' ? 'admin-fuel-tab-active' : ''}`}
+            onClick={() => setActiveTab('log')}
+          >
+            Log Entry
+          </button>
+          <button
+            className={`admin-fuel-tab ${activeTab === 'logs' ? 'admin-fuel-tab-active' : ''}`}
+            onClick={() => setActiveTab('logs')}
+          >
+            Daily Logs
+          </button>
+          <button
+            className={`admin-fuel-tab ${activeTab === 'reports' ? 'admin-fuel-tab-active' : ''}`}
+            onClick={() => setActiveTab('reports')}
+          >
+            Reports
+          </button>
+          <button
+            className={`admin-fuel-tab ${activeTab === 'settings' ? 'admin-fuel-tab-active' : ''}`}
+            onClick={() => setActiveTab('settings')}
+          >
+            Settings
+          </button>
+        </div>
+
+        <div className="admin-fuel-card-content">
           {activeTab === 'settings' && (
-            <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
-              <h3>Price Per Litre</h3>
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 8 }}>
-                <input type="number" className="student-detail-input" placeholder="e.g., 190" value={pricePerLitre} onChange={(e)=>setPricePerLitre(e.target.value)} disabled={loadingSettings} />
-                <button className="student-detail-save-button" onClick={saveSettings} disabled={loadingSettings || !Number(pricePerLitre)}>Save</button>
+            <div>
+              <h2 className="admin-fuel-section-title">Fuel Settings</h2>
+              <div className="admin-fuel-section-card">
+                <div className="admin-fuel-section-card-header">Price Per Litre</div>
+                <div className="admin-fuel-grid admin-fuel-grid-3">
+                  <div>
+                    <label className="admin-fuel-label">Current Price (KSh)</label>
+                    <input 
+                      type="number" 
+                      className="admin-fuel-input" 
+                      placeholder="e.g., 190" 
+                      value={pricePerLitre} 
+                      onChange={(e) => setPricePerLitre(e.target.value)} 
+                      disabled={loadingSettings} 
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'end' }}>
+                    <button 
+                      className="admin-fuel-btn" 
+                      onClick={saveSettings} 
+                      disabled={loadingSettings || !Number(pricePerLitre)}
+                    >
+                      {loadingSettings ? 'Saving...' : 'Save Price'}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
           {activeTab === 'log' && (
-            <div style={{ display: 'grid', gap: 16 }}>
-              {/* Daily Running Section */}
-              <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
-                <h3>Daily Running</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginTop: 8 }}>
-                  <div>
-                    <label className="zds-students-month-label">Start Odo</label>
-                    <input type="number" className="student-detail-input" value={startOdo} onChange={(e)=>setStartOdo(e.target.value)} />
-                  </div>
-                  <div>
-                    <label className="zds-students-month-label">End Odo</label>
-                    <input type="number" className="student-detail-input" value={endOdo} onChange={(e)=>setEndOdo(e.target.value)} />
-                  </div>
-                  <div>
-                    <label className="zds-students-month-label">Distance</label>
-                    <div className="student-detail-input" style={{ display: 'flex', alignItems: 'center', background: '#f9fafb' }}>{distance} km</div>
-                  </div>
-                  <div>
-                    <label className="zds-students-month-label">Vehicle (optional)</label>
-                    <input type="text" className="student-detail-input" placeholder="Reg / Name" value={vehicleId} onChange={(e)=>setVehicleId(e.target.value)} />
-                  </div>
-                  <div style={{ gridColumn: '1 / -1' }}>
-                    <label className="zds-students-month-label">Students Trained Today</label>
-                    <div style={{ position: 'relative' }}>
-                      <input className="student-detail-input" placeholder="Search by name or admission no..." value={studentQuery} onChange={(e)=>setStudentQuery(e.target.value)} />
-                      {studentSuggestions.length > 0 && (
-                        <div style={{ position: 'absolute', background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, marginTop: 4, zIndex: 30, maxHeight: 220, overflowY: 'auto', width: '100%' }}>
-                          {studentSuggestions.map(s => (
-                            <div key={s.id} className="zds-suggestion-item" onClick={()=>addStudent(s)} style={{ padding: '8px 10px', cursor: 'pointer' }}>
-                              {(s.firstName || '')} {(s.lastName || '')} {s.admissionNumber ? `(${s.admissionNumber})` : ''}
+            <div>
+              <h2 className="admin-fuel-section-title">Fuel Log Entry</h2>
+              <div className="admin-fuel-grid admin-fuel-grid-2">
+                {/* Daily Running Section */}
+                <div className="admin-fuel-section-card">
+                  <div className="admin-fuel-section-card-header">Daily Running</div>
+                  <div className="admin-fuel-grid">
+                    <div>
+                      <label className="admin-fuel-label">Start Odometer</label>
+                      <input 
+                        type="number" 
+                        className="admin-fuel-input" 
+                        value={startOdo} 
+                        onChange={(e) => setStartOdo(e.target.value)} 
+                        placeholder="Starting reading"
+                      />
+                    </div>
+                    <div>
+                      <label className="admin-fuel-label">End Odometer</label>
+                      <input 
+                        type="number" 
+                        className="admin-fuel-input" 
+                        value={endOdo} 
+                        onChange={(e) => setEndOdo(e.target.value)} 
+                        placeholder="Ending reading"
+                      />
+                    </div>
+                    <div>
+                      <label className="admin-fuel-label">Distance Covered</label>
+                      <div className="admin-fuel-calculated">{distance} km</div>
+                    </div>
+                    <div>
+                      <label className="admin-fuel-label">Vehicle (Optional)</label>
+                      <input 
+                        type="text" 
+                        className="admin-fuel-input" 
+                        placeholder="Registration / Name" 
+                        value={vehicleId} 
+                        onChange={(e) => setVehicleId(e.target.value)} 
+                      />
+                    </div>
+                    <div className="admin-fuel-grid-full">
+                      <label className="admin-fuel-label">Students Trained Today</label>
+                      <div className="admin-fuel-student-selector">
+                        <input 
+                          className="admin-fuel-input" 
+                          placeholder="Search by name or admission number..." 
+                          value={studentQuery} 
+                          onChange={(e) => setStudentQuery(e.target.value)} 
+                        />
+                        {studentSuggestions.length > 0 && (
+                          <div className="admin-fuel-suggestions">
+                            {studentSuggestions.map(s => (
+                              <div 
+                                key={s.id} 
+                                className="admin-fuel-suggestion-item" 
+                                onClick={() => addStudent(s)}
+                              >
+                                {(s.firstName || '')} {(s.lastName || '')} {s.admissionNumber ? `(${s.admissionNumber})` : ''}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {selectedStudents.length > 0 && (
+                        <div className="admin-fuel-selected-students">
+                          {selectedStudents.map(st => (
+                            <div key={st.id} className="admin-fuel-student-tag">
+                              <span>{st.name}</span>
+                              <button 
+                                className="admin-fuel-student-tag-remove"
+                                onClick={() => removeStudent(st.id)}
+                              >
+                                ✕
+                              </button>
                             </div>
                           ))}
                         </div>
                       )}
                     </div>
-                    {selectedStudents.length > 0 && (
-                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
-                        {selectedStudents.map(st => (
-                          <div key={st.id} style={{ background: '#eef2ff', color: '#3730a3', borderRadius: 999, padding: '4px 10px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span>{st.name}</span>
-                            <button onClick={()=>removeStudent(st.id)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#6b7280' }}>✕</button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <div className="admin-fuel-grid-full">
+                      <label className="admin-fuel-label">Notes (Optional)</label>
+                      <input 
+                        className="admin-fuel-input" 
+                        value={noteDaily} 
+                        onChange={(e) => setNoteDaily(e.target.value)} 
+                        placeholder="e.g., Training route details" 
+                      />
+                    </div>
                   </div>
-                  <div style={{ gridColumn: '1 / -1' }}>
-                    <label className="zds-students-month-label">Note (optional)</label>
-                    <input className="student-detail-input" value={noteDaily} onChange={(e)=>setNoteDaily(e.target.value)} placeholder="e.g., Training route X" />
+                  <div style={{ marginTop: '1.5rem' }}>
+                    <button 
+                      className="admin-fuel-btn" 
+                      onClick={submitLog} 
+                      disabled={savingDaily || !(Number(endOdo) > Number(startOdo))}
+                    >
+                      {savingDaily ? 'Saving...' : 'Save Daily Running'}
+                    </button>
                   </div>
                 </div>
-                <div style={{ marginTop: 12 }}>
-                  <button className="student-detail-save-button" onClick={submitLog} disabled={savingDaily || !(Number(endOdo) > Number(startOdo))}>
-                    {savingDaily ? 'Saving...' : 'Save Daily Running'}
-                  </button>
-                </div>
-              </div>
 
-              {/* Fueling Section */}
-              <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
-                <h3>Fueling</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginTop: 8 }}>
-                  <div>
-                    <label className="zds-students-month-label">Litres Added</label>
-                    <input type="number" className="student-detail-input" value={litres} onChange={(e)=>setLitres(e.target.value)} />
+                {/* Fueling Section */}
+                <div className="admin-fuel-section-card">
+                  <div className="admin-fuel-section-card-header">Fueling Entry</div>
+                  <div className="admin-fuel-grid">
+                    <div>
+                      <label className="admin-fuel-label">Litres Added</label>
+                      <input 
+                        type="number" 
+                        className="admin-fuel-input" 
+                        value={litres} 
+                        onChange={(e) => setLitres(e.target.value)} 
+                        placeholder="Amount in litres"
+                      />
+                    </div>
+                    <div>
+                      <label className="admin-fuel-label">Price/Litre Override</label>
+                      <input 
+                        type="number" 
+                        className="admin-fuel-input" 
+                        value={overridePrice} 
+                        onChange={(e) => setOverridePrice(e.target.value)} 
+                        placeholder={pricePerLitre ? `Default: ${pricePerLitre}` : 'Default from settings'} 
+                      />
+                    </div>
+                    <div>
+                      <label className="admin-fuel-label">Total Fuel Cost</label>
+                      <div className="admin-fuel-calculated">{currency(fuelCost)}</div>
+                    </div>
+                    <div className="admin-fuel-grid-full">
+                      <label className="admin-fuel-label">Notes (Optional)</label>
+                      <input 
+                        className="admin-fuel-input" 
+                        value={noteFuel} 
+                        onChange={(e) => setNoteFuel(e.target.value)} 
+                        placeholder="e.g., Fueled at station details" 
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="zds-students-month-label">Price/Litre (override, optional)</label>
-                    <input type="number" className="student-detail-input" value={overridePrice} onChange={(e)=>setOverridePrice(e.target.value)} placeholder={pricePerLitre ? `Default: ${pricePerLitre}` : 'Default from settings'} />
+                  <div style={{ marginTop: '1.5rem' }}>
+                    <button 
+                      className="admin-fuel-btn" 
+                      onClick={submitFueling} 
+                      disabled={savingFuel || !(Number(litres) > 0)}
+                    >
+                      {savingFuel ? 'Saving...' : 'Save Fueling Entry'}
+                    </button>
                   </div>
-                  <div>
-                    <label className="zds-students-month-label">Fuel Cost</label>
-                    <div className="student-detail-input" style={{ display: 'flex', alignItems: 'center', background: '#f9fafb' }}>{currency(fuelCost)}</div>
-                  </div>
-                  <div style={{ gridColumn: '1 / -1' }}>
-                    <label className="zds-students-month-label">Note (optional)</label>
-                    <input className="student-detail-input" value={noteFuel} onChange={(e)=>setNoteFuel(e.target.value)} placeholder="e.g., Fueled at station X" />
-                  </div>
-                </div>
-                <div style={{ marginTop: 12 }}>
-                  <button className="student-detail-save-button" onClick={submitFueling} disabled={savingFuel || !(Number(litres) > 0)}>
-                    {savingFuel ? 'Saving...' : 'Save Fueling'}
-                  </button>
                 </div>
               </div>
             </div>
@@ -344,65 +483,64 @@ const AdminFuel = () => {
 
           {activeTab === 'logs' && (
             <div>
-              <div className="zds-students-header-actions" style={{ paddingBottom: 12 }}>
-                <div className="zds-students-month-filter">
-                  <label className="zds-students-month-label">Month</label>
-                  <input type="month" className="zds-students-month-input" value={month} onChange={(e)=>setMonth(e.target.value)} />
-                </div>
+              <h2 className="admin-fuel-section-title">Fuel Logs</h2>
+              
+              {/* Daily Logs */}
+              <div style={{ marginBottom: '2rem' }}>
+                <h3 style={{ margin: '0 0 1rem 0', color: '#1e293b', fontWeight: 600 }}>Daily Running Logs</h3>
+                <FuelTable loading={loadingLogs} rows={logs.filter(l => l.type === 'daily')} showFuel={false} />
               </div>
-              {/* Daily Logs table */}
-              <h3 style={{ padding: '0 1.5rem' }}>Daily Logs</h3>
-              <FuelTable loading={loadingLogs} rows={logs.filter(l => l.type === 'daily')} showFuel={false} />
 
-              {/* Fueling Logs table */}
-              <h3 style={{ padding: '1rem 1.5rem 0' }}>Fueling Logs</h3>
-              <FuelTable loading={loadingLogs} rows={logs.filter(l => l.type === 'fueling')} showFuel={true} />
+              {/* Fueling Logs */}
+              <div>
+                <h3 style={{ margin: '0 0 1rem 0', color: '#1e293b', fontWeight: 600 }}>Fueling Logs</h3>
+                <FuelTable loading={loadingLogs} rows={logs.filter(l => l.type === 'fueling')} showFuel={true} />
+              </div>
             </div>
           )}
 
           {activeTab === 'reports' && (
             <div>
-              <div className="zds-students-header-actions" style={{ paddingBottom: 12 }}>
-                <div className="zds-students-month-filter">
-                  <label className="zds-students-month-label">Month</label>
-                  <input type="month" className="zds-students-month-input" value={month} onChange={(e)=>setMonth(e.target.value)} />
-                </div>
-              </div>
-              <div className="zds-students-stats">
-                <div className="zds-students-stat"><span className="zds-students-stat-label">Total Distance</span><span className="zds-students-stat-value">{totals.distanceKm} km</span></div>
-                <div className="zds-students-stat"><span className="zds-students-stat-label">Total Litres</span><span className="zds-students-stat-value">{totals.litres}</span></div>
-                <div className="zds-students-stat"><span className="zds-students-stat-label">Fuel Cost</span><span className="zds-students-stat-value">{currency(totals.fuelCost)}</span></div>
-                <div className="zds-students-stat"><span className="zds-students-stat-label">Efficiency</span><span className="zds-students-stat-value">{(totals.distanceKm && totals.litres) ? `${(totals.distanceKm / totals.litres).toFixed(2)} km/L` : '-'}</span></div>
-              </div>
-              <div style={{ padding: '1rem 1.5rem' }}>
-                <h4>Weekly Breakdown</h4>
-                <div className="zds-students-table-wrap">
-                  <table className="zds-students-table">
-                    <thead>
-                      <tr>
-                        <th>Week</th>
-                        <th>Distance</th>
-                        <th>Litres</th>
-                        <th>Fuel Cost</th>
-                        <th>Efficiency</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {weekly.map(w => (
-                        <tr key={w.label} className="zds-students-row">
-                          <td>{w.label}</td>
-                          <td>{w.distanceKm} km</td>
-                          <td>{w.litres}</td>
-                          <td>{currency(w.fuelCost)}</td>
-                          <td>{(w.distanceKm && w.litres) ? `${(w.distanceKm / w.litres).toFixed(2)} km/L` : '-'}</td>
+              <h2 className="admin-fuel-section-title">Fuel Reports & Analytics</h2>
+              
+              <div style={{ marginBottom: '2rem' }}>
+                <h3 style={{ margin: '0 0 1rem 0', color: '#1e293b', fontWeight: 600 }}>Weekly Breakdown</h3>
+                {weekly.length === 0 ? (
+                  <div className="admin-fuel-empty">
+                    <div className="admin-fuel-empty-content">
+                      <svg className="admin-fuel-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                      <h3 className="admin-fuel-empty-title">No Weekly Data</h3>
+                      <p className="admin-fuel-empty-desc">No fuel logs found for the selected month</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="admin-fuel-table-wrap">
+                    <table className="admin-fuel-table">
+                      <thead>
+                        <tr>
+                          <th>Week</th>
+                          <th>Distance</th>
+                          <th>Litres</th>
+                          <th>Fuel Cost</th>
+                          <th>Efficiency</th>
                         </tr>
-                      ))}
-                      {weekly.length === 0 && (
-                        <tr><td colSpan={5} className="zds-students-empty">No weekly data</td></tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {weekly.map(w => (
+                          <tr key={w.label}>
+                            <td>{w.label}</td>
+                            <td>{w.distanceKm} km</td>
+                            <td>{w.litres}</td>
+                            <td><strong>{currency(w.fuelCost)}</strong></td>
+                            <td>{(w.distanceKm && w.litres) ? `${(w.distanceKm / w.litres).toFixed(2)} km/L` : '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -415,8 +553,8 @@ const AdminFuel = () => {
 // Reusable table renderer for logs
 function FuelTable({ loading, rows, showFuel }) {
   return (
-    <div className="zds-students-table-wrap">
-      <table className="zds-students-table">
+    <div className="admin-fuel-table-wrap">
+      <table className="admin-fuel-table">
         <thead>
           <tr>
             <th>Date</th>
@@ -432,27 +570,37 @@ function FuelTable({ loading, rows, showFuel }) {
         </thead>
         <tbody>
           {loading && (
-            <tr><td colSpan={showFuel ? 6 : 6} className="zds-students-empty">Loading...</td></tr>
+            <tr>
+              <td colSpan={showFuel ? 6 : 6} className="admin-fuel-empty">
+                <div className="admin-fuel-loading">
+                  <div className="admin-fuel-loading-spinner"></div>
+                  <p className="admin-fuel-loading-text">Loading...</p>
+                </div>
+              </td>
+            </tr>
           )}
           {!loading && rows.map(r => (
-            <tr key={`${r.id}`} className="zds-students-row">
+            <tr key={`${r.id}`}>
               <td>{r.dateISO}</td>
               <td>{r.vehicleId || '-'}</td>
               {showFuel ? null : <td>{r.startOdo} → {r.endOdo}</td>}
               {showFuel ? null : <td>{r.distanceKm} km</td>}
               {showFuel ? <td>{r.litres}</td> : null}
-              {showFuel ? <td>{currency(r.pricePerLitre)}</td> : null}
-              {showFuel ? <td>{currency(r.fuelCost)}</td> : null}
+              {showFuel ? <td><strong>{currency(r.pricePerLitre)}</strong></td> : null}
+              {showFuel ? <td><strong>{currency(r.fuelCost)}</strong></td> : null}
               {showFuel ? null : <td>{(r.students || []).map(s => s.name).join(', ')}</td>}
               <td style={{ maxWidth: 240, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.note || ''}</td>
             </tr>
           ))}
           {!loading && rows.length === 0 && (
             <tr>
-              <td colSpan={showFuel ? 6 : 6} className="zds-students-empty">
-                <div className="zds-students-empty-content">
-                  <p className="zds-students-empty-title">No records</p>
-                  <p className="zds-students-empty-desc">Try a different month</p>
+              <td colSpan={showFuel ? 6 : 6} className="admin-fuel-empty">
+                <div className="admin-fuel-empty-content">
+                  <svg className="admin-fuel-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                  </svg>
+                  <p className="admin-fuel-empty-title">No Records Found</p>
+                  <p className="admin-fuel-empty-desc">Try selecting a different month</p>
                 </div>
               </td>
             </tr>

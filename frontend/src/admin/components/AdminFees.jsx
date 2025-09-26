@@ -300,7 +300,7 @@ const AdminFees = () => {
                   <div className="admin-fees-fee-card-header">Driving Course Fees</div>
                   <div className="admin-fees-grid">
                     {Object.keys(drivingFees).length === 0 ? (
-                      <div style={{ fontSize: 13, color: '#6b7280' }}>No driving fees set yet. Click "Edit Driving" to configure.</div>
+                      <div style={{ fontSize: 13, color: '#6b7280' }}>No driving fees set yet. Click &quot;Edit Driving&quot; to configure.</div>
                     ) : (
                       Object.entries(drivingFees).map(([cls, types]) => (
                         <div key={cls} style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, marginBottom: 10 }}>
