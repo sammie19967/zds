@@ -37,7 +37,7 @@ const AdminFees = () => {
 
   // Payment form
   const [selectedStudentId, setSelectedStudentId] = useState('');
-  const [payment, setPayment] = useState({ amount: '', confirmationCode: '', note: '' });
+  const [payment, setPayment] = useState({ amount: '', method: 'cash', confirmationCode: '', note: '' });
   const [submittingPayment, setSubmittingPayment] = useState(false);
   // Typeahead for student selection
   const [studentQuery, setStudentQuery] = useState('');
@@ -190,11 +190,12 @@ const AdminFees = () => {
       setSubmittingPayment(true);
       await addStudentPayment(selectedStudentId, {
         amount: amt,
+        method: payment.method,
         confirmationCode: payment.confirmationCode,
         note: payment.note,
       });
       await modal.success({ title: 'Payment recorded', text: 'The payment has been added.' });
-      setPayment({ amount: '', confirmationCode: '', note: '' });
+      setPayment({ amount: '', method: 'cash', confirmationCode: '', note: '' });
       setRefreshToggle((x) => x + 1);
     } catch (e) {
       await modal.error({ title: 'Failed to add payment', text: e?.message || 'Please try again.' });
@@ -354,7 +355,7 @@ const AdminFees = () => {
                 />
                 
                 {showSuggestions && studentQuery && (
-                  <div className="admin-fees-suggestions">
+                  <div className="admin-fees-suggestions" style={{ zIndex: 1, position: 'absolute' }}>
                     {studentSuggestions.map((s) => (
                       <div
                         key={s.id}
@@ -400,20 +401,6 @@ const AdminFees = () => {
                       <span className="admin-fees-selected-student-detail-label">Balance</span>
                       <span className="admin-fees-selected-student-detail-value">KSh {(selectedStudent.baseFee - selectedStudent.paymentsTotal)?.toLocaleString()}</span>
                     </div>
-                    <div className="admin-fees-selected-student-detail">
-                      <span className="admin-fees-selected-student-detail-label">Status</span>
-                      <select
-                        className="admin-fees-select"
-                        value={selectedStudent.feeStatus}
-                        onChange={(e) => {
-                          // Update student status
-                        }}
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="partial">Partial</option>
-                        <option value="paid">Paid</option>
-                      </select>
-                    </div>
                   </div>
                   <p className="admin-fees-selected-student-note">
                     Last payment: {selectedStudent.lastPayment ? new Date(selectedStudent.lastPayment).toLocaleDateString() : 'No payments yet'}
@@ -442,12 +429,12 @@ const AdminFees = () => {
                         <label className="admin-fees-label">Payment Method</label>
                         <select
                           className="admin-fees-select"
-                          value={payment.confirmationCode}
-                          onChange={(e) => setPayment((p) => ({ ...p, confirmationCode: e.target.value }))}
+                          value={payment.method}
+                          onChange={(e) => setPayment((p) => ({ ...p, method: e.target.value }))}
                         >
                           <option value="cash">Cash</option>
+                          <option value="mpesa">MPESA</option>
                           <option value="card">Card</option>
-                          <option value="upi">UPI</option>
                           <option value="bank_transfer">Bank Transfer</option>
                         </select>
                       </div>
@@ -456,9 +443,19 @@ const AdminFees = () => {
                         <input
                           type="text"
                           className="admin-fees-input"
+                          value={payment.confirmationCode}
+                          onChange={(e) => setPayment((p) => ({ ...p, confirmationCode: e.target.value }))}
+                          placeholder="Optional reference number"
+                        />
+                      </div>
+                      <div>
+                        <label className="admin-fees-label">Notes</label>
+                        <input
+                          type="text"
+                          className="admin-fees-input"
                           value={payment.note}
                           onChange={(e) => setPayment((p) => ({ ...p, note: e.target.value }))}
-                          placeholder="Optional reference number"
+                          placeholder="Optional notes"
                         />
                       </div>
                     </div>
