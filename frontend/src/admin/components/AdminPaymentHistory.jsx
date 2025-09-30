@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { listAdminAdmissions, listStudentPayments } from '../../utils/firebase';
 import modal from '../../utils/modal';
 import '../styles/AdminPaymentHistory.css';
@@ -27,6 +27,20 @@ const AdminPaymentHistory = () => {
   const [loading, setLoading] = useState(true);
   const [loadingPayments, setLoadingPayments] = useState(false);
 
+  // Define loader before effects reference it
+  const loadPayments = useCallback(async (id) => {
+    if (!id) { setPayments([]); return; }
+    try {
+      setLoadingPayments(true);
+      const list = await listStudentPayments(id);
+      setPayments(list);
+    } catch (e) {
+      await modal.error({ title: 'Failed to load payments', text: e?.message || 'Please try again.' });
+    } finally {
+      setLoadingPayments(false);
+    }
+  }, []);
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -53,18 +67,19 @@ const AdminPaymentHistory = () => {
     );
   }, [students, query]);
 
-  const loadPayments = async (id) => {
-    if (!id) { setPayments([]); return; }
-    try {
-      setLoadingPayments(true);
-      const list = await listStudentPayments(id);
-      setPayments(list);
-    } catch (e) {
-      await modal.error({ title: 'Failed to load payments', text: e?.message || 'Please try again.' });
-    } finally {
-      setLoadingPayments(false);
+  // Keep selection in sync with filtered results
+  useEffect(() => {
+    if (selectedId && !filtered.some((s) => s.id === selectedId)) {
+      setSelectedId('');
+      setPayments([]);
     }
-  };
+    if (!selectedId && filtered.length === 1) {
+      const only = filtered[0];
+      setSelectedId(only.id);
+      // Fire and forget; no need to await in effect
+      loadPayments(only.id);
+    }
+  }, [filtered, selectedId, loadPayments]);
 
   const selectedStudent = students.find(s => s.id === selectedId);
   const totalAmount = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
@@ -114,7 +129,21 @@ const AdminPaymentHistory = () => {
                   placeholder="Search by name, admission no, course" 
                   value={query} 
                   onChange={(e) => setQuery(e.target.value)} 
+                  onKeyDown={async (e) => {
+                    if (e.key === 'Enter') {
+                      const first = filtered[0];
+                      if (first) {
+                        setSelectedId(first.id);
+                        await loadPayments(first.id);
+                      }
+                    }
+                  }}
                 />
+                {query && filtered.length === 0 && (
+                  <div className="admin-payment-input-hint" style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
+                    No matches. Try a different name, admission number, or course.
+                  </div>
+                )}
               </div>
               <div className="admin-payment-form-group">
                 <label className="admin-payment-label">Select Student</label>
