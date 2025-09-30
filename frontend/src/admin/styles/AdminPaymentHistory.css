@@ -220,6 +220,46 @@
   color: #475569;
 }
 
+/* Actions */
+.admin-payment-action {
+  appearance: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  box-shadow: 0 6px 12px -4px rgba(29, 78, 216, 0.35);
+  transition: transform 0.08s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.admin-payment-action:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 8px 16px -6px rgba(29, 78, 216, 0.45);
+}
+
+.admin-payment-action:active {
+  transform: translateY(1px);
+}
+
+.admin-payment-action:focus-visible {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 6px 12px -4px rgba(29, 78, 216, 0.35);
+}
+
+.admin-payment-action[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: saturate(0.85);
+}
+
 /* Loading states */
 .admin-payment-loading {
   display: flex;

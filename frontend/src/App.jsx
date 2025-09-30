@@ -13,6 +13,7 @@ import DrivingCatalog from './pages/DrivingCatalog';
 import AdmissionForm from './components/AdmissionForm';
 import WhatsAppIcon from './components/WhatsappIcon';
 import FeesStructure from './pages/FeesStructure';
+import VerifyReceipt from './pages/VerifyReceipt';
 import AdminDashboard from './admin/components/AdminDashboard';
 import AdminAdmissionForm from './admin/components/AdminAdmissionForm';
 import AdminLayout from './admin/components/AdminLayout';
@@ -43,6 +44,7 @@ const MainApp = () => (
       <Route path="/driving" element={<DrivingCatalog />} />
       <Route path="/admission-form" element={<AdmissionForm />} />
       <Route path="/feesStructure" element={<FeesStructure />} />
+      <Route path="/verify-receipt/:studentId/:paymentId" element={<VerifyReceipt />} />
       <Route path="/admin/login" element={<Login />} />
       <Route path="/admin/signup" element={<Signup />} />
       

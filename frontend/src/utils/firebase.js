@@ -324,6 +324,19 @@ export async function getPaymentById(paymentId) {
   return { payment, student };
 }
 
+// Fetch a specific payment by known studentId and paymentId
+export async function getPaymentByStudent(studentId, paymentId) {
+  if (!studentId || !paymentId) return null;
+  const paymentRef = doc(db, 'admin_admissions', studentId, 'payments', paymentId);
+  const snap = await getDoc(paymentRef);
+  if (!snap.exists()) return null;
+  const payment = { id: snap.id, ...snap.data() };
+  const studentRef = doc(db, 'admin_admissions', studentId);
+  const studentSnap = await getDoc(studentRef);
+  const student = studentSnap.exists() ? { id: studentSnap.id, ...studentSnap.data() } : null;
+  return { payment, student };
+}
+
 // ===== Fuel Tracking Helpers =====
 // Settings doc: settings/fuel { pricePerLitre: number, updatedAt }
 export async function getFuelSettings() {

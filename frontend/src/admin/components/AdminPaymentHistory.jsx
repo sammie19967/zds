@@ -276,7 +276,7 @@ const AdminPaymentHistory = () => {
     const d = String(now.getDate()).padStart(2, '0');
     const suffix = String(p.id).slice(-4).toUpperCase();
     const friendlyCode = `RCPT-${y}${m}${d}-${suffix}`;
-    const verificationUrl = `${window.location.origin}/verify-receipt/${p.id}`;
+    const verificationUrl = `${window.location.origin}/verify-receipt/${student.id}/${p.id}`;
 
     printReceipt({
       org: {

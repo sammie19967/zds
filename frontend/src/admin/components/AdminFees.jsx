@@ -327,7 +327,7 @@ const AdminFees = () => {
         const d = String(now.getDate()).padStart(2, '0');
         const suffix = String(paymentId).slice(-4).toUpperCase();
         const friendlyCode = `RCPT-${y}${m}${d}-${suffix}`;
-        const verificationUrl = `${window.location.origin}/verify-receipt/${paymentId}`;
+        const verificationUrl = `${window.location.origin}/verify-receipt/${selectedStudentId}/${paymentId}`;
         printReceipt({
           org: {
             name: 'Zane Driving School',
