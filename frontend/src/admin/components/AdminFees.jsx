@@ -19,6 +19,8 @@ const currency = (n) => `KSh ${Number(n || 0).toLocaleString()}`;
 const buildReceiptHtml = ({ org = {}, student = {}, payment = {}, course = {}, totals = {} }) => {
   const paidAt = payment.paidAt ? new Date(payment.paidAt) : new Date();
   const dateStr = paidAt.toLocaleString();
+  const receiptCode = payment.receiptCode || (payment.receiptNo || '').toString();
+  const verificationUrl = payment.verificationUrl || '';
   return `<!doctype html>
   <html>
     <head>
@@ -27,7 +29,9 @@ const buildReceiptHtml = ({ org = {}, student = {}, payment = {}, course = {}, t
       <title>Payment Receipt</title>
       <style>
         body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji','Segoe UI Emoji'; background: #f8fafc; color: #0f172a; margin: 0; padding: 24px; }
-        .card { max-width: 820px; margin: 0 auto; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 12px 24px -8px rgba(0,0,0,0.12); padding: 32px; }
+        .card { position: relative; overflow: hidden; max-width: 820px; margin: 0 auto; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 12px 24px -8px rgba(0,0,0,0.12); padding: 32px; }
+        .watermark { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0.06; }
+        .watermark img { max-width: 70%; max-height: 70%; filter: grayscale(100%); }
         .header { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 16px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; }
         .brand { display: flex; align-items: center; gap: 16px; }
         .brand img { width: 80px; height: 80px; object-fit: contain; }
@@ -41,19 +45,34 @@ const buildReceiptHtml = ({ org = {}, student = {}, payment = {}, course = {}, t
         .label { color: #64748b; font-size: 12px; }
         .value { font-weight: 600; }
         .amount { color: #16a34a; font-weight: 700; }
+        .amount-blue { color: #1d4ed8; font-weight: 800; }
+        .student-name { color: #1d4ed8; font-weight: 800; }
         .footer { text-align: center; margin-top: 28px; font-size: 12px; color: #475569; }
         .badge { display: inline-block; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
         .right { text-align: right; }
+        .contacts { margin-top: 6px; color: #475569; font-size: 12px; }
+        .signatures { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; margin-top: 32px; }
+        .sig-box { height: 72px; display: flex; flex-direction: column; justify-content: flex-end; }
+        .sig-line { border-top: 1px solid #cbd5e1; height: 1px; }
+        .sig-label { margin-top: 6px; color: #64748b; font-size: 12px; text-align: center; }
+        .meta-grid { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: start; }
+        .qr-box { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .qr-box img { width: 120px; height: 120px; }
+        .qr-caption { font-size: 11px; color: #64748b; text-align: center; max-width: 160px; }
+        .contact-footer { margin-top: 24px; padding-top: 16px; border-top: 2px solid #e2e8f0; color: #334155; font-size: 12px; }
+        .contact-footer .line { margin: 2px 0; }
+        .contact-footer a { color: #1d4ed8; text-decoration: none; }
         @media print { body { background: #fff; } .card { box-shadow: none; border: none; } }
       </style>
     </head>
     <body>
       <div class="card">
+        <div class="watermark"><img src="${org.logoUrl || '/logo.png'}" alt="Watermark" /></div>
         <div class="header">
           <div class="brand">
-            <img src="${org.logoUrl || '/logo.png'}" alt="${org.name || 'Zane Driving'}" />
+            <img src="${org.logoUrl || '/logo.png'}" alt="${org.name || 'Zane Driving School'}" />
             <div>
-              <div class="title">${org.name || 'Zane Driving'}</div>
+              <div class="title">${org.name || 'Zane Driving School'}</div>
               <div class="tagline">Drive with us, drive with confidence</div>
               <div class="muted">${org.address || ''}</div>
             </div>
@@ -62,20 +81,27 @@ const buildReceiptHtml = ({ org = {}, student = {}, payment = {}, course = {}, t
             <div class="badge">Payment Receipt</div>
           </div>
         </div>
-        <div class="grid section">
-          <div>
-            <div class="label">Receipt Date</div>
-            <div class="value">${dateStr}</div>
+        <div class="meta-grid section">
+          <div class="grid">
+            <div>
+              <div class="label">Receipt Date</div>
+              <div class="value">${dateStr}</div>
+            </div>
+            <div>
+              <div class="label">Receipt No.</div>
+              <div class="value">${receiptCode.toLowerCase()}</div>
+            </div>
           </div>
-          <div>
-            <div class="label">Receipt No.</div>
-            <div class="value">${payment.receiptNo || payment.reference || payment.confirmationCode || ('RCPT-' + paidAt.getTime())}</div>
-          </div>
+          ${verificationUrl ? `
+          <div class="qr-box">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(verificationUrl)}" alt="QR" />
+            <div class="qr-caption">Scan to verify this receipt</div>
+          </div>` : ''}
         </div>
         <div class="grid section">
           <div>
             <div class="label">Student</div>
-            <div class="value">${student.name || '-'}</div>
+            <div class="student-name">${((student.name || '-') + '').toUpperCase()}</div>
           </div>
           <div>
             <div class="label">Admission No.</div>
@@ -94,7 +120,7 @@ const buildReceiptHtml = ({ org = {}, student = {}, payment = {}, course = {}, t
         </div>
         <div class="section">
           <div class="row"><div class="label">Amount Paid</div><div class="amount">${payment.amountFmt}</div></div>
-          <div class="row"><div class="label">Payment Method</div><div class="value">${payment.method || '-'}</div></div>
+          <div class="row"><div class="label">Payment Method</div><div class="value">${(payment.method || '-').toString().toUpperCase()}</div></div>
           <div class="row"><div class="label">Confirmation Code</div><div class="value">${payment.confirmationCode || '-'}</div></div>
           ${payment.note ? `<div class="row"><div class="label">Note</div><div class="value">${payment.note}</div></div>` : ''}
         </div>
@@ -102,11 +128,25 @@ const buildReceiptHtml = ({ org = {}, student = {}, payment = {}, course = {}, t
           <div class="row"><div class="label">Course Fee</div><div class="value">${totals.totalFeeFmt}</div></div>
           <div class="row"><div class="label">Total Paid (before)</div><div class="value">${totals.paidBeforeFmt}</div></div>
           <div class="row"><div class="label">Balance (before)</div><div class="value">${totals.balanceBeforeFmt}</div></div>
-          <div class="row"><div class="label">Balance (after this payment)</div><div class="value">${totals.balanceAfterFmt}</div></div>
+          <div class="row"><div class="label">Balance (after this payment)</div><div class="amount-blue">${totals.balanceAfterFmt}</div></div>
         </div>
-        <div class="footer">
-          Thank you for your payment.
+        <div class="contact-footer">
+          <div class="line"><strong>Main Office:</strong> ${org.mainOffice || ''}</div>
+          <div class="line"><strong>Branch Office:</strong> ${org.branchOffice || ''}</div>
+          <div class="line"><strong>Phone:</strong> ${org.phone || ''} &nbsp; <strong>Email:</strong> ${org.email || ''}</div>
+          <div class="line"><strong>Website:</strong> <a href="${org.website || '#'}" target="_blank" rel="noopener">${org.website || ''}</a></div>
         </div>
+        <div class="signatures">
+          <div class="sig-box">
+            <div class="sig-line"></div>
+            <div class="sig-label">Cashier Signature</div>
+          </div>
+          <div class="sig-box">
+            <div class="sig-line"></div>
+            <div class="sig-label">Student Signature</div>
+          </div>
+        </div>
+        <div class="footer">Thank you for your payment.</div>
       </div>
       <script>window.onload = function(){ setTimeout(function(){ window.print(); }, 100); };</script>
     </body>
@@ -280,8 +320,25 @@ const AdminFees = () => {
       // Offer receipt download/print
       const wantReceipt = await modal.confirm({ title: 'Download receipt?', text: 'Would you like to download/print a receipt for this payment now?' });
       if (wantReceipt) {
+        // Build human-friendly receipt code: RCPT-YYYYMMDD-XXXX (then we render lowercase for style)
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        const suffix = String(paymentId).slice(-4).toUpperCase();
+        const friendlyCode = `RCPT-${y}${m}${d}-${suffix}`;
+        const verificationUrl = `${window.location.origin}/verify-receipt/${paymentId}`;
         printReceipt({
-          org: { name: 'Zane Driving', logoUrl: '/logo.png' },
+          org: {
+            name: 'Zane Driving School',
+            logoUrl: '/logo.png',
+            phone: '0115820508',
+            email: 'zanedrivingschool2022@gmail.com',
+            address: 'Nairobi, Kenya',
+            mainOffice: 'Mercy Njeri - Kabarak Road, Nakuru',
+            branchOffice: 'Kericho',
+            website: 'https://zanedrivingschool.co.ke'
+          },
           student: {
             name: `${selectedStudent.firstName || ''} ${selectedStudent.lastName || ''}`.trim(),
             admissionNumber: selectedStudent.admissionNumber || '-',
@@ -298,6 +355,8 @@ const AdminFees = () => {
             note: payment.note,
             paidAt: paidAtIso,
             receiptNo: paymentId,
+            receiptCode: friendlyCode,
+            verificationUrl,
           },
           totals: {
             totalFeeFmt: currency(baseFee),
