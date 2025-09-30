@@ -1,7 +1,7 @@
 // Firebase initialization and Firestore helpers
 // Ensure you set the env vars in your .env (see .env.example)
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, serverTimestamp, addDoc, collection, getDocs, query, orderBy, limit, doc, getDoc, updateDoc, deleteDoc, startAfter, where, runTransaction, collectionGroup, getCountFromServer } from 'firebase/firestore';
+import { getFirestore, serverTimestamp, addDoc, collection, getDocs, query, orderBy, limit, doc, getDoc, updateDoc, deleteDoc, startAfter, where, runTransaction, collectionGroup, getCountFromServer, documentId } from 'firebase/firestore';
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
@@ -307,6 +307,21 @@ export async function listStudentPayments(studentId) {
 export async function getStudentPaymentsTotal(studentId) {
   const payments = await listStudentPayments(studentId);
   return payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+}
+
+// Lookup a payment doc across all admin_admissions/*/payments by its document ID
+export async function getPaymentById(paymentId) {
+  if (!paymentId) return null;
+  const qRef = query(collectionGroup(db, 'payments'), where(documentId(), '==', paymentId), limit(1));
+  const snap = await getDocs(qRef);
+  if (snap.empty) return null;
+  const d = snap.docs[0];
+  const payment = { id: d.id, ...d.data() };
+  // parent is the payments collection, parent.parent is the student doc
+  const studentRef = d.ref.parent.parent;
+  const studentSnap = studentRef ? await getDoc(studentRef) : null;
+  const student = studentSnap && studentSnap.exists() ? { id: studentSnap.id, ...studentSnap.data() } : null;
+  return { payment, student };
 }
 
 // ===== Fuel Tracking Helpers =====
