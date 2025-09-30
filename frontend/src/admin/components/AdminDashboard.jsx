@@ -9,7 +9,9 @@ import {
   getMonthlyFuelCost,
   listAdminAdmissions,
   fetchRecentSubmissions,
+  getPaymentByStudent,
 } from '../../utils/firebase';
+
 import '../styles/AdminDashboard.css';
 
 const currency = (n) => `KSh ${Number(n || 0).toLocaleString()}`;
@@ -28,6 +30,11 @@ const AdminDashboard = () => {
   });
   const [recentStudents, setRecentStudents] = useState([]);
   const [recentEnquiries, setRecentEnquiries] = useState([]);
+  // Verify receipt state
+  const [verifyUrl, setVerifyUrl] = useState('');
+  const [verifyLoading, setVerifyLoading] = useState(false);
+  const [verifyError, setVerifyError] = useState('');
+  const [verifyData, setVerifyData] = useState(null);
 
   useEffect(() => {
     let mounted = true;
@@ -65,6 +72,41 @@ const AdminDashboard = () => {
     { label: 'Fees Collected (This Month)', value: currency(stats.paymentsMonth), icon: <FaMoneyBillWave />, tone: 'yellow', to: '/admin/fees' },
     { label: 'Fuel Cost (This Month)', value: currency(stats.fuelCostMonth), icon: <FaGasPump />, tone: 'red', to: '/admin/fuel' },
   ]), [stats]);
+
+  const parseVerifyPath = (input) => {
+    try {
+      const trimmed = (input || '').trim();
+      if (!trimmed) return null;
+      // Supports full URL or path
+      let path = trimmed;
+      if (/^https?:\/\//i.test(trimmed)) {
+        const u = new URL(trimmed);
+        path = u.pathname;
+      }
+      const m = path.match(/\/verify-receipt\/(.*?)\/(.*?)(?:[/?#]|$)/);
+      if (!m) return null;
+      return { studentId: m[1], paymentId: m[2] };
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const handleVerify = async () => {
+    setVerifyError('');
+    setVerifyData(null);
+    const ids = parseVerifyPath(verifyUrl);
+    if (!ids) { setVerifyError('Enter a valid receipt URL'); return; }
+    try {
+      setVerifyLoading(true);
+      const res = await getPaymentByStudent(ids.studentId, ids.paymentId);
+      if (!res) { setVerifyError('Receipt not found'); return; }
+      setVerifyData({ ...res, ids });
+    } catch (e) {
+      setVerifyError(e?.message || 'Failed to verify');
+    } finally {
+      setVerifyLoading(false);
+    }
+  };
 
   return (
     <div className="admin-dashboard-container">
@@ -118,6 +160,54 @@ const AdminDashboard = () => {
           <div className="admin-dashboard-main-grid">
             {/* Quick Actions + Recent */}
             <div className="admin-dashboard-left-column">
+              {/* Verify Receipt */}
+              <div className="admin-dashboard-card">
+                <div className="admin-dashboard-card-header">
+                  <h2 className="admin-dashboard-card-title">Verify Receipt</h2>
+                </div>
+                <div className="admin-dashboard-form-group" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.75rem' }}>
+                  <input
+                    className="admin-dashboard-input"
+                    placeholder="Paste receipt URL (e.g. /verify-receipt/{studentId}/{paymentId})"
+                    value={verifyUrl}
+                    onChange={(e)=>setVerifyUrl(e.target.value)}
+                  />
+                  <button className="admin-dashboard-btn" onClick={handleVerify} disabled={verifyLoading}>
+                    {verifyLoading ? 'Verifying...' : 'Verify'}
+                  </button>
+                </div>
+                {verifyError && (
+                  <div className="admin-dashboard-error" style={{ marginTop: '0.75rem' }}>
+                    <span className="admin-dashboard-error-text">{verifyError}</span>
+                  </div>
+                )}
+                {verifyData && (
+                  <div className="admin-dashboard-verify-result" style={{ marginTop: '0.75rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.5rem', padding: '0.75rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                      <div>
+                        <div style={{ color: '#64748b', fontSize: 12 }}>Student</div>
+                        <div style={{ fontWeight: 700 }}>{`${verifyData.student?.firstName || ''} ${verifyData.student?.lastName || ''}`.trim()}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: '#64748b', fontSize: 12 }}>Admission</div>
+                        <div style={{ fontWeight: 600 }}>{verifyData.student?.admissionNumber || '-'}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: '#64748b', fontSize: 12 }}>Amount</div>
+                        <div style={{ fontWeight: 700, color: '#059669' }}>{`KSh ${Number(verifyData.payment?.amount || 0).toLocaleString()}`}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: '#64748b', fontSize: 12 }}>Method</div>
+                        <div style={{ fontWeight: 600 }}>{(verifyData.payment?.method || '-').toString().toUpperCase()}</div>
+                      </div>
+                    </div>
+                    <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
+                      <a className="admin-dashboard-btn admin-dashboard-btn-link" href={`/verify-receipt/${verifyData.ids.studentId}/${verifyData.ids.paymentId}`} target="_blank" rel="noopener noreferrer">Open Details</a>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Quick Actions */}
               <div className="admin-dashboard-card">
                 <div className="admin-dashboard-card-header">
