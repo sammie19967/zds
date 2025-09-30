@@ -75,7 +75,7 @@ const AdminDashboard = () => {
 
   const parseVerifyPath = (input) => {
     try {
-      const trimmed = (input || '').trim();
+      const trimmed = (input || '').trim().replace(/\s+/g, ''); // remove spaces anywhere
       if (!trimmed) return null;
       // Supports full URL or path
       let path = trimmed;
@@ -83,7 +83,13 @@ const AdminDashboard = () => {
         const u = new URL(trimmed);
         path = u.pathname;
       }
-      const m = path.match(/\/verify-receipt\/(.*?)\/(.*?)(?:[/?#]|$)/);
+      // Accept raw "studentId/paymentId" or with prefix
+      if (!path.startsWith('/')) path = '/' + path;
+      path = path.replace(/\/+$/, ''); // trim trailing slashes
+      let m = path.match(/\/verify-receipt\/(.*?)\/(.*?)(?:[/?#]|$)/);
+      if (!m) {
+        m = path.match(/^\/(.*?)\/(.*?)$/);
+      }
       if (!m) return null;
       return { studentId: m[1], paymentId: m[2] };
     } catch (e) {
@@ -101,8 +107,17 @@ const AdminDashboard = () => {
       const res = await getPaymentByStudent(ids.studentId, ids.paymentId);
       if (!res) { setVerifyError('Receipt not found'); return; }
       setVerifyData({ ...res, ids });
+      // Log success
+      try {
+        const { logReceiptVerification } = await import('../../utils/firebase');
+        await logReceiptVerification({ studentId: ids.studentId, paymentId: ids.paymentId, inputUrl: verifyUrl, success: true });
+      } catch (e) { /* noop */ }
     } catch (e) {
       setVerifyError(e?.message || 'Failed to verify');
+      try {
+        const { logReceiptVerification } = await import('../../utils/firebase');
+        await logReceiptVerification({ studentId: ids.studentId, paymentId: ids.paymentId, inputUrl: verifyUrl, success: false, errorMessage: e?.message || 'Failed' });
+      } catch (err) { /* noop */ }
     } finally {
       setVerifyLoading(false);
     }
@@ -161,48 +176,63 @@ const AdminDashboard = () => {
             {/* Quick Actions + Recent */}
             <div className="admin-dashboard-left-column">
               {/* Verify Receipt */}
-              <div className="admin-dashboard-card">
+              <div className="admin-dashboard-card admin-verify-card">
                 <div className="admin-dashboard-card-header">
                   <h2 className="admin-dashboard-card-title">Verify Receipt</h2>
                 </div>
-                <div className="admin-dashboard-form-group" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.75rem' }}>
+                <div className="admin-verify-grid">
                   <input
-                    className="admin-dashboard-input"
+                    className="admin-verify-input"
                     placeholder="Paste receipt URL (e.g. /verify-receipt/{studentId}/{paymentId})"
                     value={verifyUrl}
                     onChange={(e)=>setVerifyUrl(e.target.value)}
                   />
-                  <button className="admin-dashboard-btn" onClick={handleVerify} disabled={verifyLoading}>
+                  <button className="admin-dashboard-btn admin-verify-btn" onClick={handleVerify} disabled={verifyLoading}>
                     {verifyLoading ? 'Verifying...' : 'Verify'}
                   </button>
                 </div>
                 {verifyError && (
-                  <div className="admin-dashboard-error" style={{ marginTop: '0.75rem' }}>
+                  <div className="admin-dashboard-error admin-dashboard-error--compact admin-verify-error">
                     <span className="admin-dashboard-error-text">{verifyError}</span>
                   </div>
                 )}
                 {verifyData && (
-                  <div className="admin-dashboard-verify-result" style={{ marginTop: '0.75rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.5rem', padding: '0.75rem' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                  <div className="admin-verify-result">
+                    <div className="admin-verify-meta">
                       <div>
-                        <div style={{ color: '#64748b', fontSize: 12 }}>Student</div>
-                        <div style={{ fontWeight: 700 }}>{`${verifyData.student?.firstName || ''} ${verifyData.student?.lastName || ''}`.trim()}</div>
+                        <div className="admin-verify-label">Student</div>
+                        <div className="admin-verify-value-strong">{`${verifyData.student?.firstName || ''} ${verifyData.student?.lastName || ''}`.trim()}</div>
                       </div>
                       <div>
-                        <div style={{ color: '#64748b', fontSize: 12 }}>Admission</div>
-                        <div style={{ fontWeight: 600 }}>{verifyData.student?.admissionNumber || '-'}</div>
+                        <div className="admin-verify-label">Admission</div>
+                        <div className="admin-verify-value">{verifyData.student?.admissionNumber || '-'}</div>
                       </div>
                       <div>
-                        <div style={{ color: '#64748b', fontSize: 12 }}>Amount</div>
-                        <div style={{ fontWeight: 700, color: '#059669' }}>{`KSh ${Number(verifyData.payment?.amount || 0).toLocaleString()}`}</div>
+                        <div className="admin-verify-label">Amount</div>
+                        <div className="admin-verify-amount">{`KSh ${Number(verifyData.payment?.amount || 0).toLocaleString()}`}</div>
                       </div>
                       <div>
-                        <div style={{ color: '#64748b', fontSize: 12 }}>Method</div>
-                        <div style={{ fontWeight: 600 }}>{(verifyData.payment?.method || '-').toString().toUpperCase()}</div>
+                        <div className="admin-verify-label">Method</div>
+                        <div className="admin-verify-value">{(verifyData.payment?.method || '-').toString().toUpperCase()}</div>
                       </div>
                     </div>
-                    <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
+                    <div className="admin-verify-actions">
                       <a className="admin-dashboard-btn admin-dashboard-btn-link" href={`/verify-receipt/${verifyData.ids.studentId}/${verifyData.ids.paymentId}`} target="_blank" rel="noopener noreferrer">Open Details</a>
+                      <button
+                        className="admin-dashboard-btn"
+                        onClick={async ()=>{ await navigator.clipboard.writeText(verifyData.ids.studentId); }}
+                        title="Copy Student ID"
+                      >Copy Student ID</button>
+                      <button
+                        className="admin-dashboard-btn"
+                        onClick={async ()=>{ await navigator.clipboard.writeText(verifyData.ids.paymentId); }}
+                        title="Copy Payment ID"
+                      >Copy Payment ID</button>
+                      <button
+                        className="admin-dashboard-btn"
+                        onClick={async ()=>{ await navigator.clipboard.writeText(`${window.location.origin}/verify-receipt/${verifyData.ids.studentId}/${verifyData.ids.paymentId}`); }}
+                        title="Copy Full URL"
+                      >Copy URL</button>
                     </div>
                   </div>
                 )}

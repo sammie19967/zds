@@ -31,7 +31,7 @@ const AdminFuel = () => {
   const [startOdo, setStartOdo] = useState('');
   const [endOdo, setEndOdo] = useState('');
   // Fueling-only
-  const [litres, setLitres] = useState('');
+  const [fuelAmount, setFuelAmount] = useState(''); // total fuel cost in KSh (user inputs)
   const [overridePrice, setOverridePrice] = useState('');
   // Notes split
   const [noteDaily, setNoteDaily] = useState('');
@@ -106,10 +106,13 @@ const AdminFuel = () => {
     return Number(overridePrice) || Number(pricePerLitre) || 0;
   }, [overridePrice, pricePerLitre]);
 
-  const fuelCost = useMemo(() => {
-    const L = Number(litres) || 0;
-    return Number((L * effectivePrice).toFixed(2));
-  }, [litres, effectivePrice]);
+  // Computed litres from entered fuel amount and effective price per litre
+  const computedLitres = useMemo(() => {
+    const amount = Number(fuelAmount) || 0;
+    const price = Number(effectivePrice) || 0;
+    if (!price) return 0;
+    return Number((amount / price).toFixed(2));
+  }, [fuelAmount, effectivePrice]);
 
   const addStudent = (st) => {
     if (selectedStudents.find(x => x.id === st.id)) return;
@@ -175,8 +178,8 @@ const AdminFuel = () => {
   };
 
   const submitFueling = async () => {
-    const L = Number(litres) || 0;
-    if (L <= 0) return modal.error({ title: 'Invalid litres', text: 'Enter litres added (greater than zero).' });
+    const L = Number(computedLitres) || 0;
+    if (L <= 0) return modal.error({ title: 'Invalid amount/price', text: 'Enter a valid fuel cost and price per litre (override or settings) to compute litres.' });
     try {
       setSavingFuel(true);
       await addFuelLog({
@@ -186,13 +189,13 @@ const AdminFuel = () => {
         startOdo: 0,
         endOdo: 0,
         litres: L,
-        pricePerLitre: Number(overridePrice) || 0,
+        pricePerLitre: Number(effectivePrice) || 0,
         students: [],
         note: noteFuel,
         type: 'fueling',
       });
       await modal.success({ title: 'Saved', text: 'Fueling entry recorded.' });
-      setLitres('');
+      setFuelAmount('');
       setOverridePrice('');
       setNoteFuel('');
       setMonth(toYYYYMM(new Date()));
@@ -436,14 +439,17 @@ const AdminFuel = () => {
                 <div className="admin-fuel-section-card">
                   <div className="admin-fuel-section-card-header">Fueling Entry</div>
                   <div className="admin-fuel-grid">
+                    
                     <div>
-                      <label className="admin-fuel-label">Litres Added</label>
-                      <input 
-                        type="number" 
-                        className="admin-fuel-input" 
-                        value={litres} 
-                        onChange={(e) => setLitres(e.target.value)} 
-                        placeholder="Amount in litres"
+                      <label className="admin-fuel-label">Fuel Cost (KSh)</label>
+                      <input
+                        type="number"
+                        className="admin-fuel-input"
+                        value={fuelAmount}
+                        onChange={(e) => setFuelAmount(e.target.value)}
+                        placeholder="e.g., 1000"
+                        min="0"
+                        step="0.01"
                       />
                     </div>
                     <div>
@@ -457,8 +463,12 @@ const AdminFuel = () => {
                       />
                     </div>
                     <div>
-                      <label className="admin-fuel-label">Total Fuel Cost</label>
-                      <div className="admin-fuel-calculated">{currency(fuelCost)}</div>
+                      <label className="admin-fuel-label">Calculated Litres</label>
+                      <div className="admin-fuel-calculated">{computedLitres}</div>
+                    </div>
+                    <div>
+                      <label className="admin-fuel-label">Effective Price/Litre</label>
+                      <div className="admin-fuel-calculated">{currency(effectivePrice)}</div>
                     </div>
                     <div className="admin-fuel-grid-full">
                       <label className="admin-fuel-label">Notes (Optional)</label>
@@ -474,7 +484,7 @@ const AdminFuel = () => {
                     <button 
                       className="admin-fuel-btn" 
                       onClick={submitFueling} 
-                      disabled={savingFuel || !(Number(litres) > 0)}
+                      disabled={savingFuel || !(Number(computedLitres) > 0)}
                     >
                       {savingFuel ? 'Saving...' : 'Save Fueling Entry'}
                     </button>

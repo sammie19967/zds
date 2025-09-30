@@ -337,6 +337,30 @@ export async function getPaymentByStudent(studentId, paymentId) {
   return { payment, student };
 }
 
+// Log a receipt verification attempt
+export async function logReceiptVerification({
+  studentId = '',
+  paymentId = '',
+  inputUrl = '',
+  success = false,
+  errorMessage = '',
+}) {
+  try {
+    const payload = {
+      studentId,
+      paymentId,
+      inputUrl,
+      success: Boolean(success),
+      errorMessage: String(errorMessage || ''),
+      createdAt: serverTimestamp(),
+    };
+    await addDoc(collection(db, 'receipt_verifications'), payload);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.debug('Failed to log verification attempt', e);
+  }
+}
+
 // ===== Fuel Tracking Helpers =====
 // Settings doc: settings/fuel { pricePerLitre: number, updatedAt }
 export async function getFuelSettings() {
