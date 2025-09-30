@@ -281,18 +281,20 @@ export async function setComputingFee(level, amount) {
 }
 
 // Payments are stored under each student: admin_admissions/{id}/payments
-export async function addStudentPayment(studentId, { amount, confirmationCode, paidAt = null, note = '' }) {
+export async function addStudentPayment(studentId, { amount, confirmationCode, paidAt = null, note = '' , method = ''}) {
   if (!studentId) throw new Error('studentId required');
   const colRef = collection(db, 'admin_admissions', studentId, 'payments');
   const paidIso = paidAt || new Date().toISOString();
   const payload = {
     amount: Number(amount),
     confirmationCode: confirmationCode || '',
+    method: method || '',
     paidAt: paidIso,
     note,
     createdAt: serverTimestamp(),
   };
-  await addDoc(colRef, payload);
+  const docRef = await addDoc(colRef, payload);
+  return docRef.id;
 }
 
 export async function listStudentPayments(studentId) {

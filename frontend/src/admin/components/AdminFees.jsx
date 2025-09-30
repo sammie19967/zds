@@ -27,11 +27,12 @@ const buildReceiptHtml = ({ org = {}, student = {}, payment = {}, course = {}, t
       <title>Payment Receipt</title>
       <style>
         body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji','Segoe UI Emoji'; background: #f8fafc; color: #0f172a; margin: 0; padding: 24px; }
-        .card { max-width: 720px; margin: 0 auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.07); padding: 24px; }
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-        .brand { display: flex; align-items: center; gap: 12px; }
-        .brand img { width: 40px; height: 40px; }
-        .title { font-size: 20px; font-weight: 700; }
+        .card { max-width: 820px; margin: 0 auto; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 12px 24px -8px rgba(0,0,0,0.12); padding: 32px; }
+        .header { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 16px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; }
+        .brand { display: flex; align-items: center; gap: 16px; }
+        .brand img { width: 80px; height: 80px; object-fit: contain; }
+        .title { font-size: 24px; font-weight: 800; letter-spacing: 0.2px; }
+        .tagline { color: #1d4ed8; font-weight: 600; margin-top: 4px; }
         .muted { color: #475569; font-size: 12px; }
         .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
         .section { margin-top: 16px; }
@@ -40,8 +41,9 @@ const buildReceiptHtml = ({ org = {}, student = {}, payment = {}, course = {}, t
         .label { color: #64748b; font-size: 12px; }
         .value { font-weight: 600; }
         .amount { color: #16a34a; font-weight: 700; }
-        .footer { text-align: center; margin-top: 24px; font-size: 12px; color: #64748b; }
-        .badge { display: inline-block; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 2px 8px; border-radius: 999px; font-size: 11px; }
+        .footer { text-align: center; margin-top: 28px; font-size: 12px; color: #475569; }
+        .badge { display: inline-block; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+        .right { text-align: right; }
         @media print { body { background: #fff; } .card { box-shadow: none; border: none; } }
       </style>
     </head>
@@ -52,10 +54,13 @@ const buildReceiptHtml = ({ org = {}, student = {}, payment = {}, course = {}, t
             <img src="${org.logoUrl || '/logo.png'}" alt="${org.name || 'Zane Driving'}" />
             <div>
               <div class="title">${org.name || 'Zane Driving'}</div>
+              <div class="tagline">Drive with us, drive with confidence</div>
               <div class="muted">${org.address || ''}</div>
             </div>
           </div>
-          <div class="badge">Payment Receipt</div>
+          <div class="right">
+            <div class="badge">Payment Receipt</div>
+          </div>
         </div>
         <div class="grid section">
           <div>
@@ -64,7 +69,7 @@ const buildReceiptHtml = ({ org = {}, student = {}, payment = {}, course = {}, t
           </div>
           <div>
             <div class="label">Receipt No.</div>
-            <div class="value">${payment.reference || payment.confirmationCode || ('RCPT-' + paidAt.getTime())}</div>
+            <div class="value">${payment.receiptNo || payment.reference || payment.confirmationCode || ('RCPT-' + paidAt.getTime())}</div>
           </div>
         </div>
         <div class="grid section">
@@ -262,7 +267,7 @@ const AdminFees = () => {
       const balanceBefore = Math.max(0, baseFee - paidBefore);
       const balanceAfter = Math.max(0, baseFee - (paidBefore + amt));
 
-      await addStudentPayment(selectedStudentId, {
+      const paymentId = await addStudentPayment(selectedStudentId, {
         amount: amt,
         method: payment.method,
         confirmationCode: payment.confirmationCode,
@@ -292,6 +297,7 @@ const AdminFees = () => {
             confirmationCode: payment.confirmationCode,
             note: payment.note,
             paidAt: paidAtIso,
+            receiptNo: paymentId,
           },
           totals: {
             totalFeeFmt: currency(baseFee),
