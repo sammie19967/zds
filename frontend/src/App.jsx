@@ -28,6 +28,7 @@ import AdminFees from './admin/components/AdminFees';
 import AdminPaymentHistory from './admin/components/AdminPaymentHistory';
 import AdminInquiries from './admin/components/AdminInquiries';
 import AdminFuel from './admin/components/AdminFuel';
+import AdminExpenses from './admin/components/AdminExpenses';
 
 const MainApp = () => (
   <>
@@ -108,6 +109,11 @@ const AdminApp = () => (
     <Route path="/admin/enquiries" element={
       <ProtectedAdminRoute>
         <AdminInquiries />
+      </ProtectedAdminRoute>
+    } />
+    <Route path="/admin/expenses" element={
+      <ProtectedAdminRoute>
+        <AdminExpenses />
       </ProtectedAdminRoute>
     } />
     {/* Optional: Catch-all for unmatched admin routes */}

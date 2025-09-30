@@ -371,6 +371,90 @@ export async function getFuelSettings() {
   return { pricePerLitre: Number(d.pricePerLitre || 0), ...d };
 }
 
+// ===== Employees & Expenses (Admin) =====
+// Employees CRUD
+export async function addEmployee({ name, role = '', baseSalary = 0, phone = '', email = '' }) {
+  const payload = {
+    name: String(name || '').trim(),
+    role: String(role || '').trim(),
+    baseSalary: Number(baseSalary) || 0,
+    phone: String(phone || '').trim(),
+    email: String(email || '').trim(),
+    createdAt: serverTimestamp(),
+    active: true,
+  };
+  const ref = await addDoc(collection(db, 'employees'), payload);
+  return ref.id;
+}
+
+export async function listEmployees({ take = 500 } = {}) {
+  const q = query(collection(db, 'employees'));
+  const snap = await getDocs(q);
+  const items = [];
+  snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+  return items.slice(0, take);
+}
+
+export async function updateEmployee(id, patch) {
+  if (!id) throw new Error('id required');
+  const ref = doc(db, 'employees', id);
+  await updateDoc(ref, { ...patch, updatedAt: serverTimestamp() });
+}
+
+export async function deleteEmployee(id) {
+  if (!id) throw new Error('id required');
+  await deleteDoc(doc(db, 'employees', id));
+}
+
+// Expenses CRUD
+// Expense: { amount, category, note, dateISO, dateMs, employeeId?, month: 'YYYY-MM' }
+export async function addExpense({ amount, category, note = '', dateISO, employeeId = '' }) {
+  const amt = Number(amount) || 0;
+  if (amt <= 0) throw new Error('amount must be > 0');
+  const iso = dateISO || new Date().toISOString().slice(0,10);
+  const ms = new Date(`${iso}T00:00:00`).getTime();
+  const month = `${iso.slice(0,7)}`;
+  const payload = {
+    amount: amt,
+    category: String(category || 'other').toLowerCase(),
+    note: String(note || ''),
+    dateISO: iso,
+    dateMs: ms,
+    month,
+    employeeId: String(employeeId || ''),
+    createdAt: serverTimestamp(),
+  };
+  const ref = await addDoc(collection(db, 'expenses'), payload);
+  return ref.id;
+}
+
+export async function listExpenses({ month, take = 1000 } = {}) {
+  let qRef = collection(db, 'expenses');
+  if (month) {
+    qRef = query(qRef, where('month', '==', month));
+  }
+  const snap = await getDocs(qRef);
+  const items = [];
+  snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+  return items.slice(0, take);
+}
+
+export async function updateExpense(id, patch) {
+  if (!id) throw new Error('id required');
+  const ref = doc(db, 'expenses', id);
+  await updateDoc(ref, { ...patch, updatedAt: serverTimestamp() });
+}
+
+export async function deleteExpense(id) {
+  if (!id) throw new Error('id required');
+  await deleteDoc(doc(db, 'expenses', id));
+}
+
+export async function getMonthlyExpensesTotal(month) {
+  const items = await listExpenses({ month, take: 5000 });
+  return items.reduce((acc, e) => acc + (Number(e.amount) || 0), 0);
+}
+
 export async function setFuelPricePerLitre(price) {
   const ref = doc(db, 'settings', 'fuel');
   await runTransaction(db, async (txn) => {
