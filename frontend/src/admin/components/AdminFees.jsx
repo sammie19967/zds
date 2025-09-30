@@ -15,6 +15,113 @@ import AdminPaymentHistory from './AdminPaymentHistory';
 
 const currency = (n) => `KSh ${Number(n || 0).toLocaleString()}`;
 
+// Receipt helpers
+const buildReceiptHtml = ({ org = {}, student = {}, payment = {}, course = {}, totals = {} }) => {
+  const paidAt = payment.paidAt ? new Date(payment.paidAt) : new Date();
+  const dateStr = paidAt.toLocaleString();
+  return `<!doctype html>
+  <html>
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>Payment Receipt</title>
+      <style>
+        body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji','Segoe UI Emoji'; background: #f8fafc; color: #0f172a; margin: 0; padding: 24px; }
+        .card { max-width: 720px; margin: 0 auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.07); padding: 24px; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand img { width: 40px; height: 40px; }
+        .title { font-size: 20px; font-weight: 700; }
+        .muted { color: #475569; font-size: 12px; }
+        .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .section { margin-top: 16px; }
+        .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e5e7eb; }
+        .row:last-child { border-bottom: none; }
+        .label { color: #64748b; font-size: 12px; }
+        .value { font-weight: 600; }
+        .amount { color: #16a34a; font-weight: 700; }
+        .footer { text-align: center; margin-top: 24px; font-size: 12px; color: #64748b; }
+        .badge { display: inline-block; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 2px 8px; border-radius: 999px; font-size: 11px; }
+        @media print { body { background: #fff; } .card { box-shadow: none; border: none; } }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="header">
+          <div class="brand">
+            <img src="${org.logoUrl || '/logo.png'}" alt="${org.name || 'Zane Driving'}" />
+            <div>
+              <div class="title">${org.name || 'Zane Driving'}</div>
+              <div class="muted">${org.address || ''}</div>
+            </div>
+          </div>
+          <div class="badge">Payment Receipt</div>
+        </div>
+        <div class="grid section">
+          <div>
+            <div class="label">Receipt Date</div>
+            <div class="value">${dateStr}</div>
+          </div>
+          <div>
+            <div class="label">Receipt No.</div>
+            <div class="value">${payment.reference || payment.confirmationCode || ('RCPT-' + paidAt.getTime())}</div>
+          </div>
+        </div>
+        <div class="grid section">
+          <div>
+            <div class="label">Student</div>
+            <div class="value">${student.name || '-'}</div>
+          </div>
+          <div>
+            <div class="label">Admission No.</div>
+            <div class="value">${student.admissionNumber || '-'}</div>
+          </div>
+        </div>
+        <div class="grid section">
+          <div>
+            <div class="label">Course</div>
+            <div class="value">${course.name || '-'}</div>
+          </div>
+          <div>
+            <div class="label">Category</div>
+            <div class="value">${course.category || '-'}</div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="row"><div class="label">Amount Paid</div><div class="amount">${payment.amountFmt}</div></div>
+          <div class="row"><div class="label">Payment Method</div><div class="value">${payment.method || '-'}</div></div>
+          <div class="row"><div class="label">Confirmation Code</div><div class="value">${payment.confirmationCode || '-'}</div></div>
+          ${payment.note ? `<div class="row"><div class="label">Note</div><div class="value">${payment.note}</div></div>` : ''}
+        </div>
+        <div class="section">
+          <div class="row"><div class="label">Course Fee</div><div class="value">${totals.totalFeeFmt}</div></div>
+          <div class="row"><div class="label">Total Paid (before)</div><div class="value">${totals.paidBeforeFmt}</div></div>
+          <div class="row"><div class="label">Balance (before)</div><div class="value">${totals.balanceBeforeFmt}</div></div>
+          <div class="row"><div class="label">Balance (after this payment)</div><div class="value">${totals.balanceAfterFmt}</div></div>
+        </div>
+        <div class="footer">
+          Thank you for your payment.
+        </div>
+      </div>
+      <script>window.onload = function(){ setTimeout(function(){ window.print(); }, 100); };</script>
+    </body>
+  </html>`;
+};
+
+const printReceipt = (data) => {
+  const html = buildReceiptHtml(data);
+  const w = window.open('', 'PrintReceipt');
+  if (!w) return;
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  try { w.focus(); } catch (e) {
+    // Safe to ignore if focus is blocked by the browser
+    // eslint-disable-next-line no-console
+    console.debug('Unable to focus print window:', e);
+  }
+};
+
 const AdminFees = () => {
   const [loading, setLoading] = useState(true);
   const [drivingFees, setDrivingFees] = useState({}); 
@@ -148,13 +255,53 @@ const AdminFees = () => {
     });
     if (!confirm) return;
     try {
+      // Build receipt data before state resets
+      const paidAtIso = new Date().toISOString();
+      const baseFee = displayBaseFee;
+      const paidBefore = Number(selectedStudent.paymentsTotal || 0);
+      const balanceBefore = Math.max(0, baseFee - paidBefore);
+      const balanceAfter = Math.max(0, baseFee - (paidBefore + amt));
+
       await addStudentPayment(selectedStudentId, {
         amount: amt,
         method: payment.method,
         confirmationCode: payment.confirmationCode,
         note: payment.note,
+        paidAt: paidAtIso,
       });
+
       await modal.success({ title: 'Payment recorded', text: 'The payment has been added.' });
+
+      // Offer receipt download/print
+      const wantReceipt = await modal.confirm({ title: 'Download receipt?', text: 'Would you like to download/print a receipt for this payment now?' });
+      if (wantReceipt) {
+        printReceipt({
+          org: { name: 'Zane Driving', logoUrl: '/logo.png' },
+          student: {
+            name: `${selectedStudent.firstName || ''} ${selectedStudent.lastName || ''}`.trim(),
+            admissionNumber: selectedStudent.admissionNumber || '-',
+          },
+          course: {
+            name: selectedStudent.course || '-',
+            category: selectedStudent.course === 'Driving' ? `${payDrivingClass} • ${payDrivingType}` : (payComputingLevel || '-')
+          },
+          payment: {
+            amount: amt,
+            amountFmt: currency(amt),
+            method: payment.method,
+            confirmationCode: payment.confirmationCode,
+            note: payment.note,
+            paidAt: paidAtIso,
+          },
+          totals: {
+            totalFeeFmt: currency(baseFee),
+            paidBeforeFmt: currency(paidBefore),
+            balanceBeforeFmt: currency(balanceBefore),
+            balanceAfterFmt: currency(balanceAfter),
+          }
+        });
+      }
+
       setPayment({ amount: '', method: 'cash', confirmationCode: '', note: '' });
       setRefreshToggle((x) => x + 1);
     } catch (e) {
