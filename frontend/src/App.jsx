@@ -45,8 +45,7 @@ const MainApp = () => (
       <Route path="/feesStructure" element={<FeesStructure />} />
       <Route path="/admin/login" element={<Login />} />
       <Route path="/admin/signup" element={<Signup />} />
-      <Route path="/admin/enquiries" element={<AdminInquiries />} />
-      <Route path="/admin/fuel" element={<AdminFuel />} />
+      
 
       <Route path="/navbar" element={<Navbar />} />
       <Route path="*" element={<NotFound />} />

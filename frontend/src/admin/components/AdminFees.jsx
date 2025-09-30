@@ -6,9 +6,12 @@ import {
   listAdminAdmissions,
   addStudentPayment,
   getStudentPaymentsTotal,
+  setDrivingFee,
+  setComputingFee,
 } from '../../utils/firebase';
 
 import '../styles/AdminFees.css';
+import AdminPaymentHistory from './AdminPaymentHistory';
 
 const currency = (n) => `KSh ${Number(n || 0).toLocaleString()}`;
 
@@ -21,6 +24,12 @@ const AdminFees = () => {
   const [refreshToggle, setRefreshToggle] = useState(0);
   // Simple navbar/tabs
   const [activeTab, setActiveTab] = useState('record'); // 'fees' | 'record' | 'students'
+
+  // Edit mode for fees tab
+  const [editMode, setEditMode] = useState(false);
+  const [savingFees, setSavingFees] = useState(false);
+  const [draftDrivingFees, setDraftDrivingFees] = useState({});
+  const [draftComputingFees, setDraftComputingFees] = useState({});
 
   // Payment form
   const [selectedStudentId, setSelectedStudentId] = useState('');
@@ -172,6 +181,78 @@ const AdminFees = () => {
     return 0;
   }, [selectedStudent, payDrivingType, payDrivingClass, payComputingLevel, drivingFees, computingFees]);
 
+  // Initialize drafts when entering edit mode or when fees load
+  useEffect(() => {
+    if (!editMode) return;
+    setDraftDrivingFees(JSON.parse(JSON.stringify(drivingFees || {})));
+    setDraftComputingFees(JSON.parse(JSON.stringify(computingFees || {})));
+  }, [editMode, drivingFees, computingFees]);
+
+  const startEdit = () => {
+    setDraftDrivingFees(JSON.parse(JSON.stringify(drivingFees || {})));
+    setDraftComputingFees(JSON.parse(JSON.stringify(computingFees || {})));
+    setEditMode(true);
+  };
+
+  const cancelEdit = () => {
+    setEditMode(false);
+  };
+
+  const saveEditedFees = async () => {
+    try {
+      setSavingFees(true);
+      const updates = [];
+      // Driving fees: compare draft vs current and update changed values
+      const dClasses = new Set([
+        ...Object.keys(drivingFees || {}),
+        ...Object.keys(draftDrivingFees || {})
+      ]);
+      dClasses.forEach((cls) => {
+        const currentTypes = drivingFees?.[cls] || {};
+        const draftTypes = draftDrivingFees?.[cls] || {};
+        const allTypes = new Set([
+          ...Object.keys(currentTypes),
+          ...Object.keys(draftTypes)
+        ]);
+        allTypes.forEach((t) => {
+          const curVal = Number(currentTypes?.[t] || 0);
+          const newVal = Number(draftTypes?.[t] || 0);
+          if (curVal !== newVal) {
+            updates.push(setDrivingFee(cls, t, newVal));
+          }
+        });
+      });
+
+      // Computing fees
+      const cLevels = new Set([
+        ...Object.keys(computingFees || {}),
+        ...Object.keys(draftComputingFees || {})
+      ]);
+      cLevels.forEach((lvl) => {
+        const curVal = Number(computingFees?.[lvl] || 0);
+        const newVal = Number(draftComputingFees?.[lvl] || 0);
+        if (curVal !== newVal) {
+          updates.push(setComputingFee(lvl, newVal));
+        }
+      });
+
+      if (updates.length === 0) {
+        await modal.success({ title: 'No changes', text: 'There were no fee changes to save.' });
+        setEditMode(false);
+        return;
+      }
+
+      await Promise.all(updates);
+      await modal.success({ title: 'Fees updated', text: 'Course fees have been saved successfully.' });
+      setEditMode(false);
+      setRefreshToggle((x) => x + 1);
+    } catch (e) {
+      await modal.error({ title: 'Save failed', text: e?.message || 'Could not save fee changes.' });
+    } finally {
+      setSavingFees(false);
+    }
+  };
+
   return (
     <div className="admin-fees-container">
       <div className="admin-fees-card">
@@ -181,6 +262,30 @@ const AdminFees = () => {
             <p className="admin-fees-page-subtitle">Manage course fees, record payments, and track student balances</p>
           </div>
           <div className="admin-fees-header-actions">
+            {activeTab === 'fees' && (
+              <div style={{ display: 'flex', gap: 8 }}>
+                {!editMode ? (
+                  <button className="admin-fees-btn" onClick={startEdit}>Edit Fees</button>
+                ) : (
+                  <>
+                    <button
+                      className="admin-fees-btn"
+                      onClick={saveEditedFees}
+                      disabled={savingFees}
+                    >
+                      {savingFees ? 'Saving...' : 'Save Changes'}
+                    </button>
+                    <button
+                      className="admin-fees-btn admin-fees-btn-secondary"
+                      onClick={cancelEdit}
+                      disabled={savingFees}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
             <div className="admin-fees-search">
               <svg className="admin-fees-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -232,6 +337,12 @@ const AdminFees = () => {
           >
             Student Balances
           </button>
+          <button
+            className={`admin-fees-tab ${activeTab === 'history' ? 'admin-fees-tab-active' : ''}`}
+            onClick={() => setActiveTab('history')}
+          >
+            Payment History
+          </button>
         </div>
 
         <div className="admin-fees-card-content">
@@ -244,16 +355,35 @@ const AdminFees = () => {
                   <div className="admin-fees-fee-card-header">Driving Course Fees</div>
                   <div className="admin-fees-grid">
                     {Object.keys(drivingFees).length === 0 ? (
-                      <div style={{ fontSize: 13, color: '#6b7280' }}>No driving fees set yet. Click &quot;Edit Driving&quot; to configure.</div>
+                      <div style={{ fontSize: 13, color: '#6b7280' }}>No driving fees set yet. Click &quot;Edit Fees&quot; to configure.</div>
                     ) : (
-                      Object.entries(drivingFees).map(([cls, types]) => (
+                      Object.entries(editMode ? draftDrivingFees : drivingFees).map(([cls, types]) => (
                         <div key={cls} style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, marginBottom: 10 }}>
                           <div style={{ fontWeight: 600, marginBottom: 8 }}>{cls}</div>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
                             {['New Student','Endorsement','Refresher'].map((type) => (
                               <div key={type}>
                                 <div style={{ fontSize: 12, color: '#6b7280' }}>{type}</div>
-                                <div style={{ fontWeight: 600 }}>{currency(types?.[type] || 0)}</div>
+                                {!editMode ? (
+                                  <div style={{ fontWeight: 600 }}>{currency(types?.[type] || 0)}</div>
+                                ) : (
+                                  <input
+                                    type="number"
+                                    className="admin-fees-input"
+                                    style={{ maxWidth: 160 }}
+                                    value={Number(types?.[type] || 0)}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setDraftDrivingFees((prev) => {
+                                        const next = { ...(prev || {}) };
+                                        const map = { ...(next[cls] || {}) };
+                                        map[type] = Number(val);
+                                        next[cls] = map;
+                                        return next;
+                                      });
+                                    }}
+                                  />
+                                )}
                               </div>
                             ))}
                           </div>
@@ -267,12 +397,36 @@ const AdminFees = () => {
                 <div className="admin-fees-fee-card">
                   <div className="admin-fees-fee-card-header">Computing Course Fees</div>
                   <div className="admin-fees-grid">
-                    {['Beginner','Intermediate'].map((level) => (
-                      <div key={level}>
-                        <div style={{ fontSize: 12, color: '#6b7280' }}>{level}</div>
-                        <div style={{ fontWeight: 600 }}>{currency(computingFees?.[level] || 0)}</div>
-                      </div>
-                    ))}
+                    {(() => {
+                      const defaultLevels = ['Beginner','Intermediate'];
+                      const levelsSet = new Set([
+                        ...defaultLevels,
+                        ...Object.keys(editMode ? draftComputingFees : computingFees || {})
+                      ]);
+                      const levels = Array.from(levelsSet);
+                      return levels.map((level) => (
+                        <div key={level}>
+                          <div style={{ fontSize: 12, color: '#6b7280' }}>{level}</div>
+                          {!editMode ? (
+                            <div style={{ fontWeight: 600 }}>{currency((computingFees || {})[level] || 0)}</div>
+                          ) : (
+                            <input
+                              type="number"
+                              className="admin-fees-input"
+                              style={{ maxWidth: 160 }}
+                              value={Number((draftComputingFees || {})[level] || 0)}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setDraftComputingFees((prev) => ({
+                                  ...(prev || {}),
+                                  [level]: Number(val)
+                                }));
+                              }}
+                            />
+                          )}
+                        </div>
+                      ));
+                    })()}
                   </div>
                 </div>
               </div>
@@ -460,6 +614,12 @@ const AdminFees = () => {
                   </table>
                 </div>
               )}
+            </div>
+          )}
+
+          {activeTab === 'history' && (
+            <div>
+              <AdminPaymentHistory />
             </div>
           )}
         </div>

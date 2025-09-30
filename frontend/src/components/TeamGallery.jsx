@@ -1,5 +1,5 @@
 import  { useState } from 'react';
-import { Users, Camera, Mail, Phone, MapPin, Award, Calendar } from 'lucide-react';
+import { Users, Camera, Mail, Phone, Award, Calendar } from 'lucide-react';
 import '../styles/TeamGallery.css';
 import sharonImage from '../assets/team/sharon.jpg';
 import rotokImage from '../assets/rotok project.jpg';
