@@ -8,6 +8,7 @@ import {
   FaSignOutAlt,
   FaUserCircle,
   FaEnvelope,
+  FaFileInvoiceDollar,
   FaChevronLeft,
   FaChevronRight
 } from 'react-icons/fa';
@@ -82,6 +83,11 @@ const Sidebar = () => {
       name: 'Enquiries', 
       path: '/admin/enquiries', 
       icon: <FaEnvelope /> 
+    },
+    { 
+      name: 'Expenses', 
+      path: '/admin/expenses', 
+      icon: <FaFileInvoiceDollar /> 
     }
   ];
 
