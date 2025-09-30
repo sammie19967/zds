@@ -10,8 +10,10 @@ import {
   deleteExpense,
   getMonthlyExpensesTotal,
   getMonthlyPaymentsTotal,
+  getMonthlyFuelCost,
 } from '../../utils/firebase';
 import '../styles/AdminExpenses.css';
+import modal from '../../utils/modal';
 
 const yyyymm = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 const currency = (n) => `KSh ${Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
@@ -28,13 +30,13 @@ const CATEGORIES = [
 ];
 
 export default function AdminExpenses() {
-  const [activeTab, setActiveTab] = useState('summary'); // summary | employees | expenses
+  const [activeTab, setActiveTab] = useState('summary');
   const [month, setMonth] = useState(yyyymm());
 
   // Employees
   const [employees, setEmployees] = useState([]);
   const [empLoading, setEmpLoading] = useState(false);
-  const [empForm, setEmpForm] = useState({ id: '', name: '', role: '', baseSalary: '', phone: '', email: '' });
+  const [empForm, setEmpForm] = useState({ id: '', name: '', role: '', baseSalary: '', phone: '', email: '', idNumber: '' });
   const [empSaving, setEmpSaving] = useState(false);
 
   // Expenses
@@ -46,6 +48,7 @@ export default function AdminExpenses() {
   // Totals
   const [feesTotal, setFeesTotal] = useState(0);
   const [expensesTotal, setExpensesTotal] = useState(0);
+  const [fuelTotal, setFuelTotal] = useState(0);
 
   // Load initial data
   useEffect(() => {
@@ -54,6 +57,8 @@ export default function AdminExpenses() {
       try {
         const list = await listEmployees({ take: 1000 });
         setEmployees(list || []);
+      } catch (e) {
+        await modal.error({ title: 'Failed', text: e?.message || 'Could not load employees' });
       } finally {
         setEmpLoading(false);
       }
@@ -65,54 +70,65 @@ export default function AdminExpenses() {
     (async () => {
       setExpLoading(true);
       try {
-        const [exps, fees, exTotal] = await Promise.all([
+        const [exps, fees, exTotal, fuel] = await Promise.all([
           listExpenses({ month, take: 2000 }),
           getMonthlyPaymentsTotal(month),
           getMonthlyExpensesTotal(month),
+          getMonthlyFuelCost(month),
         ]);
         setExpenses(exps || []);
         setFeesTotal(Number(fees || 0));
         setExpensesTotal(Number(exTotal || 0));
+        setFuelTotal(Number(fuel || 0));
+      } catch (e) {
+        await modal.error({ title: 'Failed', text: e?.message || 'Could not load monthly data' });
       } finally {
         setExpLoading(false);
       }
     })();
   }, [month]);
 
-  const profit = useMemo(() => Number((Number(feesTotal) - Number(expensesTotal)).toFixed(2)), [feesTotal, expensesTotal]);
+  const totalExpensesAll = useMemo(() => Number((Number(expensesTotal) + Number(fuelTotal)).toFixed(2)), [expensesTotal, fuelTotal]);
+  const profit = useMemo(() => Number((Number(feesTotal) - totalExpensesAll).toFixed(2)), [feesTotal, totalExpensesAll]);
 
   // Employee handlers
-  const onEditEmployee = (e) => setEmpForm({ id: e.id, name: e.name || '', role: e.role || '', baseSalary: e.baseSalary || '', phone: e.phone || '', email: e.email || '' });
-  const resetEmpForm = () => setEmpForm({ id: '', name: '', role: '', baseSalary: '', phone: '', email: '' });
+  const onEditEmployee = (e) => setEmpForm({ id: e.id, name: e.name || '', role: e.role || '', baseSalary: e.baseSalary || '', phone: e.phone || '', email: e.email || '', idNumber: e.idNumber || '' });
+  const resetEmpForm = () => setEmpForm({ id: '', name: '', role: '', baseSalary: '', phone: '', email: '', idNumber: '' });
   const saveEmployee = async () => {
     try {
       setEmpSaving(true);
-      const payload = { name: empForm.name, role: empForm.role, baseSalary: empForm.baseSalary, phone: empForm.phone, email: empForm.email };
-      if (!empForm.name?.trim()) throw new Error('Name is required');
+      const payload = { name: empForm.name, role: empForm.role, baseSalary: empForm.baseSalary, phone: empForm.phone, email: empForm.email, idNumber: empForm.idNumber };
+      if (!empForm.name?.trim()) return await modal.error({ title: 'Missing Name', text: 'Name is required' });
+      if (!String(empForm.baseSalary)) return await modal.error({ title: 'Missing Salary', text: 'Base salary is required' });
+      if (Number(empForm.baseSalary) <= 0) return await modal.error({ title: 'Invalid Salary', text: 'Base salary must be greater than 0' });
       if (empForm.id) {
         await updateEmployee(empForm.id, payload);
+        await modal.toast({ title: 'Employee updated', icon: 'success' });
       } else {
         await addEmployee(payload);
+        await modal.toast({ title: 'Employee added', icon: 'success' });
       }
       const list = await listEmployees({ take: 1000 });
       setEmployees(list || []);
       resetEmpForm();
     } catch (e) {
-      alert(e?.message || 'Failed to save employee');
+      await modal.error({ title: 'Failed', text: e?.message || 'Failed to save employee' });
     } finally {
       setEmpSaving(false);
     }
   };
   const removeEmployee = async (id) => {
     if (!id) return;
-    if (!window.confirm('Delete this employee?')) return;
+    const yes = await modal.confirm({ title: 'Delete Employee', text: 'Are you sure you want to delete this employee?' });
+    if (!yes) return;
     try {
       await deleteEmployee(id);
       const list = await listEmployees({ take: 1000 });
       setEmployees(list || []);
       if (empForm.id === id) resetEmpForm();
+      await modal.toast({ title: 'Employee deleted', icon: 'success' });
     } catch (e) {
-      alert(e?.message || 'Failed to delete employee');
+      await modal.error({ title: 'Failed', text: e?.message || 'Failed to delete employee' });
     }
   };
 
@@ -123,12 +139,21 @@ export default function AdminExpenses() {
     try {
       setExpSaving(true);
       const amt = Number(expForm.amount) || 0;
-      if (amt <= 0) throw new Error('Enter a valid amount');
+      if (amt <= 0) return await modal.error({ title: 'Invalid Amount', text: 'Enter a valid amount' });
+      if (expForm.category === 'salary') {
+        if (!expForm.employeeId) return await modal.error({ title: 'Missing Employee', text: 'Select an employee for salary expense' });
+        const emp = employees.find(e => e.id === expForm.employeeId);
+        const base = Number(emp?.baseSalary) || 0;
+        if (base <= 0) return await modal.error({ title: 'No Base Salary', text: 'Selected employee has no base salary' });
+        if (amt > base) return await modal.error({ title: 'Exceeds Base Salary', text: 'Salary amount cannot exceed base salary' });
+      }
       const payload = { amount: amt, category: expForm.category, note: expForm.note, dateISO: expForm.dateISO, employeeId: expForm.category === 'salary' ? (expForm.employeeId || '') : '' };
       if (expForm.id) {
         await updateExpense(expForm.id, payload);
+        await modal.toast({ title: 'Expense updated', icon: 'success' });
       } else {
         await addExpense(payload);
+        await modal.toast({ title: 'Expense added', icon: 'success' });
       }
       const [exps, exTotal, fees] = await Promise.all([
         listExpenses({ month, take: 2000 }),
@@ -140,14 +165,15 @@ export default function AdminExpenses() {
       setFeesTotal(Number(fees || 0));
       resetExpForm();
     } catch (e) {
-      alert(e?.message || 'Failed to save expense');
+      await modal.error({ title: 'Failed', text: e?.message || 'Failed to save expense' });
     } finally {
       setExpSaving(false);
     }
   };
   const removeExpense = async (id) => {
     if (!id) return;
-    if (!window.confirm('Delete this expense?')) return;
+    const yes = await modal.confirm({ title: 'Delete Expense', text: 'Are you sure you want to delete this expense?' });
+    if (!yes) return;
     try {
       await deleteExpense(id);
       const [exps, exTotal, fees] = await Promise.all([
@@ -158,52 +184,125 @@ export default function AdminExpenses() {
       setExpenses(exps || []);
       setExpensesTotal(Number(exTotal || 0));
       setFeesTotal(Number(fees || 0));
+      await modal.toast({ title: 'Expense deleted', icon: 'success' });
     } catch (e) {
-      alert(e?.message || 'Failed to delete expense');
+      await modal.error({ title: 'Failed', text: e?.message || 'Failed to delete expense' });
     }
   };
 
   return (
-    <div className="admin-expenses-container">
-      <div className="admin-expenses-card">
-        <div className="admin-expenses-card-header">
-          <div>
-            <h1 className="admin-expenses-page-title">Expenses & Profit</h1>
-            <p className="admin-expenses-page-subtitle">Track employees, expenses, and monthly profit</p>
+    <div className="aexp-wrapper">
+      <div className="aexp-container">
+        {/* Header */}
+        <div className="aexp-header">
+          <div className="aexp-header-left">
+            <h1 className="aexp-title">Expenses & Profit</h1>
+            <p className="aexp-subtitle">Track employees, expenses, and monthly profit</p>
           </div>
-          <div className="admin-expenses-header-controls">
-            <label className="admin-expenses-month-label">Month</label>
-            <input type="month" className="admin-expenses-month-input" value={month} onChange={(e)=>setMonth(e.target.value)} />
+          <div className="aexp-header-right">
+            <label className="aexp-month-label">
+              <svg className="aexp-month-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>Month</span>
+            </label>
+            <input type="month" className="aexp-month-input" value={month} onChange={(e)=>setMonth(e.target.value)} />
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="admin-expenses-nav">
-          <button className={`admin-expenses-tab ${activeTab==='summary'?'admin-expenses-tab-active':''}`} onClick={()=>setActiveTab('summary')}>Summary</button>
-          <button className={`admin-expenses-tab ${activeTab==='employees'?'admin-expenses-tab-active':''}`} onClick={()=>setActiveTab('employees')}>Employees</button>
-          <button className={`admin-expenses-tab ${activeTab==='expenses'?'admin-expenses-tab-active':''}`} onClick={()=>setActiveTab('expenses')}>Expenses</button>
+        {/* Tab Navigation */}
+        <div className="aexp-tabs">
+          <button 
+            className={`aexp-tab ${activeTab==='summary'?'aexp-tab-active':''}`} 
+            onClick={()=>setActiveTab('summary')}
+          >
+            <svg className="aexp-tab-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Summary
+          </button>
+          <button 
+            className={`aexp-tab ${activeTab==='employees'?'aexp-tab-active':''}`} 
+            onClick={()=>setActiveTab('employees')}
+          >
+            <svg className="aexp-tab-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            Employees
+          </button>
+          <button 
+            className={`aexp-tab ${activeTab==='expenses'?'aexp-tab-active':''}`} 
+            onClick={()=>setActiveTab('expenses')}
+          >
+            <svg className="aexp-tab-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            Expenses
+          </button>
         </div>
 
-        <div className="admin-expenses-content">
+        {/* Tab Content */}
+        <div className="aexp-content">
+          {/* SUMMARY TAB */}
           {activeTab === 'summary' && (
-            <div className="admin-expenses-grid admin-expenses-grid-3">
-              <div className="admin-expenses-summary-card">
-                <div className="admin-expenses-summary-label">Fees Collected</div>
-                <div className="admin-expenses-summary-value">{currency(feesTotal)}</div>
-              </div>
-              <div className="admin-expenses-summary-card">
-                <div className="admin-expenses-summary-label">Total Expenses</div>
-                <div className="admin-expenses-summary-value">{currency(expensesTotal)}</div>
-              </div>
-              <div className="admin-expenses-summary-card">
-                <div className="admin-expenses-summary-label">Profit</div>
-                <div className="admin-expenses-summary-value" style={{ color: profit>=0 ? '#059669' : '#dc2626' }}>{currency(profit)}</div>
+            <div className="aexp-summary-wrapper">
+              <div className="aexp-stats-grid">
+                <div className="aexp-stat-card aexp-stat-fees">
+                  <div className="aexp-stat-icon-wrapper">
+                    <svg className="aexp-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="aexp-stat-content">
+                    <div className="aexp-stat-label">Fees Collected</div>
+                    <div className="aexp-stat-value">{currency(feesTotal)}</div>
+                  </div>
+                </div>
+
+                <div className="aexp-stat-card aexp-stat-fuel">
+                  <div className="aexp-stat-icon-wrapper">
+                    <svg className="aexp-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                  <div className="aexp-stat-content">
+                    <div className="aexp-stat-label">Fuel Cost</div>
+                    <div className="aexp-stat-value">{currency(fuelTotal)}</div>
+                  </div>
+                </div>
+
+                <div className="aexp-stat-card aexp-stat-expenses">
+                  <div className="aexp-stat-icon-wrapper">
+                    <svg className="aexp-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                  </div>
+                  <div className="aexp-stat-content">
+                    <div className="aexp-stat-label">Total Expenses</div>
+                    <div className="aexp-stat-value">{currency(totalExpensesAll)}</div>
+                  </div>
+                </div>
+
+                <div className={`aexp-stat-card ${profit>=0 ? 'aexp-stat-profit' : 'aexp-stat-loss'}`}>
+                  <div className="aexp-stat-icon-wrapper">
+                    <svg className="aexp-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                  </div>
+                  <div className="aexp-stat-content">
+                    <div className="aexp-stat-label">Profit/Loss</div>
+                    <div className="aexp-stat-value">{currency(profit)}</div>
+                  </div>
+                </div>
               </div>
 
-              <div className="admin-expenses-section-card admin-expenses-grid-full">
-                <div className="admin-expenses-section-card-header">This Month Expenses</div>
-                <div className="admin-expenses-table-wrap">
-                  <table className="admin-expenses-table">
+              <div className="aexp-section-card">
+                <div className="aexp-section-header">
+                  <h3 className="aexp-section-title">This Month Expenses</h3>
+                  <span className="aexp-section-count">{expenses.length} records</span>
+                </div>
+                <div className="aexp-table-container">
+                  <table className="aexp-table">
                     <thead>
                       <tr>
                         <th>Date</th>
@@ -216,25 +315,45 @@ export default function AdminExpenses() {
                     </thead>
                     <tbody>
                       {expLoading && (
-                        <tr><td colSpan={6} className="admin-expenses-empty">Loading...</td></tr>
+                        <tr><td colSpan={6} className="aexp-table-loading">
+                          <div className="aexp-loading-spinner"></div>
+                          <span>Loading expenses...</span>
+                        </td></tr>
                       )}
                       {!expLoading && expenses.map(e => (
-                        <tr key={e.id}>
-                          <td>{e.dateISO}</td>
-                          <td>{CATEGORIES.find(c=>c.key===e.category)?.label || e.category}</td>
-                          <td>{e.employeeId ? (employees.find(x=>x.id===e.employeeId)?.name || e.employeeId) : '-'}</td>
-                          <td><strong>{currency(e.amount)}</strong></td>
-                          <td className="admin-expenses-note-cell" title={e.note || ''}>{e.note || ''}</td>
+                        <tr key={e.id} className="aexp-table-row">
+                          <td className="aexp-table-date">{e.dateISO}</td>
                           <td>
-                            <div className="admin-expenses-actions">
-                              <button className="admin-expenses-btn admin-expenses-btn-link" onClick={()=>onEditExpense(e)}>Edit</button>
-                              <button className="admin-expenses-btn admin-expenses-btn-danger" onClick={()=>removeExpense(e.id)}>Delete</button>
+                            <span className="aexp-category-badge">
+                              {CATEGORIES.find(c=>c.key===e.category)?.label || e.category}
+                            </span>
+                          </td>
+                          <td className="aexp-table-employee">{e.employeeId ? (employees.find(x=>x.id===e.employeeId)?.name || e.employeeId) : '-'}</td>
+                          <td className="aexp-table-amount">{currency(e.amount)}</td>
+                          <td className="aexp-table-note" title={e.note || ''}>{e.note || '-'}</td>
+                          <td>
+                            <div className="aexp-action-buttons">
+                              <button className="aexp-btn-edit" onClick={()=>onEditExpense(e)}>
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                              <button className="aexp-btn-delete" onClick={()=>removeExpense(e.id)}>
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
                             </div>
                           </td>
                         </tr>
                       ))}
                       {!expLoading && expenses.length===0 && (
-                        <tr><td colSpan={6} className="admin-expenses-empty">No expenses recorded for this month</td></tr>
+                        <tr><td colSpan={6} className="aexp-table-empty">
+                          <svg className="aexp-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                          </svg>
+                          <p>No expenses recorded for this month</p>
+                        </td></tr>
                       )}
                     </tbody>
                   </table>
@@ -243,74 +362,159 @@ export default function AdminExpenses() {
             </div>
           )}
 
+          {/* EMPLOYEES TAB */}
           {activeTab === 'employees' && (
-            <div className="admin-expenses-grid admin-expenses-grid-2">
-              <div className="admin-expenses-section-card">
-                <div className="admin-expenses-section-card-header">Employees</div>
-                <div className="admin-expenses-table-wrap">
-                  <table className="admin-expenses-table">
+            <div className="aexp-employees-layout">
+              <div className="aexp-section-card">
+                <div className="aexp-section-header">
+                  <h3 className="aexp-section-title">Employees List</h3>
+                  <span className="aexp-section-count">{employees.length} employees</span>
+                </div>
+                <div className="aexp-table-container">
+                  <table className="aexp-table">
                     <thead>
                       <tr>
                         <th>Name</th>
                         <th>Role</th>
                         <th>Base Salary</th>
+                        <th>ID Number</th>
                         <th>Phone</th>
                         <th>Email</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {empLoading && (<tr><td colSpan={6} className="admin-expenses-empty">Loading...</td></tr>)}
+                      {empLoading && (
+                        <tr><td colSpan={7} className="aexp-table-loading">
+                          <div className="aexp-loading-spinner"></div>
+                          <span>Loading employees...</span>
+                        </td></tr>
+                      )}
                       {!empLoading && employees.map(e => (
-                        <tr key={e.id}>
-                          <td>{e.name}</td>
+                        <tr key={e.id} className="aexp-table-row">
+                          <td className="aexp-table-name">{e.name}</td>
                           <td>{e.role || '-'}</td>
-                          <td>{currency(e.baseSalary)}</td>
+                          <td className="aexp-table-amount">{currency(e.baseSalary)}</td>
+                          <td className="aexp-table-id">{e.idNumber || '-'}</td>
                           <td>{e.phone || '-'}</td>
                           <td>{e.email || '-'}</td>
                           <td>
-                            <div className="admin-expenses-actions">
-                              <button className="admin-expenses-btn admin-expenses-btn-link" onClick={()=>onEditEmployee(e)}>Edit</button>
-                              <button className="admin-expenses-btn admin-expenses-btn-danger" onClick={()=>removeEmployee(e.id)}>Delete</button>
+                            <div className="aexp-action-buttons">
+                              <button className="aexp-btn-edit" onClick={()=>onEditEmployee(e)}>
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                              <button className="aexp-btn-delete" onClick={()=>removeEmployee(e.id)}>
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
                             </div>
                           </td>
                         </tr>
                       ))}
                       {!empLoading && employees.length===0 && (
-                        <tr><td colSpan={6} className="admin-expenses-empty">No employees</td></tr>
+                        <tr><td colSpan={7} className="aexp-table-empty">
+                          <svg className="aexp-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                          </svg>
+                          <p>No employees registered yet</p>
+                        </td></tr>
                       )}
                     </tbody>
                   </table>
                 </div>
               </div>
 
-              <div className="admin-expenses-section-card">
-                <div className="admin-expenses-section-card-header">Add / Edit Employee</div>
-                <div className="admin-expenses-grid admin-expenses-grid-2">
-                  <div>
-                    <label className="admin-expenses-label">Name</label>
-                    <input className="admin-expenses-input" value={empForm.name} onChange={(e)=>setEmpForm(v=>({...v, name: e.target.value}))} placeholder="Full name" />
+              <div className="aexp-section-card">
+                <div className="aexp-section-header">
+                  <h3 className="aexp-section-title">{empForm.id ? 'Edit Employee' : 'Add Employee'}</h3>
+                </div>
+                <div className="aexp-form">
+                  <div className="aexp-form-group">
+                    <label className="aexp-form-label">
+                      <svg className="aexp-form-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      Name
+                    </label>
+                    <input className="aexp-form-input" value={empForm.name} onChange={(e)=>setEmpForm(v=>({...v, name: e.target.value}))} placeholder="Full name" />
                   </div>
-                  <div>
-                    <label className="admin-expenses-label">Role</label>
-                    <input className="admin-expenses-input" value={empForm.role} onChange={(e)=>setEmpForm(v=>({...v, role: e.target.value}))} placeholder="e.g., Instructor" />
+
+                  <div className="aexp-form-group">
+                    <label className="aexp-form-label">
+                      <svg className="aexp-form-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      Role
+                    </label>
+                    <input className="aexp-form-input" value={empForm.role} onChange={(e)=>setEmpForm(v=>({...v, role: e.target.value}))} placeholder="e.g., Instructor" />
                   </div>
-                  <div>
-                    <label className="admin-expenses-label">Base Salary</label>
-                    <input type="number" className="admin-expenses-input" value={empForm.baseSalary} onChange={(e)=>setEmpForm(v=>({...v, baseSalary: e.target.value}))} placeholder="e.g., 30000" />
+
+                  <div className="aexp-form-group">
+                    <label className="aexp-form-label">
+                      <svg className="aexp-form-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                      </svg>
+                      Base Salary
+                    </label>
+                    <input type="number" className="aexp-form-input" value={empForm.baseSalary} onChange={(e)=>setEmpForm(v=>({...v, baseSalary: e.target.value}))} placeholder="e.g., 30000" />
                   </div>
-                  <div>
-                    <label className="admin-expenses-label">Phone</label>
-                    <input className="admin-expenses-input" value={empForm.phone} onChange={(e)=>setEmpForm(v=>({...v, phone: e.target.value}))} placeholder="e.g., 07xx xxx xxx" />
+
+                  <div className="aexp-form-group">
+                    <label className="aexp-form-label">
+                      <svg className="aexp-form-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                      </svg>
+                      ID Number
+                    </label>
+                    <input className="aexp-form-input" value={empForm.idNumber} onChange={(e)=>setEmpForm(v=>({...v, idNumber: e.target.value}))} placeholder="e.g., 12345678" />
                   </div>
-                  <div>
-                    <label className="admin-expenses-label">Email</label>
-                    <input className="admin-expenses-input" value={empForm.email} onChange={(e)=>setEmpForm(v=>({...v, email: e.target.value}))} placeholder="e.g., name@domain.com" />
+
+                  <div className="aexp-form-group">
+                    <label className="aexp-form-label">
+                      <svg className="aexp-form-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                      Phone
+                    </label>
+                    <input className="aexp-form-input" value={empForm.phone} onChange={(e)=>setEmpForm(v=>({...v, phone: e.target.value}))} placeholder="e.g., 07xx xxx xxx" />
                   </div>
-                  <div style={{ alignSelf: 'end' }}>
-                    <button className="admin-expenses-btn" onClick={saveEmployee} disabled={empSaving}>{empSaving ? 'Saving...' : (empForm.id ? 'Update' : 'Save')}</button>
+
+                  <div className="aexp-form-group">
+                    <label className="aexp-form-label">
+                      <svg className="aexp-form-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      Email
+                    </label>
+                    <input type="email" className="aexp-form-input" value={empForm.email} onChange={(e)=>setEmpForm(v=>({...v, email: e.target.value}))} placeholder="e.g., name@domain.com" />
+                  </div>
+
+                  <div className="aexp-form-actions">
+                    <button className="aexp-btn-primary" onClick={saveEmployee} disabled={empSaving}>
+                      {empSaving ? (
+                        <>
+                          <div className="aexp-btn-spinner"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          {empForm.id ? 'Update Employee' : 'Add Employee'}
+                        </>
+                      )}
+                    </button>
                     {empForm.id && (
-                      <button className="admin-expenses-btn admin-expenses-btn-secondary" onClick={resetEmpForm} style={{ marginLeft: 8 }}>Clear</button>
+                      <button className="aexp-btn-secondary" onClick={resetEmpForm}>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Clear
+                      </button>
                     )}
                   </div>
                 </div>
@@ -318,55 +522,117 @@ export default function AdminExpenses() {
             </div>
           )}
 
+          {/* EXPENSES TAB */}
           {activeTab === 'expenses' && (
-            <div className="admin-expenses-grid admin-expenses-grid-2">
-              <div className="admin-expenses-section-card">
-                <div className="admin-expenses-section-card-header">Add / Edit Expense</div>
-                <div className="admin-expenses-grid admin-expenses-grid-2">
-                  <div>
-                    <label className="admin-expenses-label">Date</label>
-                    <input type="date" className="admin-expenses-input" value={expForm.dateISO} onChange={(e)=>setExpForm(v=>({...v, dateISO: e.target.value}))} />
+            <div className="aexp-expenses-layout">
+              <div className="aexp-section-card">
+                <div className="aexp-section-header">
+                  <h3 className="aexp-section-title">{expForm.id ? 'Edit Expense' : 'Add Expense'}</h3>
+                </div>
+                <div className="aexp-form">
+                  <div className="aexp-form-group">
+                    <label className="aexp-form-label">
+                      <svg className="aexp-form-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      Date
+                    </label>
+                    <input type="date" className="aexp-form-input" value={expForm.dateISO} onChange={(e)=>setExpForm(v=>({...v, dateISO: e.target.value}))} />
                   </div>
-                  <div>
-                    <label className="admin-expenses-label">Category</label>
-                    <select className="admin-expenses-input" value={expForm.category} onChange={(e)=>setExpForm(v=>({...v, category: e.target.value}))}>
+
+                  <div className="aexp-form-group">
+                    <label className="aexp-form-label">
+                      <svg className="aexp-form-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                      </svg>
+                      Category
+                    </label>
+                    <select className="aexp-form-select" value={expForm.category} onChange={(e)=>setExpForm(v=>({...v, category: e.target.value}))}>
                       {CATEGORIES.map(c => (
                         <option key={c.key} value={c.key}>{c.label}</option>
                       ))}
                     </select>
                   </div>
+
                   {expForm.category === 'salary' && (
-                    <div>
-                      <label className="admin-expenses-label">Employee</label>
-                      <select className="admin-expenses-input" value={expForm.employeeId} onChange={(e)=>setExpForm(v=>({...v, employeeId: e.target.value}))}>
+                    <div className="aexp-form-group">
+                      <label className="aexp-form-label">
+                        <svg className="aexp-form-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Employee
+                      </label>
+                      <select className="aexp-form-select" value={expForm.employeeId} onChange={(e)=>{
+                        const empId = e.target.value;
+                        setExpForm(v=>{
+                          const emp = employees.find(x=>x.id === empId);
+                          const autoAmount = emp ? Number(emp.baseSalary) || '' : '';
+                          return { ...v, employeeId: empId, amount: autoAmount };
+                        });
+                      }}>
                         <option value="">-- Select Employee --</option>
                         {employees.map(e => (
-                          <option key={e.id} value={e.id}>{e.name}</option>
+                          <option key={e.id} value={e.id}>{e.name} ({currency(e.baseSalary)})</option>
                         ))}
                       </select>
                     </div>
                   )}
-                  <div>
-                    <label className="admin-expenses-label">Amount (KSh)</label>
-                    <input type="number" className="admin-expenses-input" value={expForm.amount} onChange={(e)=>setExpForm(v=>({...v, amount: e.target.value}))} placeholder="e.g., 5000" />
+
+                  <div className="aexp-form-group">
+                    <label className="aexp-form-label">
+                      <svg className="aexp-form-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                      </svg>
+                      Amount (KSh)
+                    </label>
+                    <input type="number" className="aexp-form-input" value={expForm.amount} onChange={(e)=>setExpForm(v=>({...v, amount: e.target.value}))} placeholder="e.g., 5000" />
                   </div>
-                  <div className="admin-expenses-grid-full">
-                    <label className="admin-expenses-label">Note (Optional)</label>
-                    <input className="admin-expenses-input" value={expForm.note} onChange={(e)=>setExpForm(v=>({...v, note: e.target.value}))} placeholder="e.g., Car wash for KDB 123A" />
+
+                  <div className="aexp-form-group aexp-form-group-full">
+                    <label className="aexp-form-label">
+                      <svg className="aexp-form-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      Note (Optional)
+                    </label>
+                    <input className="aexp-form-input" value={expForm.note} onChange={(e)=>setExpForm(v=>({...v, note: e.target.value}))} placeholder="e.g., Car wash for KDB 123A" />
                   </div>
-                  <div style={{ alignSelf: 'end' }}>
-                    <button className="admin-expenses-btn" onClick={saveExpense} disabled={expSaving}>{expSaving ? 'Saving...' : (expForm.id ? 'Update' : 'Save')}</button>
+
+                  <div className="aexp-form-actions">
+                    <button className="aexp-btn-primary" onClick={saveExpense} disabled={expSaving}>
+                      {expSaving ? (
+                        <>
+                          <div className="aexp-btn-spinner"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          {expForm.id ? 'Update Expense' : 'Add Expense'}
+                        </>
+                      )}
+                    </button>
                     {expForm.id && (
-                      <button className="admin-expenses-btn admin-expenses-btn-secondary" onClick={resetExpForm} style={{ marginLeft: 8 }}>Clear</button>
+                      <button className="aexp-btn-secondary" onClick={resetExpForm}>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Clear
+                      </button>
                     )}
                   </div>
                 </div>
               </div>
 
-              <div className="admin-expenses-section-card">
-                <div className="admin-expenses-section-card-header">This Month Expenses</div>
-                <div className="admin-expenses-table-wrap">
-                  <table className="admin-expenses-table">
+              <div className="aexp-section-card">
+                <div className="aexp-section-header">
+                  <h3 className="aexp-section-title">This Month Expenses</h3>
+                  <span className="aexp-section-count">{expenses.length} records</span>
+                </div>
+                <div className="aexp-table-container">
+                  <table className="aexp-table">
                     <thead>
                       <tr>
                         <th>Date</th>
@@ -378,24 +644,46 @@ export default function AdminExpenses() {
                       </tr>
                     </thead>
                     <tbody>
-                      {expLoading && (<tr><td colSpan={6} className="admin-expenses-empty">Loading...</td></tr>)}
+                      {expLoading && (
+                        <tr><td colSpan={6} className="aexp-table-loading">
+                          <div className="aexp-loading-spinner"></div>
+                          <span>Loading expenses...</span>
+                        </td></tr>
+                      )}
                       {!expLoading && expenses.map(e => (
-                        <tr key={e.id}>
-                          <td>{e.dateISO}</td>
-                          <td>{CATEGORIES.find(c=>c.key===e.category)?.label || e.category}</td>
-                          <td>{e.employeeId ? (employees.find(x=>x.id===e.employeeId)?.name || e.employeeId) : '-'}</td>
-                          <td><strong>{currency(e.amount)}</strong></td>
-                          <td className="admin-expenses-note-cell" title={e.note || ''}>{e.note || ''}</td>
+                        <tr key={e.id} className="aexp-table-row">
+                          <td className="aexp-table-date">{e.dateISO}</td>
                           <td>
-                            <div className="admin-expenses-actions">
-                              <button className="admin-expenses-btn admin-expenses-btn-link" onClick={()=>onEditExpense(e)}>Edit</button>
-                              <button className="admin-expenses-btn admin-expenses-btn-danger" onClick={()=>removeExpense(e.id)}>Delete</button>
+                            <span className="aexp-category-badge">
+                              {CATEGORIES.find(c=>c.key===e.category)?.label || e.category}
+                            </span>
+                          </td>
+                          <td className="aexp-table-employee">{e.employeeId ? (employees.find(x=>x.id===e.employeeId)?.name || e.employeeId) : '-'}</td>
+                          <td className="aexp-table-amount">{currency(e.amount)}</td>
+                          <td className="aexp-table-note" title={e.note || ''}>{e.note || '-'}</td>
+                          <td>
+                            <div className="aexp-action-buttons">
+                              <button className="aexp-btn-edit" onClick={()=>onEditExpense(e)}>
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                              <button className="aexp-btn-delete" onClick={()=>removeExpense(e.id)}>
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
                             </div>
                           </td>
                         </tr>
                       ))}
                       {!expLoading && expenses.length===0 && (
-                        <tr><td colSpan={6} className="admin-expenses-empty">No expenses recorded for this month</td></tr>
+                        <tr><td colSpan={6} className="aexp-table-empty">
+                          <svg className="aexp-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                          </svg>
+                          <p>No expenses recorded for this month</p>
+                        </td></tr>
                       )}
                     </tbody>
                   </table>

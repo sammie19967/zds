@@ -373,13 +373,14 @@ export async function getFuelSettings() {
 
 // ===== Employees & Expenses (Admin) =====
 // Employees CRUD
-export async function addEmployee({ name, role = '', baseSalary = 0, phone = '', email = '' }) {
+export async function addEmployee({ name, role = '', baseSalary = 0, phone = '', email = '', idNumber = '' }) {
   const payload = {
     name: String(name || '').trim(),
     role: String(role || '').trim(),
     baseSalary: Number(baseSalary) || 0,
     phone: String(phone || '').trim(),
     email: String(email || '').trim(),
+    idNumber: String(idNumber || '').trim(),
     createdAt: serverTimestamp(),
     active: true,
   };

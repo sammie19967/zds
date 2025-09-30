@@ -163,46 +163,43 @@
 }
 
 /* Verify Receipt section */
-.admin-dashboard-verify-grid {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 1rem; /* increase spacing between input and button */
-  padding: 1.25rem 1.75rem 1.5rem 1.75rem; /* larger inner padding */
+.admin-verify-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
 }
 
-/* Fallback: if container uses older class */
-.admin-verify-card .admin-dashboard-form-group {
+.admin-verify-grid {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 1rem;
-  padding: 1.25rem 1.75rem 1.5rem 1.75rem;
+  padding: 1.5rem;
+  align-items: start;
 }
 
 .admin-verify-result {
-  margin: 0.75rem 1.75rem 1.5rem 1.75rem; /* add top margin and widen sides */
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  margin: 0 1.5rem 1.5rem 1.5rem;
+  background: white;
+  border: 2px solid #e0e7ff;
   border-radius: 0.75rem;
-  padding: 1rem 1.25rem; /* more breathing room */
-}
-
-/* Fallback: legacy class name */
-.admin-verify-card .admin-dashboard-verify-result {
-  margin: 0.75rem 1.75rem 1.5rem 1.75rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-  padding: 1rem 1.25rem;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
 }
 
 .admin-verify-meta {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem 1.25rem; /* increase row and column gap */
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.admin-verify-meta > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .admin-verify-actions {
-  margin-top: 0.75rem; /* add a bit more space from meta */
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
@@ -210,111 +207,120 @@
 
 .admin-verify-input {
   width: 100%;
-  padding: 0.9rem 1.1rem; /* slightly larger input */
-  border: 1px solid #d1d5db;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e2e8f0;
   border-radius: 0.5rem;
-  font-size: 0.9rem;
-  background: #ffffff;
+  font-size: 0.875rem;
+  background: white;
   transition: all 0.2s ease;
-}
-
-/* Fallback: style generic input inside verify card */
-.admin-verify-card .admin-dashboard-input {
-  width: 100%;
-  padding: 0.9rem 1.1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  font-size: 0.9rem;
-  background: #ffffff;
-  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
 }
 
 .admin-verify-input:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: white;
+}
+
+.admin-verify-input::placeholder {
+  color: #9ca3af;
+  font-size: 0.8125rem;
 }
 
 .admin-verify-label {
   color: #64748b;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
 .admin-verify-value {
   font-weight: 600;
   color: #1e293b;
+  font-size: 0.9375rem;
 }
 
 .admin-verify-value-strong {
-  font-weight: 800;
+  font-weight: 700;
   color: #1e293b;
+  font-size: 1.0625rem;
 }
 
 .admin-verify-amount {
   color: #059669;
-  font-weight: 800;
+  font-weight: 700;
+  font-size: 1.125rem;
+  font-family: 'Courier New', monospace;
 }
 
 .admin-verify-btn {
-  min-width: 140px; /* larger button */
-  appearance: none;
+  min-width: 120px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
   border: none;
-  outline: none;
-  color: #ffffff;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  box-shadow: 0 6px 12px -4px rgba(29, 78, 216, 0.35);
-  font-weight: 700;
-  padding: 0.9rem 1.25rem;
   border-radius: 0.5rem;
-  transition: transform 0.08s ease, box-shadow 0.2s ease, filter 0.2s ease;
-}
-
-.admin-verify-btn:hover {
-  filter: brightness(1.05);
-  box-shadow: 0 8px 16px -6px rgba(29, 78, 216, 0.45);
-}
-
-.admin-verify-btn:active {
-  transform: translateY(1px);
-}
-
-.admin-verify-btn:focus-visible {
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 6px 12px -4px rgba(29, 78, 216, 0.35);
-}
-
-/* Fallbacks inside the verify card to ensure consistent visuals */
-.admin-verify-card input[type="text"],
-.admin-verify-card input[type="url"],
-.admin-verify-card .admin-dashboard-input {
-  padding: 0.9rem 1.1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  font-size: 0.9rem;
-  background: #ffffff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  font-family: 'Inter', sans-serif;
 }
 
-.admin-verify-card input[type="text"]:focus,
-.admin-verify-card input[type="url"]:focus,
-.admin-verify-card .admin-dashboard-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+.admin-verify-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
 }
 
-.admin-verify-card .admin-dashboard-btn.admin-verify-btn {
-  color: #ffffff;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  border: none;
+.admin-verify-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
-/* Fallback: add spacing for compact error inside verify card */
-.admin-verify-card .admin-verify-error,
-.admin-verify-card .admin-dashboard-error.admin-dashboard-error--compact {
-  margin: 0.75rem 1.75rem 1rem 1.75rem;
+/* Error state in verify card */
+.admin-verify-error {
+  margin: 0 1.5rem 1rem 1.5rem;
+  padding: 0.875rem 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-verify-error .admin-dashboard-error-text {
+  color: #dc2626;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+/* Success indicator */
+.admin-verify-result::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #059669, #10b981);
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.admin-verify-result {
+  position: relative;
 }
 
 /* Stats Grid */
@@ -644,29 +650,40 @@
 .admin-dashboard-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
+  padding: 0.625rem 1rem;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
   border: none;
   border-radius: 0.5rem;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   text-decoration: none;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+}
+
+.admin-dashboard-btn:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.25);
 }
 
 .admin-dashboard-btn-link {
-  background: transparent;
+  background: white;
   color: #3b82f6;
-  border: 1px solid #3b82f6;
+  border: 1px solid #e0e7ff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .admin-dashboard-btn-link:hover {
-  background: #3b82f6;
-  color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #2563eb;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
 }
 
 /* Loading and Error States */
