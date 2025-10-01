@@ -10,7 +10,8 @@ import {
   FaEnvelope,
   FaFileInvoiceDollar,
   FaChevronLeft,
-  FaChevronRight
+  FaChevronRight,
+  FaChartBar
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { signOutUser } from '../../utils/firebase';
@@ -88,6 +89,11 @@ const Sidebar = () => {
       name: 'Expenses', 
       path: '/admin/expenses', 
       icon: <FaFileInvoiceDollar /> 
+    },
+    { 
+      name: 'Reports', 
+      path: '/admin/reports', 
+      icon: <FaChartBar /> 
     }
   ];
 

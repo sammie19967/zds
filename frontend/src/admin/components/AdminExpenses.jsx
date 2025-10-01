@@ -32,6 +32,12 @@ const CATEGORIES = [
 export default function AdminExpenses() {
   const [activeTab, setActiveTab] = useState('summary');
   const [month, setMonth] = useState(yyyymm());
+  
+  // Reports state
+  const [reportPeriod, setReportPeriod] = useState('monthly');
+  const [reportYear, setReportYear] = useState(new Date().getFullYear().toString());
+  const [reportStartDate, setReportStartDate] = useState('');
+  const [reportEndDate, setReportEndDate] = useState('');
 
   // Employees
   const [employees, setEmployees] = useState([]);
@@ -90,6 +96,96 @@ export default function AdminExpenses() {
 
   const totalExpensesAll = useMemo(() => Number((Number(expensesTotal) + Number(fuelTotal)).toFixed(2)), [expensesTotal, fuelTotal]);
   const profit = useMemo(() => Number((Number(feesTotal) - totalExpensesAll).toFixed(2)), [feesTotal, totalExpensesAll]);
+  
+  // Report data aggregation
+  const reportData = useMemo(() => {
+    if (reportPeriod === 'monthly') {
+      // Group by month for the selected year
+      const monthlyData = {};
+      for (let m = 1; m <= 12; m++) {
+        const monthKey = `${reportYear}-${String(m).padStart(2, '0')}`;
+        monthlyData[monthKey] = {
+          month: monthKey,
+          expenses: 0,
+          count: 0,
+          categories: {}
+        };
+      }
+      expenses.forEach(exp => {
+        const expMonth = exp.dateISO?.slice(0, 7);
+        if (expMonth && expMonth.startsWith(reportYear)) {
+          if (!monthlyData[expMonth]) monthlyData[expMonth] = { month: expMonth, expenses: 0, count: 0, categories: {} };
+          monthlyData[expMonth].expenses += Number(exp.amount || 0);
+          monthlyData[expMonth].count += 1;
+          const cat = exp.category || 'other';
+          monthlyData[expMonth].categories[cat] = (monthlyData[expMonth].categories[cat] || 0) + Number(exp.amount || 0);
+        }
+      });
+      return Object.values(monthlyData);
+    } else if (reportPeriod === 'yearly') {
+      // Group by year
+      const yearlyData = {};
+      expenses.forEach(exp => {
+        const year = exp.dateISO?.slice(0, 4);
+        if (year) {
+          if (!yearlyData[year]) yearlyData[year] = { year, expenses: 0, count: 0, categories: {} };
+          yearlyData[year].expenses += Number(exp.amount || 0);
+          yearlyData[year].count += 1;
+          const cat = exp.category || 'other';
+          yearlyData[year].categories[cat] = (yearlyData[year].categories[cat] || 0) + Number(exp.amount || 0);
+        }
+      });
+      return Object.values(yearlyData).sort((a, b) => b.year.localeCompare(a.year));
+    } else {
+      // Custom date range
+      const filtered = expenses.filter(exp => {
+        if (!reportStartDate || !reportEndDate) return true;
+        return exp.dateISO >= reportStartDate && exp.dateISO <= reportEndDate;
+      });
+      const total = filtered.reduce((sum, exp) => sum + Number(exp.amount || 0), 0);
+      const categories = {};
+      filtered.forEach(exp => {
+        const cat = exp.category || 'other';
+        categories[cat] = (categories[cat] || 0) + Number(exp.amount || 0);
+      });
+      return [{ period: `${reportStartDate} to ${reportEndDate}`, expenses: total, count: filtered.length, categories }];
+    }
+  }, [expenses, reportPeriod, reportYear, reportStartDate, reportEndDate]);
+  
+  // Export functions
+  const exportToCSV = () => {
+    let csv = '';
+    if (reportPeriod === 'monthly') {
+      csv = 'Month,Total Expenses,Transaction Count,' + CATEGORIES.map(c => c.label).join(',') + '\n';
+      reportData.forEach(row => {
+        const cats = CATEGORIES.map(c => currency(row.categories[c.key] || 0));
+        csv += `${row.month},${currency(row.expenses)},${row.count},${cats.join(',')}\n`;
+      });
+    } else if (reportPeriod === 'yearly') {
+      csv = 'Year,Total Expenses,Transaction Count,' + CATEGORIES.map(c => c.label).join(',') + '\n';
+      reportData.forEach(row => {
+        const cats = CATEGORIES.map(c => currency(row.categories[c.key] || 0));
+        csv += `${row.year},${currency(row.expenses)},${row.count},${cats.join(',')}\n`;
+      });
+    } else {
+      csv = 'Period,Total Expenses,Transaction Count,' + CATEGORIES.map(c => c.label).join(',') + '\n';
+      reportData.forEach(row => {
+        const cats = CATEGORIES.map(c => currency(row.categories[c.key] || 0));
+        csv += `${row.period},${currency(row.expenses)},${row.count},${cats.join(',')}\n`;
+      });
+    }
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `expenses-report-${reportPeriod}-${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  
+  const printReport = () => {
+    window.print();
+  };
 
   // Employee handlers
   const onEditEmployee = (e) => setEmpForm({ id: e.id, name: e.name || '', role: e.role || '', baseSalary: e.baseSalary || '', phone: e.phone || '', email: e.email || '', idNumber: e.idNumber || '' });
@@ -238,6 +334,15 @@ export default function AdminExpenses() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
             Expenses
+          </button>
+          <button 
+            className={`aexp-tab ${activeTab==='reports'?'aexp-tab-active':''}`} 
+            onClick={()=>setActiveTab('reports')}
+          >
+            <svg className="aexp-tab-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Reports
           </button>
         </div>
 
@@ -683,6 +788,116 @@ export default function AdminExpenses() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                           </svg>
                           <p>No expenses recorded for this month</p>
+                        </td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* REPORTS TAB */}
+          {activeTab === 'reports' && (
+            <div className="aexp-reports-wrapper">
+              <div className="aexp-section-card">
+                <div className="aexp-section-header">
+                  <h2 className="aexp-section-title">Expense Reports</h2>
+                  <div className="aexp-report-actions">
+                    <button className="aexp-btn aexp-btn-secondary" onClick={exportToCSV}>
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Export CSV
+                    </button>
+                    <button className="aexp-btn aexp-btn-primary" onClick={printReport}>
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                      </svg>
+                      Print
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="aexp-report-filters">
+                  <div className="aexp-filter-group">
+                    <label className="aexp-label">Report Period</label>
+                    <select className="aexp-select" value={reportPeriod} onChange={(e)=>setReportPeriod(e.target.value)}>
+                      <option value="monthly">Monthly</option>
+                      <option value="yearly">Yearly</option>
+                      <option value="custom">Custom Range</option>
+                    </select>
+                  </div>
+                  
+                  {reportPeriod === 'monthly' && (
+                    <div className="aexp-filter-group">
+                      <label className="aexp-label">Year</label>
+                      <select className="aexp-select" value={reportYear} onChange={(e)=>setReportYear(e.target.value)}>
+                        {Array.from({length: 5}, (_, i) => new Date().getFullYear() - i).map(y => (
+                          <option key={y} value={y}>{y}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  
+                  {reportPeriod === 'custom' && (
+                    <>
+                      <div className="aexp-filter-group">
+                        <label className="aexp-label">Start Date</label>
+                        <input type="date" className="aexp-input" value={reportStartDate} onChange={(e)=>setReportStartDate(e.target.value)} />
+                      </div>
+                      <div className="aexp-filter-group">
+                        <label className="aexp-label">End Date</label>
+                        <input type="date" className="aexp-input" value={reportEndDate} onChange={(e)=>setReportEndDate(e.target.value)} />
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                <div className="aexp-report-summary">
+                  <div className="aexp-report-stat">
+                    <div className="aexp-report-stat-label">Total Expenses</div>
+                    <div className="aexp-report-stat-value">{currency(reportData.reduce((sum, r) => sum + r.expenses, 0))}</div>
+                  </div>
+                  <div className="aexp-report-stat">
+                    <div className="aexp-report-stat-label">Total Transactions</div>
+                    <div className="aexp-report-stat-value">{reportData.reduce((sum, r) => sum + r.count, 0)}</div>
+                  </div>
+                  <div className="aexp-report-stat">
+                    <div className="aexp-report-stat-label">Average per Period</div>
+                    <div className="aexp-report-stat-value">{currency(reportData.length > 0 ? reportData.reduce((sum, r) => sum + r.expenses, 0) / reportData.length : 0)}</div>
+                  </div>
+                </div>
+                
+                <div className="aexp-table-wrapper">
+                  <table className="aexp-table aexp-report-table">
+                    <thead>
+                      <tr>
+                        <th>{reportPeriod === 'yearly' ? 'Year' : reportPeriod === 'monthly' ? 'Month' : 'Period'}</th>
+                        <th>Total Expenses</th>
+                        <th>Transactions</th>
+                        {CATEGORIES.map(cat => (
+                          <th key={cat.key}>{cat.label}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {reportData.map((row, idx) => (
+                        <tr key={idx} className="aexp-table-row">
+                          <td className="aexp-table-date">{row.month || row.year || row.period}</td>
+                          <td className="aexp-table-amount">{currency(row.expenses)}</td>
+                          <td>{row.count}</td>
+                          {CATEGORIES.map(cat => (
+                            <td key={cat.key} className="aexp-report-category-cell">{currency(row.categories[cat.key] || 0)}</td>
+                          ))}
+                        </tr>
+                      ))}
+                      {reportData.length === 0 && (
+                        <tr><td colSpan={3 + CATEGORIES.length} className="aexp-table-empty">
+                          <svg className="aexp-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <p>No data available for the selected period</p>
                         </td></tr>
                       )}
                     </tbody>

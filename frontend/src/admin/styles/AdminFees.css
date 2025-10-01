@@ -115,26 +115,45 @@
 .admin-fees-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
+  padding: 0.75rem 1.5rem;
   background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
-  text-decoration: none;
   border: none;
   border-radius: 0.5rem;
   font-weight: 600;
   font-size: 0.875rem;
+  cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
-  white-space: nowrap;
-  cursor: pointer;
   font-family: inherit;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-fees-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.admin-fees-btn:hover:not(:disabled)::before {
+  opacity: 1;
 }
 
 .admin-fees-btn:hover:not(:disabled) {
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(59, 130, 246, 0.35);
+}
+
+.admin-fees-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 }
 
 .admin-fees-btn:disabled {
@@ -144,14 +163,22 @@
 }
 
 .admin-fees-btn-secondary {
-  background: #e5e7eb;
-  color: #374151;
-  box-shadow: none;
+  background: white;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.admin-fees-btn-secondary::before {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), transparent);
 }
 
 .admin-fees-btn-secondary:hover:not(:disabled) {
-  background: #d1d5db;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #475569;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
 }
 
 .admin-fees-btn-icon {
