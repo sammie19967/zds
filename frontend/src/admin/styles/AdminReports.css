@@ -49,6 +49,11 @@
 .areports-col-money{font-family:'Courier New',monospace;text-align:right}
 .areports-empty{text-align:center;color:#64748b;padding:2rem}
 
+/* Condensed variant */
+.areports-condensed .areports-table thead th{padding:.5rem .625rem;font-size:.7rem}
+.areports-condensed .areports-table td{padding:.5rem .625rem;font-size:.8rem}
+.areports-condensed .areports-col-period{white-space:nowrap}
+
 @media (max-width:768px){
   .areports-header{flex-direction:column;align-items:stretch}
   .areports-stats{grid-template-columns:1fr}
@@ -61,8 +66,15 @@
   .areports-actions,.areports-filters{display:none!important}
   .areports-container{background:#fff;padding:0}
   .areports-card{box-shadow:none;border:none}
-  .areports-table thead th{position:static}
+  .areports-table{border:1px solid #d1d5db}
+  .areports-table thead th{position:static;background:#f3f4f6;color:#111827;border-bottom:1px solid #d1d5db;padding:.5rem .75rem}
+  .areports-table td{padding:.5rem .75rem;border-bottom:1px solid #e5e7eb}
   .areports-table tbody tr{background:#fff !important}
+  .areports-table-wrap{page-break-inside:auto}
+  .areports-table tr{page-break-inside:avoid;page-break-after:auto}
+  thead{display:table-header-group}
+  tfoot{display:table-footer-group}
+  .areports-col-money{font-family:'Courier New',monospace}
   .areports-mini-charts{display:none}
   .areports-print-header{display:flex!important}
 }

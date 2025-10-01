@@ -26,6 +26,7 @@ export default function AdminReports() {
   const [studentsTotal, setStudentsTotal] = useState(0);
   const [includeCategories, setIncludeCategories] = useState(false);
   const [onlyThisMonth, setOnlyThisMonth] = useState(false);
+  const [condensed, setCondensed] = useState(false);
 
   const CATEGORIES = useMemo(() => ([
     { key: 'salary', label: 'Salary' },
@@ -236,6 +237,7 @@ export default function AdminReports() {
           </div>
           <div className="areports-actions">
             <button className="areports-btn areports-btn-secondary" onClick={exportCSV} disabled={loading}>Export CSV</button>
+            <button className="areports-btn areports-btn-secondary" onClick={printPage} disabled={loading}>Download PDF</button>
             <button className="areports-btn" onClick={printPage} disabled={loading}>Print</button>
           </div>
         </div>
@@ -274,6 +276,13 @@ export default function AdminReports() {
             <div className="areports-toggle">
               <input id="toggle-cats" type="checkbox" checked={includeCategories} onChange={(e)=>setIncludeCategories(e.target.checked)} />
               <label htmlFor="toggle-cats">{includeCategories ? 'Shown' : 'Hidden'}</label>
+            </div>
+          </div>
+          <div className="areports-filter areports-filter-inline">
+            <label className="areports-label">Condensed Table</label>
+            <div className="areports-toggle">
+              <input id="toggle-condensed" type="checkbox" checked={condensed} onChange={(e)=>setCondensed(e.target.checked)} />
+              <label htmlFor="toggle-condensed">{condensed ? 'On' : 'Off'}</label>
             </div>
           </div>
           {period === 'monthly' && (
@@ -348,7 +357,7 @@ export default function AdminReports() {
               ))}
             </div>
 
-            <div className="areports-table-wrap">
+            <div className={`areports-table-wrap ${condensed ? 'areports-condensed' : ''}`}>
               <table className="areports-table">
                 <thead>
                   <tr>
