@@ -68,6 +68,7 @@
   min-height: 100vh;
   background: #ffffff; /* plain light background */
   padding: var(--spacing-xl);
+  padding-top: 0; /* start content at very top */
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
