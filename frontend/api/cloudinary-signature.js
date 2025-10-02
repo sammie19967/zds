@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     const { folder = 'admin_admissions' } = req.body || {};
     const timestamp = Math.floor(Date.now() / 1000);
 
-    // Build params to sign (alphabetically by key, without nulls)
+    // Build params to sign (alphabetically by key, without nullshhhh)
     const paramsToSign = `folder=${folder}&timestamp=${timestamp}`;
 
     const signature = crypto
