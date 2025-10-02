@@ -24,8 +24,8 @@
   height: var(--navbar-height);
 }
 
-/* Universal solution: Add top margin to any direct child of body that comes after navbar */
-body > * {
+/* Apply navbar offset only when NOT explicitly disabled */
+body:not(.no-navbar-offset) > * {
   margin-top: var(--navbar-height);
 }
 

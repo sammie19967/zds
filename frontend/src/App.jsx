@@ -137,6 +137,14 @@ const AppContent = () => {
   const isAdminRoute = location.pathname.startsWith('/admin') &&
     !['/admin/login', '/admin/signup'].includes(location.pathname);
 
+  // Hide navbar offset on auth pages and all admin pages (admin has no public navbar)
+  const isAuthPage = ['/admin/login', '/admin/signup'].includes(location.pathname);
+  const hideOffset = isAuthPage || isAdminRoute;
+  if (typeof document !== 'undefined') {
+    if (hideOffset) document.body.classList.add('no-navbar-offset');
+    else document.body.classList.remove('no-navbar-offset');
+  }
+
   if (location.pathname === '/admin') {
     return <Navigate to="/admin/dashboard" replace />;
   }
