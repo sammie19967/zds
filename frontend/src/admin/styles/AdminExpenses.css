@@ -465,7 +465,7 @@
 .aexp-employees-layout,
 .aexp-expenses-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr; /* full width sections */
   gap: 1.5rem;
 }
 
