@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   getCountAdminAdmissions,
   getMonthlyEnquiriesCount,
@@ -10,397 +10,588 @@ import {
 } from '../../utils/firebase';
 import '../styles/AdminReports.css';
 
-const monthKey = (y, m) => `${y}-${String(m).padStart(2, '0')}`;
-const monthName = (m) => new Date(2000, m - 1, 1).toLocaleString(undefined, { month: 'short' });
+// Constants and utilities
+const CATEGORIES = [
+  { key: 'salary', label: 'Salary' },
+  { key: 'mechanical', label: 'Mechanical' },
+  { key: 'car_wash', label: 'Car Wash' },
+  { key: 'certificate_printing', label: 'Certificate Printing' },
+  { key: 'taxes', label: 'Taxes' },
+  { key: 'rent', label: 'Rent' },
+  { key: 'utilities', label: 'Utilities' },
+  { key: 'other', label: 'Other' },
+];
 
+const PERIOD_OPTIONS = {
+  MONTHLY: 'monthly',
+  YEARLY: 'yearly',
+};
+
+const YEARS_BACK_OPTIONS = [3, 5, 7, 10];
+
+const monthKey = (year, month) => `${year}-${String(month).padStart(2, '0')}`;
+const monthName = (month) => new Date(2000, month - 1, 1).toLocaleString(undefined, { month: 'short' });
+const numberFmt = (n) => Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
+
+// Custom hooks
+const useReportData = (period, year, yearsBack, includeCategories) => {
+  const [data, setData] = useState({ rows: [], loading: false, error: '' });
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadData = async () => {
+      try {
+        setData(prev => ({ ...prev, loading: true, error: '' }));
+
+        if (period === PERIOD_OPTIONS.MONTHLY) {
+          await loadMonthlyData(year, includeCategories, mounted);
+        } else {
+          await loadYearlyData(yearsBack, includeCategories, mounted);
+        }
+      } catch (error) {
+        if (mounted) {
+          setData(prev => ({ ...prev, error: error?.message || 'Failed to load reports' }));
+        }
+      } finally {
+        if (mounted) {
+          setData(prev => ({ ...prev, loading: false }));
+        }
+      }
+    };
+
+    const loadMonthlyData = async (year, includeCategories, mounted) => {
+      const monthlyPromises = Array.from({ length: 12 }, (_, monthIndex) => {
+        const month = monthIndex + 1;
+        const monthKeyVal = monthKey(year, month);
+        return fetchMonthData(monthKeyVal, includeCategories);
+      });
+
+      const monthlyData = await Promise.all(monthlyPromises);
+      if (!mounted) return;
+
+      const rowsWithProfit = monthlyData.map(row => ({
+        ...row,
+        profit: calculateProfit(row.fees, row.expenses, row.fuel),
+      }));
+
+      setData(prev => ({ ...prev, rows: rowsWithProfit }));
+    };
+
+    const loadYearlyData = async (yearsBack, includeCategories, mounted) => {
+      const currentYear = new Date().getFullYear();
+      const startYear = currentYear - (yearsBack - 1);
+      
+      const yearPromises = Array.from({ length: yearsBack }, (_, index) => {
+        const year = startYear + index;
+        return fetchYearData(year, includeCategories);
+      });
+
+      const yearlyData = await Promise.all(yearPromises);
+      if (!mounted) return;
+
+      const rowsWithProfit = yearlyData.map(row => ({
+        ...row,
+        profit: calculateProfit(row.fees, row.expenses, row.fuel),
+      }));
+
+      setData(prev => ({ ...prev, rows: rowsWithProfit }));
+    };
+
+    const fetchMonthData = async (monthKeyVal, includeCategories) => {
+      const [fees, expenses, fuel, enquiries, applications, expensesList] = await Promise.all([
+        getMonthlyPaymentsTotal(monthKeyVal),
+        getMonthlyExpensesTotal(monthKeyVal),
+        getMonthlyFuelCost(monthKeyVal),
+        getMonthlyEnquiriesCount(monthKeyVal),
+        getMonthlyApplicationsCount(monthKeyVal),
+        includeCategories ? listExpenses({ month: monthKeyVal, take: 5000 }) : Promise.resolve([]),
+      ]);
+
+      const categories = includeCategories 
+        ? aggregateCategories(expensesList)
+        : {};
+
+      return {
+        key: monthKeyVal,
+        label: `${monthName(parseInt(monthKeyVal.split('-')[1]))} ${monthKeyVal.split('-')[0]}`,
+        fees: Number(fees || 0),
+        expenses: Number(expenses || 0),
+        fuel: Number(fuel || 0),
+        enquiries: Number(enquiries || 0),
+        applications: Number(applications || 0),
+        categories,
+      };
+    };
+
+    const fetchYearData = async (year, includeCategories) => {
+      const monthlyPromises = Array.from({ length: 12 }, (_, monthIndex) => {
+        const month = monthIndex + 1;
+        const monthKeyVal = monthKey(year, month);
+        return fetchMonthData(monthKeyVal, includeCategories);
+      });
+
+      const monthlyData = await Promise.all(monthlyPromises);
+      
+      return monthlyData.reduce((yearlyTotal, monthData) => ({
+        key: String(year),
+        label: String(year),
+        fees: yearlyTotal.fees + monthData.fees,
+        expenses: yearlyTotal.expenses + monthData.expenses,
+        fuel: yearlyTotal.fuel + monthData.fuel,
+        enquiries: yearlyTotal.enquiries + monthData.enquiries,
+        applications: yearlyTotal.applications + monthData.applications,
+        categories: mergeCategories(yearlyTotal.categories, monthData.categories),
+      }), {
+        fees: 0, expenses: 0, fuel: 0, enquiries: 0, applications: 0, categories: {}
+      });
+    };
+
+    loadData();
+
+    return () => { mounted = false; };
+  }, [period, year, yearsBack, includeCategories]);
+
+  return data;
+};
+
+const useStudentsTotal = () => {
+  const [studentsTotal, setStudentsTotal] = useState(0);
+
+  useEffect(() => {
+    const loadStudentsTotal = async () => {
+      try {
+        const count = await getCountAdminAdmissions();
+        setStudentsTotal(Number(count || 0));
+      } catch (error) {
+        console.warn('Failed to load students total:', error);
+        // Non-critical failure, reports can function without student total
+      }
+    };
+
+    loadStudentsTotal();
+  }, []);
+
+  return studentsTotal;
+};
+
+// Utility functions
+const calculateProfit = (fees, expenses, fuel) => 
+  Number((fees - (expenses + fuel)).toFixed(2));
+
+const aggregateCategories = (expensesList) => 
+  (expensesList || []).reduce((acc, expense) => {
+    const categoryKey = expense.category || 'other';
+    acc[categoryKey] = (acc[categoryKey] || 0) + Number(expense.amount || 0);
+    return acc;
+  }, {});
+
+const mergeCategories = (categories1, categories2) => {
+  const merged = { ...categories1 };
+  Object.keys(categories2).forEach(key => {
+    merged[key] = (merged[key] || 0) + categories2[key];
+  });
+  return merged;
+};
+
+const calculateTotals = (rows) => 
+  rows.reduce((totals, row) => ({
+    fees: totals.fees + row.fees,
+    expenses: totals.expenses + row.expenses,
+    fuel: totals.fuel + row.fuel,
+    enquiries: totals.enquiries + row.enquiries,
+    applications: totals.applications + row.applications,
+    profit: totals.profit + row.profit,
+  }), { fees: 0, expenses: 0, fuel: 0, enquiries: 0, applications: 0, profit: 0 });
+
+// Main component
 export default function AdminReports() {
   const now = new Date();
-  const [period, setPeriod] = useState('monthly'); // monthly | yearly
+  
+  // State management
+  const [period, setPeriod] = useState(PERIOD_OPTIONS.MONTHLY);
   const [year, setYear] = useState(now.getFullYear());
   const [yearsBack, setYearsBack] = useState(3);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  // Aggregated report rows
-  const [rows, setRows] = useState([]);
-  const [studentsTotal, setStudentsTotal] = useState(0);
   const [includeCategories, setIncludeCategories] = useState(false);
   const [onlyThisMonth, setOnlyThisMonth] = useState(false);
   const [condensed, setCondensed] = useState(false);
 
-  const CATEGORIES = useMemo(() => ([
-    { key: 'salary', label: 'Salary' },
-    { key: 'mechanical', label: 'Mechanical' },
-    { key: 'car_wash', label: 'Car Wash' },
-    { key: 'certificate_printing', label: 'Certificate Printing' },
-    { key: 'taxes', label: 'Taxes' },
-    { key: 'rent', label: 'Rent' },
-    { key: 'utilities', label: 'Utilities' },
-    { key: 'other', label: 'Other' },
-  ]), []);
+  // Data hooks
+  const { rows, loading, error } = useReportData(period, year, yearsBack, includeCategories);
+  const studentsTotal = useStudentsTotal();
 
-  // Load students total once
-  useEffect(() => {
-    (async () => {
-      try {
-        const count = await getCountAdminAdmissions();
-        setStudentsTotal(Number(count || 0));
-      } catch (_) {
-        // noop: non-critical, reports can function without student total
-      }
-    })();
-  }, []);
-
-  // Load report data when filters change
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        setLoading(true);
-        setError('');
-
-        if (period === 'monthly') {
-          const promises = [];
-          for (let m = 1; m <= 12; m++) {
-            const mk = monthKey(year, m);
-            promises.push(Promise.all([
-              getMonthlyPaymentsTotal(mk),
-              getMonthlyExpensesTotal(mk),
-              getMonthlyFuelCost(mk),
-              getMonthlyEnquiriesCount(mk),
-              getMonthlyApplicationsCount(mk),
-              includeCategories ? listExpenses({ month: mk, take: 5000 }) : Promise.resolve([]),
-            ]).then(([fees, exp, fuel, enq, app, expList]) => ({
-              key: mk,
-              label: `${monthName(m)} ${year}`,
-              fees: Number(fees || 0),
-              expenses: Number(exp || 0),
-              fuel: Number(fuel || 0),
-              enquiries: Number(enq || 0),
-              applications: Number(app || 0),
-              categories: (expList || []).reduce((acc, e) => {
-                const k = e.category || 'other';
-                acc[k] = (acc[k] || 0) + Number(e.amount || 0);
-                return acc;
-              }, {}),
-            })));
-          }
-          const data = await Promise.all(promises);
-          const withProfit = data.map(r => ({ ...r, profit: Number((r.fees - (r.expenses + r.fuel)).toFixed(2)) }));
-          if (!mounted) return;
-          setRows(withProfit);
-          // totals now computed from displayedRows (displayTotals)
-        } else {
-          // yearly – aggregate each of last N years
-          const currentYear = new Date().getFullYear();
-          const startYear = currentYear - (yearsBack - 1);
-          const yearPromises = [];
-          for (let y = startYear; y <= currentYear; y++) {
-            const monthlyPromises = [];
-            for (let m = 1; m <= 12; m++) {
-              const mk = monthKey(y, m);
-              monthlyPromises.push(Promise.all([
-                getMonthlyPaymentsTotal(mk),
-                getMonthlyExpensesTotal(mk),
-                getMonthlyFuelCost(mk),
-                getMonthlyEnquiriesCount(mk),
-                getMonthlyApplicationsCount(mk),
-                includeCategories ? listExpenses({ month: mk, take: 5000 }) : Promise.resolve([]),
-              ]));
-            }
-            yearPromises.push(Promise.all(monthlyPromises).then((vals) => {
-              const sums = vals.reduce((acc, [fees, exp, fuel, enq, app, expList]) => {
-                const cats = (expList || []).reduce((cacc, e) => {
-                  const k = e.category || 'other';
-                  cacc[k] = (cacc[k] || 0) + Number(e.amount || 0);
-                  return cacc;
-                }, {});
-                // merge cats into acc.categories
-                Object.keys(cats).forEach(k => {
-                  acc.categories[k] = (acc.categories[k] || 0) + cats[k];
-                });
-                return {
-                  fees: acc.fees + Number(fees || 0),
-                  expenses: acc.expenses + Number(exp || 0),
-                  fuel: acc.fuel + Number(fuel || 0),
-                  enquiries: acc.enquiries + Number(enq || 0),
-                  applications: acc.applications + Number(app || 0),
-                  categories: acc.categories,
-                };
-              }, { fees: 0, expenses: 0, fuel: 0, enquiries: 0, applications: 0, categories: {} });
-              return {
-                key: String(y),
-                label: String(y),
-                ...sums,
-              };
-            }));
-          }
-          const ydata = await Promise.all(yearPromises);
-          const withProfit = ydata.map(r => ({ ...r, profit: Number((r.fees - (r.expenses + r.fuel)).toFixed(2)) }));
-          if (!mounted) return;
-          setRows(withProfit);
-          // totals now computed from displayedRows (displayTotals)
-        }
-      } catch (e) {
-        if (mounted) setError(e?.message || 'Failed to load reports');
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => { mounted = false; };
-  }, [period, year, yearsBack, includeCategories]);
-
-  const numberFmt = (n) => Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
-
-  // rows to display based on 'This Month' toggle
+  // Memoized computations
   const displayedRows = useMemo(() => {
-    if (period !== 'monthly' || !onlyThisMonth) return rows;
-    const now = new Date();
-    const mk = `${year}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    return rows.filter(r => r.key === mk);
-  }, [rows, period, onlyThisMonth, year]);
+    if (period !== PERIOD_OPTIONS.MONTHLY || !onlyThisMonth) return rows;
+    
+    const currentMonthKey = monthKey(year, now.getMonth() + 1);
+    return rows.filter(row => row.key === currentMonthKey);
+  }, [rows, period, onlyThisMonth, year, now]);
 
-  const displayTotals = useMemo(() => {
-    return displayedRows.reduce((acc, r) => ({
-      fees: acc.fees + r.fees,
-      expenses: acc.expenses + r.expenses,
-      fuel: acc.fuel + r.fuel,
-      enquiries: acc.enquiries + r.enquiries,
-      applications: acc.applications + r.applications,
-      profit: acc.profit + r.profit,
-    }), { fees: 0, expenses: 0, fuel: 0, enquiries: 0, applications: 0, profit: 0 });
+  const displayTotals = useMemo(() => calculateTotals(displayedRows), [displayedRows]);
+
+  const chartSeries = useMemo(() => {
+    const series = {
+      fees: displayedRows.map(row => row.fees),
+      expenses: displayedRows.map(row => row.expenses),
+      fuel: displayedRows.map(row => row.fuel),
+      profit: displayedRows.map(row => row.profit),
+    };
+    const maxValue = Math.max(1, ...Object.values(series).flat());
+    return { series, maxValue };
   }, [displayedRows]);
 
-  const exportCSV = () => {
-    let header = period === 'monthly'
-      ? 'Period,Fees (KSh.),Expenses (KSh.),Fuel (KSh.),Profit (KSh.),Enquiries,Applications'
-      : 'Year,Fees (KSh.),Expenses (KSh.),Fuel (KSh.),Profit (KSh.),Enquiries,Applications';
-    // add category headers if included
+  // Event handlers
+  const handleExportCSV = useCallback(() => {
+    const headers = period === PERIOD_OPTIONS.MONTHLY
+      ? ['Period', 'Fees (KSh.)', 'Expenses (KSh.)', 'Fuel (KSh.)', 'Profit (KSh.)', 'Enquiries', 'Applications']
+      : ['Year', 'Fees (KSh.)', 'Expenses (KSh.)', 'Fuel (KSh.)', 'Profit (KSh.)', 'Enquiries', 'Applications'];
+
     if (includeCategories) {
-      header += ',' + CATEGORIES.map(c => `${c.label} (KSh.)`).join(',');
+      headers.push(...CATEGORIES.map(category => `${category.label} (KSh.)`));
     }
-    header += '\n';
-    const lines = displayedRows.map(r => {
-      const base = [r.label, numberFmt(r.fees), numberFmt(r.expenses), numberFmt(r.fuel), numberFmt(r.profit), r.enquiries, r.applications];
+
+    const csvRows = displayedRows.map(row => {
+      const baseRow = [
+        row.label,
+        numberFmt(row.fees),
+        numberFmt(row.expenses),
+        numberFmt(row.fuel),
+        numberFmt(row.profit),
+        row.enquiries,
+        row.applications,
+      ];
+
       if (includeCategories) {
-        base.push(...CATEGORIES.map(c => numberFmt((r.categories?.[c.key]) || 0)));
+        baseRow.push(...CATEGORIES.map(category => numberFmt(row.categories?.[category.key] || 0)));
       }
-      return base.join(',');
+
+      return baseRow;
     });
-    const csv = header + lines.join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+
+    const csvContent = [headers, ...csvRows].map(row => row.join(',')).join('\n');
+    downloadCSV(csvContent, `admin-reports-${period}-${Date.now()}.csv`);
+  }, [displayedRows, period, includeCategories]);
+
+  const downloadCSV = (content, filename) => {
+    const blob = new Blob([content], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `admin-reports-${period}-${Date.now()}.csv`;
-    a.click();
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
     URL.revokeObjectURL(url);
   };
 
-  const printPage = () => window.print();
+  const handlePrint = () => window.print();
 
-  // grandProfit not needed as we compute from displayTotals now
+  // Render helpers
+  const renderFilters = () => (
+    <div className="areports-filters">
+      <div className="areports-filter">
+        <label className="areports-label">Period</label>
+        <select 
+          className="areports-select" 
+          value={period} 
+          onChange={(e) => setPeriod(e.target.value)}
+        >
+          <option value={PERIOD_OPTIONS.MONTHLY}>Monthly</option>
+          <option value={PERIOD_OPTIONS.YEARLY}>Yearly</option>
+        </select>
+      </div>
 
-  // Simple chart helpers (mini bars)
-  const chartSeries = useMemo(() => {
-    const vals = {
-      fees: displayedRows.map(r => r.fees),
-      expenses: displayedRows.map(r => r.expenses),
-      fuel: displayedRows.map(r => r.fuel),
-      profit: displayedRows.map(r => r.profit),
-    };
-    const max = Math.max(1, ...Object.values(vals).flat());
-    return { vals, max };
-  }, [displayedRows]);
+      {period === PERIOD_OPTIONS.MONTHLY && (
+        <div className="areports-filter">
+          <label className="areports-label">Year</label>
+          <select 
+            className="areports-select" 
+            value={year} 
+            onChange={(e) => setYear(Number(e.target.value))}
+          >
+            {Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i).map(yearOption => (
+              <option key={yearOption} value={yearOption}>{yearOption}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {period === PERIOD_OPTIONS.YEARLY && (
+        <div className="areports-filter">
+          <label className="areports-label">Years Back</label>
+          <select 
+            className="areports-select" 
+            value={yearsBack} 
+            onChange={(e) => setYearsBack(Number(e.target.value))}
+          >
+            {YEARS_BACK_OPTIONS.map(option => (
+              <option key={option} value={option}>{option} years</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      <ToggleFilter
+        id="toggle-cats"
+        label="Category Breakdown"
+        checked={includeCategories}
+        onChange={setIncludeCategories}
+      />
+
+      <ToggleFilter
+        id="toggle-condensed"
+        label="Condensed Table"
+        checked={condensed}
+        onChange={setCondensed}
+      />
+
+      {period === PERIOD_OPTIONS.MONTHLY && (
+        <ToggleFilter
+          id="toggle-this-month"
+          label="This Month"
+          checked={onlyThisMonth}
+          onChange={setOnlyThisMonth}
+        />
+      )}
+    </div>
+  );
+
+  const renderStats = () => {
+    const grandProfit = displayTotals.fees - (displayTotals.expenses + displayTotals.fuel);
+    
+    const stats = [
+      { label: 'Total Fees', value: numberFmt(displayTotals.fees), unit: 'KSh.' },
+      { label: 'Total Expenses', value: numberFmt(displayTotals.expenses), unit: 'KSh.' },
+      { label: 'Total Fuel', value: numberFmt(displayTotals.fuel), unit: 'KSh.' },
+      { 
+        label: 'Grand Profit', 
+        value: numberFmt(grandProfit), 
+        unit: 'KSh.',
+        className: grandProfit >= 0 ? 'areports-profit' : 'areports-loss' 
+      },
+      { label: 'Enquiries', value: displayTotals.enquiries },
+      { label: 'Applications', value: displayTotals.applications },
+      { label: 'Students (Total)', value: studentsTotal },
+    ];
+
+    return (
+      <div className="areports-stats">
+        {stats.map((stat, index) => (
+          <div key={index} className="areports-stat">
+            <div className="areports-stat-label">{stat.label}</div>
+            <div className={`areports-stat-value ${stat.className || ''}`}>
+              {stat.value} {stat.unit && `(${stat.unit})`}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderMiniCharts = () => {
+    const chartConfigs = [
+      { key: 'fees', label: 'Fees', color: 'var(--c-fees,#1d4ed8)' },
+      { key: 'expenses', label: 'Expenses', color: 'var(--c-exp,#dc2626)' },
+      { key: 'fuel', label: 'Fuel', color: 'var(--c-fuel,#f59e0b)' },
+      { key: 'profit', label: 'Profit', color: 'var(--c-profit,#059669)' },
+    ];
+
+    return (
+      <div className="areports-mini-charts">
+        {chartConfigs.map(config => (
+          <MiniChart
+            key={config.key}
+            data={chartSeries.series[config.key]}
+            label={config.label}
+            color={config.color}
+            maxValue={chartSeries.maxValue}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  const renderTable = () => (
+    <div className={`areports-table-wrap ${condensed ? 'areports-condensed' : ''}`}>
+      <table className="areports-table">
+        <thead>
+          <tr>
+            <th>{period === PERIOD_OPTIONS.MONTHLY ? 'Month' : 'Year'}</th>
+            <th>Fees (KSh.)</th>
+            <th>Expenses (KSh.)</th>
+            <th>Fuel (KSh.)</th>
+            <th>Profit (KSh.)</th>
+            <th>Enquiries</th>
+            <th>Applications</th>
+            {includeCategories && CATEGORIES.map(category => (
+              <th key={category.key}>{category.label} (KSh.)</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {displayedRows.map(row => (
+            <TableRow 
+              key={row.key} 
+              row={row} 
+              includeCategories={includeCategories}
+              period={period}
+            />
+          ))}
+          {displayedRows.length === 0 && (
+            <tr>
+              <td colSpan={7 + (includeCategories ? CATEGORIES.length : 0)} className="areports-empty">
+                No data for the selected period
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 
   return (
     <div className="areports-container">
       <div className="areports-card">
-        {/* Print-only Branded Header */}
-        <div className="areports-print-header">
-          <div className="areports-print-brand">
-            <img src="/logo.png" alt="Zane Driving" />
-            <div>
-              <h2>Zane Driving School</h2>
-              <p>Administrative Reports</p>
-            </div>
-          </div>
-          <div className="areports-print-meta">
-            <div>Date: {new Date().toLocaleString()}</div>
-            <div>Period: {period === 'monthly' ? `Monthly (${year})` : `Yearly (Last ${yearsBack} years)`}</div>
-          </div>
-        </div>
+        {/* Print Header */}
+        <PrintHeader period={period} year={year} yearsBack={yearsBack} />
+
+        {/* Main Header */}
         <div className="areports-header">
           <div>
             <h1 className="areports-title">Administrative Reports</h1>
-            <p className="areports-subtitle">Unified reporting for fees, expenses, fuel, enquiries, and applications</p>
+            <p className="areports-subtitle">
+              Unified reporting for fees, expenses, fuel, enquiries, and applications
+            </p>
           </div>
           <div className="areports-actions">
-            <button className="areports-btn areports-btn-secondary" onClick={exportCSV} disabled={loading}>Export CSV</button>
-            <button className="areports-btn areports-btn-secondary" onClick={printPage} disabled={loading}>Download PDF</button>
-            <button className="areports-btn" onClick={printPage} disabled={loading}>Print</button>
+            <button 
+              className="areports-btn areports-btn-secondary" 
+              onClick={handleExportCSV} 
+              disabled={loading}
+            >
+              Export CSV
+            </button>
+            <button 
+              className="areports-btn areports-btn-secondary" 
+              onClick={handlePrint} 
+              disabled={loading}
+            >
+              Download PDF
+            </button>
+            <button 
+              className="areports-btn" 
+              onClick={handlePrint} 
+              disabled={loading}
+            >
+              Print
+            </button>
           </div>
         </div>
 
-        <div className="areports-filters">
-          <div className="areports-filter">
-            <label className="areports-label">Period</label>
-            <select className="areports-select" value={period} onChange={(e)=>setPeriod(e.target.value)}>
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
-            </select>
-          </div>
+        {/* Filters */}
+        {renderFilters()}
 
-          {period === 'monthly' && (
-            <div className="areports-filter">
-              <label className="areports-label">Year</label>
-              <select className="areports-select" value={year} onChange={(e)=>setYear(Number(e.target.value))}>
-                {Array.from({length: 6}, (_, i) => new Date().getFullYear() - i).map(y => (
-                  <option key={y} value={y}>{y}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {period === 'yearly' && (
-            <div className="areports-filter">
-              <label className="areports-label">Years Back</label>
-              <select className="areports-select" value={yearsBack} onChange={(e)=>setYearsBack(Number(e.target.value))}>
-                {[3, 5, 7, 10].map(y => <option key={y} value={y}>{y} years</option>)}
-              </select>
-            </div>
-          )}
-
-          <div className="areports-filter areports-filter-inline">
-            <label className="areports-label">Category Breakdown</label>
-            <div className="areports-toggle">
-              <input id="toggle-cats" type="checkbox" checked={includeCategories} onChange={(e)=>setIncludeCategories(e.target.checked)} />
-              <label htmlFor="toggle-cats">{includeCategories ? 'Shown' : 'Hidden'}</label>
-            </div>
-          </div>
-          <div className="areports-filter areports-filter-inline">
-            <label className="areports-label">Condensed Table</label>
-            <div className="areports-toggle">
-              <input id="toggle-condensed" type="checkbox" checked={condensed} onChange={(e)=>setCondensed(e.target.checked)} />
-              <label htmlFor="toggle-condensed">{condensed ? 'On' : 'Off'}</label>
-            </div>
-          </div>
-          {period === 'monthly' && (
-            <div className="areports-filter areports-filter-inline">
-              <label className="areports-label">This Month</label>
-              <div className="areports-toggle">
-                <input id="toggle-this-month" type="checkbox" checked={onlyThisMonth} onChange={(e)=>setOnlyThisMonth(e.target.checked)} />
-                <label htmlFor="toggle-this-month">{onlyThisMonth ? 'On' : 'Off'}</label>
-              </div>
-            </div>
-          )}
-        </div>
-
+        {/* Loading State */}
         {loading && (
           <div className="areports-loading">
             <div className="areports-spinner" />
             <p>Loading reports...</p>
           </div>
         )}
-        {error && (
-          <div className="areports-error">{error}</div>
-        )}
 
+        {/* Error State */}
+        {error && <div className="areports-error">{error}</div>}
+
+        {/* Content */}
         {!loading && !error && (
           <>
-            <div className="areports-stats">
-              <div className="areports-stat">
-                <div className="areports-stat-label">Total Fees</div>
-                <div className="areports-stat-value">{numberFmt(displayTotals.fees)} (KSh.)</div>
-              </div>
-              <div className="areports-stat">
-                <div className="areports-stat-label">Total Expenses</div>
-                <div className="areports-stat-value">{numberFmt(displayTotals.expenses)} (KSh.)</div>
-              </div>
-              <div className="areports-stat">
-                <div className="areports-stat-label">Total Fuel</div>
-                <div className="areports-stat-value">{numberFmt(displayTotals.fuel)} (KSh.)</div>
-              </div>
-              <div className="areports-stat">
-                <div className="areports-stat-label">Grand Profit</div>
-                <div className={`areports-stat-value ${displayTotals.fees - (displayTotals.expenses + displayTotals.fuel) >= 0 ? 'areports-profit' : 'areports-loss'}`}>{numberFmt(displayTotals.fees - (displayTotals.expenses + displayTotals.fuel))} (KSh.)</div>
-              </div>
-              <div className="areports-stat">
-                <div className="areports-stat-label">Enquiries</div>
-                <div className="areports-stat-value">{displayTotals.enquiries}</div>
-              </div>
-              <div className="areports-stat">
-                <div className="areports-stat-label">Applications</div>
-                <div className="areports-stat-value">{displayTotals.applications}</div>
-              </div>
-              <div className="areports-stat">
-                <div className="areports-stat-label">Students (Total)</div>
-                <div className="areports-stat-value">{studentsTotal}</div>
-              </div>
-            </div>
-
-            {/* Mini Charts */}
-            <div className="areports-mini-charts">
-              {[{k:'fees',label:'Fees',color:'var(--c-fees,#1d4ed8)'},{k:'expenses',label:'Expenses',color:'var(--c-exp,#dc2626)'},{k:'fuel',label:'Fuel',color:'var(--c-fuel,#f59e0b)'},{k:'profit',label:'Profit',color:'var(--c-profit,#059669)'}].map(s => (
-                <div className="areports-chart" key={s.k}>
-                  <div className="areports-chart-title">{s.label}</div>
-                  <svg viewBox="0 0 100 30" preserveAspectRatio="none">
-                    {chartSeries.vals[s.k].map((v, i) => {
-                      const w = 100 / Math.max(1, chartSeries.vals[s.k].length);
-                      const h = chartSeries.max ? (v / chartSeries.max) * 28 : 0;
-                      const x = i * w;
-                      const y = 30 - h;
-                      return <rect key={i} x={x + 1} y={y} width={w - 2} height={h} fill={s.color} rx="1" />
-                    })}
-                  </svg>
-                </div>
-              ))}
-            </div>
-
-            <div className={`areports-table-wrap ${condensed ? 'areports-condensed' : ''}`}>
-              <table className="areports-table">
-                <thead>
-                  <tr>
-                    <th>{period === 'monthly' ? 'Month' : 'Year'}</th>
-                    <th>Fees (KSh.)</th>
-                    <th>Expenses (KSh.)</th>
-                    <th>Fuel (KSh.)</th>
-                    <th>Profit (KSh.)</th>
-                    <th>Enquiries</th>
-                    <th>Applications</th>
-                    {includeCategories && CATEGORIES.map(c => (
-                      <th key={c.key}>{c.label} (KSh.)</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {displayedRows.map(r => (
-                    <tr key={r.key}>
-                      <td className="areports-col-period">{r.label}</td>
-                      <td className="areports-col-money">{numberFmt(r.fees)}</td>
-                      <td className="areports-col-money">{numberFmt(r.expenses)}</td>
-                      <td className="areports-col-money">{numberFmt(r.fuel)}</td>
-                      <td className={`areports-col-money ${r.profit >= 0 ? 'areports-profit' : 'areports-loss'}`}>{numberFmt(r.profit)}</td>
-                      <td>{r.enquiries}</td>
-                      <td>{r.applications}</td>
-                      {includeCategories && CATEGORIES.map(c => (
-                        <td key={c.key} className="areports-col-money">{numberFmt((r.categories?.[c.key]) || 0)}</td>
-                      ))}
-                    </tr>
-                  ))}
-                  {displayedRows.length === 0 && (
-                    <tr>
-                      <td colSpan={7 + (includeCategories ? CATEGORIES.length : 0)} className="areports-empty">
-                        No data for the selected period
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+            {renderStats()}
+            {renderMiniCharts()}
+            {renderTable()}
           </>
         )}
       </div>
     </div>
   );
 }
+
+// Sub-components
+const ToggleFilter = ({ id, label, checked, onChange }) => (
+  <div className="areports-filter areports-filter-inline">
+    <label className="areports-label">{label}</label>
+    <div className="areports-toggle">
+      <input 
+        id={id} 
+        type="checkbox" 
+        checked={checked} 
+        onChange={(e) => onChange(e.target.checked)} 
+      />
+      <label htmlFor={id}>{checked ? 'On' : 'Off'}</label>
+    </div>
+  </div>
+);
+
+const MiniChart = ({ data, label, color, maxValue }) => (
+  <div className="areports-chart">
+    <div className="areports-chart-title">{label}</div>
+    <svg viewBox="0 0 100 30" preserveAspectRatio="none">
+      {data.map((value, index) => {
+        const barWidth = 100 / Math.max(1, data.length);
+        const barHeight = maxValue ? (value / maxValue) * 28 : 0;
+        const xPosition = index * barWidth;
+        const yPosition = 30 - barHeight;
+        
+        return (
+          <rect 
+            key={index}
+            x={xPosition + 1}
+            y={yPosition}
+            width={barWidth - 2}
+            height={barHeight}
+            fill={color}
+            rx="1"
+          />
+        );
+      })}
+    </svg>
+  </div>
+);
+
+const TableRow = ({ row, includeCategories, period }) => (
+  <tr>
+    <td className="areports-col-period">{row.label}</td>
+    <td className="areports-col-money">{numberFmt(row.fees)}</td>
+    <td className="areports-col-money">{numberFmt(row.expenses)}</td>
+    <td className="areports-col-money">{numberFmt(row.fuel)}</td>
+    <td className={`areports-col-money ${row.profit >= 0 ? 'areports-profit' : 'areports-loss'}`}>
+      {numberFmt(row.profit)}
+    </td>
+    <td>{row.enquiries}</td>
+    <td>{row.applications}</td>
+    {includeCategories && CATEGORIES.map(category => (
+      <td key={category.key} className="areports-col-money">
+        {numberFmt(row.categories?.[category.key] || 0)}
+      </td>
+    ))}
+  </tr>
+);
+
+const PrintHeader = ({ period, year, yearsBack }) => (
+  <div className="areports-print-header">
+    <div className="areports-print-brand">
+      <img src="/logo.png" alt="Zane Driving" />
+      <div>
+        <h2>Zane Driving School</h2>
+        <p>Administrative Reports</p>
+      </div>
+    </div>
+    <div className="areports-print-meta">
+      <div>Date: {new Date().toLocaleString()}</div>
+      <div>
+        Period: {period === PERIOD_OPTIONS.MONTHLY 
+          ? `Monthly (${year})` 
+          : `Yearly (Last ${yearsBack} years)`
+        }
+      </div>
+    </div>
+  </div>
+);
