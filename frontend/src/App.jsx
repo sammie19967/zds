@@ -31,32 +31,34 @@ import AdminFuel from './admin/components/AdminFuel';
 import AdminExpenses from './admin/components/AdminExpenses';
 import AdminReports from './admin/components/AdminReports';
 
-const MainApp = () => (
-  <>
-    <Navbar />
-    <WhatsAppIcon />
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/about-us" element={<AboutUs />} />
-      <Route path="/contact-us" element={<ContactUs />} />
-      <Route path="/our-team" element={<OurTeam />} />
-      <Route path="/courses" element={<Courses />} />
-      <Route path="/enroll" element={<Enroll />} />
-      <Route path="/computing" element={<ComputingCatalog />} />
-      <Route path="/driving" element={<DrivingCatalog />} />
-      <Route path="/admission-form" element={<AdmissionForm />} />
-      <Route path="/feesStructure" element={<FeesStructure />} />
-      <Route path="/verify-receipt/:studentId/:paymentId" element={<VerifyReceipt />} />
-      <Route path="/admin/login" element={<Login />} />
-      <Route path="/admin/signup" element={<Signup />} />
-      
-
-      <Route path="/navbar" element={<Navbar />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-    <Footer />
-  </>
-);
+const MainApp = () => {
+  const location = useLocation();
+  const hideChrome = ['/admin/login', '/admin/signup'].includes(location.pathname);
+  return (
+    <>
+      {!hideChrome && <Navbar />}
+      {!hideChrome && <WhatsAppIcon />}
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about-us" element={<AboutUs />} />
+        <Route path="/contact-us" element={<ContactUs />} />
+        <Route path="/our-team" element={<OurTeam />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/enroll" element={<Enroll />} />
+        <Route path="/computing" element={<ComputingCatalog />} />
+        <Route path="/driving" element={<DrivingCatalog />} />
+        <Route path="/admission-form" element={<AdmissionForm />} />
+        <Route path="/feesStructure" element={<FeesStructure />} />
+        <Route path="/verify-receipt/:studentId/:paymentId" element={<VerifyReceipt />} />
+        <Route path="/admin/login" element={<Login />} />
+        <Route path="/admin/signup" element={<Signup />} />
+        <Route path="/navbar" element={<Navbar />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      {!hideChrome && <Footer />}
+    </>
+  );
+};
 
 const ProtectedAdminRoute = ({ children }) => (
   <RequireAuth>
