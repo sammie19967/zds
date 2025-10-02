@@ -18,6 +18,40 @@
   width: 72px;
 }
 
+/* Mobile off-canvas behavior */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    width: 80vw;
+    max-width: 300px;
+    transition: transform 0.25s ease;
+    transform: translateX(-100%);
+  }
+  .admin-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  .admin-sidebar.mobile-closed {
+    transform: translateX(-100%);
+  }
+  /* Collapse state is not used on mobile; ensure full width menu content */
+  .admin-sidebar.collapsed {
+    width: 80vw;
+  }
+
+  /* Overlay behind the drawer */
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 999;
+    backdrop-filter: blur(1px);
+  }
+
+  /* Adjust header layout for mobile */
+  .admin-sidebar .sidebar-header {
+    padding: 14px 12px;
+  }
+}
+
 /* Sidebar Header */
 .sidebar-header {
   padding: 12px 12px;

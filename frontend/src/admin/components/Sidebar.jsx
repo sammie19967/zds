@@ -25,6 +25,8 @@ const Sidebar = () => {
   const [email, setEmail] = useState('');
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const formatDisplayName = (name) => {
     if (!name) return 'ADMIN USER';
@@ -44,6 +46,21 @@ const Sidebar = () => {
     }
   }, [user]);
 
+  // Detect small screens and manage mobile drawer state
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.matchMedia('(max-width: 768px)').matches;
+      setIsMobile(mobile);
+      if (!mobile) {
+        // Ensure drawer is closed when switching to desktop
+        setIsMobileOpen(false);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleLogout = async () => {
     try {
       await signOut();
@@ -53,7 +70,13 @@ const Sidebar = () => {
       console.error('Logout error:', error);
     }
   };
-  const toggleCollapse = () => setIsCollapsed((v) => !v);
+  const toggleCollapse = () => {
+    if (isMobile) {
+      setIsMobileOpen((v) => !v);
+    } else {
+      setIsCollapsed((v) => !v);
+    }
+  };
   const menuItems = [
     { 
       name: 'Dashboard', 
@@ -99,7 +122,8 @@ const Sidebar = () => {
 
 
   return (
-    <div className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+    <>
+    <div className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobile ? (isMobileOpen ? 'mobile-open' : 'mobile-closed') : ''}`}>
       <div className="sidebar-header">
         <div className="brand">
           <img src="/logo.png" alt="Zane Driving" className="sidebar-logo" />
@@ -110,10 +134,10 @@ const Sidebar = () => {
         </div>
         <button
           className="toggle-btn"
-          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-label={isMobile ? (isMobileOpen ? 'Close menu' : 'Open menu') : (isCollapsed ? 'Expand sidebar' : 'Collapse sidebar')}
           onClick={toggleCollapse}
         >
-          {isCollapsed ? <FaChevronRight /> : <FaChevronLeft />}
+          {isMobile ? (isMobileOpen ? <FaChevronLeft /> : <FaChevronRight />) : (isCollapsed ? <FaChevronRight /> : <FaChevronLeft />)}
         </button>
       </div>
        
@@ -128,6 +152,7 @@ const Sidebar = () => {
                   `nav-link ${isActive ? 'active' : ''}`
                 }
                 title={isCollapsed ? item.name : undefined}
+                onClick={() => { if (isMobile) setIsMobileOpen(false); }}
               >
                 <span className="nav-icon">{item.icon}</span>
                 <span className="nav-text">{item.name}</span>
@@ -165,6 +190,10 @@ const Sidebar = () => {
         </button>
       </div>
     </div>
+    {isMobile && isMobileOpen && (
+      <div className="sidebar-overlay" onClick={() => setIsMobileOpen(false)} aria-label="Close menu overlay" />
+    )}
+    </>
   );
 };
 

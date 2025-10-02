@@ -1,20 +1,20 @@
 /* AdminReports.css */
 :root {
   /* Color System */
-  --c-primary: #2563eb;
-  --c-primary-dark: #1d4ed8;
-  --c-primary-light: #3b82f6;
+  --c-primary: #3b82f6;        /* Light blue primary */
+  --c-primary-dark: #2563eb;   /* Accessible hover */
+  --c-primary-light: #93c5fd;  /* Softer accent */
   
-  --c-success: #059669;
-  --c-warning: #f59e0b;
-  --c-error: #dc2626;
-  --c-info: #2563eb;
+  --c-success: #22c55e;  /* Light green */
+  --c-warning: #f59e0b;  /* Light amber */
+  --c-error: #ef4444;    /* Light red */
+  --c-info: #06b6d4;     /* Light cyan */
   
-  /* Semantic colors */
-  --c-fees: var(--c-primary);
-  --c-exp: var(--c-error);
-  --c-fuel: var(--c-warning);
-  --c-profit: var(--c-success);
+  /* Semantic colors (distinct hues for readability) */
+  --c-fees: var(--c-primary);   /* Light blue for fees */
+  --c-exp: var(--c-error);      /* Light red for expenses */
+  --c-fuel: var(--c-warning);   /* Light amber for fuel */
+  --c-profit: var(--c-success); /* Light green for profit */
   
   /* Neutral colors */
   --c-white: #ffffff;
@@ -66,7 +66,7 @@
 /* Reset and base styles */
 .areports-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--c-gray-50) 0%, var(--c-gray-100) 100%);
+  background: #ffffff; /* plain light background */
   padding: var(--spacing-xl);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
@@ -86,7 +86,7 @@
   align-items: flex-start;
   padding: var(--spacing-2xl);
   border-bottom: 1px solid var(--c-gray-200);
-  background: linear-gradient(135deg, var(--c-white) 0%, var(--c-gray-50) 100%);
+  background: #ffffff; /* remove gradient */
 }
 
 .areports-title {
@@ -369,7 +369,7 @@
 }
 
 .areports-table thead {
-  background: linear-gradient(135deg, var(--c-gray-50) 0%, var(--c-gray-100) 100%);
+  background: #ffffff; /* plain light header */
   border-bottom: 2px solid var(--c-gray-200);
 }
 
@@ -395,7 +395,7 @@
 }
 
 .areports-table tbody tr:hover {
-  background: var(--c-gray-50);
+  background: var(--c-gray-50); /* subtle, still light */
 }
 
 .areports-table tbody tr:last-child td {
@@ -727,46 +727,15 @@
 }
 
 /* Dark mode support */
+/* Force light backgrounds even in dark mode preferences */
 @media (prefers-color-scheme: dark) {
-  .areports-container {
-    background: linear-gradient(135deg, var(--c-gray-900) 0%, var(--c-gray-800) 100%);
-  }
-  
-  .areports-card {
-    background: var(--c-gray-800);
-    color: var(--c-gray-100);
-  }
-  
-  .areports-title {
-    color: var(--c-white);
-  }
-  
-  .areports-subtitle {
-    color: var(--c-gray-300);
-  }
-  
-  .areports-table {
-    background: var(--c-gray-800);
-    color: var(--c-gray-100);
-  }
-  
-  .areports-table th {
-    background: var(--c-gray-700);
-    color: var(--c-gray-100);
-  }
-  
-  .areports-table td {
-    color: var(--c-gray-200);
-    border-bottom-color: var(--c-gray-600);
-  }
-  
-  .areports-stat {
-    background: var(--c-gray-700);
-    border-color: var(--c-gray-600);
-    color: var(--c-gray-100);
-  }
-  
-  .areports-stat-value {
-    color: var(--c-white);
-  }
+  .areports-container { background: #ffffff; }
+  .areports-card { background: #ffffff; color: var(--c-gray-900); }
+  .areports-title { color: var(--c-gray-900); }
+  .areports-subtitle { color: var(--c-gray-600); }
+  .areports-table { background: #ffffff; color: var(--c-gray-700); }
+  .areports-table th { background: #ffffff; color: var(--c-gray-700); }
+  .areports-table td { color: var(--c-gray-700); border-bottom-color: var(--c-gray-200); }
+  .areports-stat { background: #ffffff; border-color: var(--c-gray-200); color: var(--c-gray-900); }
+  .areports-stat-value { color: var(--c-gray-900); }
 }
