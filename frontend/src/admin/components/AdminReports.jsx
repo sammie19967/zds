@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import {
   getCountAdminAdmissions,
   getMonthlyEnquiriesCount,
@@ -206,7 +207,7 @@ const calculateTotals = (rows) =>
 
 // Main component
 export default function AdminReports() {
-  const now = new Date();
+  const now = useMemo(() => new Date(), []);
   
   // State management
   const [period, setPeriod] = useState(PERIOD_OPTIONS.MONTHLY);
@@ -442,7 +443,6 @@ export default function AdminReports() {
               key={row.key} 
               row={row} 
               includeCategories={includeCategories}
-              period={period}
             />
           ))}
           {displayedRows.length === 0 && (
@@ -539,6 +539,13 @@ const ToggleFilter = ({ id, label, checked, onChange }) => (
   </div>
 );
 
+ToggleFilter.propTypes = {
+  id: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  checked: PropTypes.bool.isRequired,
+  onChange: PropTypes.func.isRequired,
+};
+
 const MiniChart = ({ data, label, color, maxValue }) => (
   <div className="areports-chart">
     <div className="areports-chart-title">{label}</div>
@@ -565,7 +572,14 @@ const MiniChart = ({ data, label, color, maxValue }) => (
   </div>
 );
 
-const TableRow = ({ row, includeCategories, period }) => (
+MiniChart.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.number).isRequired,
+  label: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
+  maxValue: PropTypes.number.isRequired,
+};
+
+const TableRow = ({ row, includeCategories }) => (
   <tr>
     <td className="areports-col-period">{row.label}</td>
     <td className="areports-col-money">{numberFmt(row.fees)}</td>
@@ -583,6 +597,21 @@ const TableRow = ({ row, includeCategories, period }) => (
     ))}
   </tr>
 );
+
+TableRow.propTypes = {
+  row: PropTypes.shape({
+    key: PropTypes.string,
+    label: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    fees: PropTypes.number.isRequired,
+    expenses: PropTypes.number.isRequired,
+    fuel: PropTypes.number.isRequired,
+    profit: PropTypes.number.isRequired,
+    enquiries: PropTypes.number.isRequired,
+    applications: PropTypes.number.isRequired,
+    categories: PropTypes.object,
+  }).isRequired,
+  includeCategories: PropTypes.bool.isRequired,
+};
 
 const PrintHeader = ({ period, year, yearsBack }) => (
   <div className="areports-print-header">
@@ -604,3 +633,9 @@ const PrintHeader = ({ period, year, yearsBack }) => (
     </div>
   </div>
 );
+
+PrintHeader.propTypes = {
+  period: PropTypes.oneOf(['monthly', 'yearly']).isRequired,
+  year: PropTypes.number.isRequired,
+  yearsBack: PropTypes.number.isRequired,
+};

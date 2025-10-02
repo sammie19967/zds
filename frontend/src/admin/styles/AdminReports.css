@@ -664,7 +664,7 @@
   .areports-table th {
     background: var(--c-gray-100) !important;
     -webkit-print-color-adjust: exact;
-    color-adjust: exact;
+    print-color-adjust: exact;
   }
   
   .areports-loading,

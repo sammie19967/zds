@@ -1,5 +1,6 @@
 .admin-container {
   display: flex;
+  align-items: flex-start; /* Force children to align at top */
   min-height: 100vh;
   background-color: #f5f7fa;
   margin: 0;
@@ -33,12 +34,13 @@ body {
 
 .admin-content {
   flex: 1;
-  padding: 0; /* remove all padding */
+  padding: 0;
   margin: 0 0 0 250px; /* Only left margin for sidebar */
   transition: all 0.3s ease;
-  width: calc(100% - 250px); /* Full width minus sidebar */
+  width: calc(100% - 250px);
   min-height: 100vh;
   overflow-y: auto;
+  align-self: flex-start; /* Align to top of flex container */
 }
 
 .admin-main-wrapper {

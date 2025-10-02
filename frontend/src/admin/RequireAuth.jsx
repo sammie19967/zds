@@ -1,4 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 
 const Loader = () => (
@@ -41,3 +42,7 @@ export default function RequireAuth({ children }) {
 
   return children;
 }
+
+RequireAuth.propTypes = {
+  children: PropTypes.node.isRequired,
+};
