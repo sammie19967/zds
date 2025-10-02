@@ -17,6 +17,8 @@ import modal from '../../utils/modal';
 
 const yyyymm = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 const currency = (n) => `KSh ${Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+// For tables where header shows currency unit, show numbers without repeating the unit
+const money = (n) => Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
 
 const CATEGORIES = [
   { key: 'salary', label: 'Salary' },
@@ -158,27 +160,49 @@ export default function AdminExpenses() {
   
   // Export functions
   const exportToCSV = () => {
-    let csv = '';
+    // Escape text fields and output numeric values as raw numbers for proper spreadsheet parsing
+    const csvEscape = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const num = (n) => Number(n || 0).toFixed(2); // raw number with 2 decimals, no separators
+
+    let headers = [];
+    let rows = [];
+
     if (reportPeriod === 'monthly') {
-      csv = 'Month,Total Expenses,Transaction Count,' + CATEGORIES.map(c => c.label).join(',') + '\n';
-      reportData.forEach(row => {
-        const cats = CATEGORIES.map(c => currency(row.categories[c.key] || 0));
-        csv += `${row.month},${currency(row.expenses)},${row.count},${cats.join(',')}\n`;
-      });
+      headers = ['Month', 'Total Expenses (KSh)', 'Transaction Count', ...CATEGORIES.map(c => `${c.label} (KSh)`)];
+      rows = reportData.map(row => [
+        row.month,
+        num(row.expenses),
+        row.count,
+        ...CATEGORIES.map(c => num(row.categories[c.key] || 0))
+      ]);
     } else if (reportPeriod === 'yearly') {
-      csv = 'Year,Total Expenses,Transaction Count,' + CATEGORIES.map(c => c.label).join(',') + '\n';
-      reportData.forEach(row => {
-        const cats = CATEGORIES.map(c => currency(row.categories[c.key] || 0));
-        csv += `${row.year},${currency(row.expenses)},${row.count},${cats.join(',')}\n`;
-      });
+      headers = ['Year', 'Total Expenses (KSh)', 'Transaction Count', ...CATEGORIES.map(c => `${c.label} (KSh)`)];
+      rows = reportData.map(row => [
+        row.year,
+        num(row.expenses),
+        row.count,
+        ...CATEGORIES.map(c => num(row.categories[c.key] || 0))
+      ]);
     } else {
-      csv = 'Period,Total Expenses,Transaction Count,' + CATEGORIES.map(c => c.label).join(',') + '\n';
-      reportData.forEach(row => {
-        const cats = CATEGORIES.map(c => currency(row.categories[c.key] || 0));
-        csv += `${row.period},${currency(row.expenses)},${row.count},${cats.join(',')}\n`;
-      });
+      headers = ['Period', 'Total Expenses (KSh)', 'Transaction Count', ...CATEGORIES.map(c => `${c.label} (KSh)`)];
+      rows = reportData.map(row => [
+        row.period,
+        num(row.expenses),
+        row.count,
+        ...CATEGORIES.map(c => num(row.categories[c.key] || 0))
+      ]);
     }
-    const blob = new Blob([csv], { type: 'text/csv' });
+
+    // Build CSV with BOM for better Excel compatibility
+    const BOM = '\uFEFF';
+    const headerLine = headers.map(csvEscape).join(',');
+    const body = rows.map(r => r.map((val, idx) => {
+      // Only escape textual columns (first column). Numbers are left unquoted for numeric interpretation.
+      return idx === 0 ? csvEscape(val) : String(val);
+    }).join(',')).join('\n');
+    const csv = `${BOM}${headerLine}\n${body}`;
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -813,10 +837,10 @@ export default function AdminExpenses() {
                     <thead>
                       <tr>
                         <th>{reportPeriod === 'yearly' ? 'Year' : reportPeriod === 'monthly' ? 'Month' : 'Period'}</th>
-                        <th>Total Expenses</th>
+                        <th>Total Expenses (KSh)</th>
                         <th>Transactions</th>
                         {CATEGORIES.map(cat => (
-                          <th key={cat.key}>{cat.label}</th>
+                          <th key={cat.key}>{cat.label} (KSh)</th>
                         ))}
                       </tr>
                     </thead>
@@ -824,10 +848,10 @@ export default function AdminExpenses() {
                       {reportData.map((row, idx) => (
                         <tr key={idx} className="aexp-table-row">
                           <td className="aexp-table-date">{row.month || row.year || row.period}</td>
-                          <td className="aexp-table-amount">{currency(row.expenses)}</td>
+                          <td className="aexp-table-amount">{money(row.expenses)}</td>
                           <td>{row.count}</td>
                           {CATEGORIES.map(cat => (
-                            <td key={cat.key} className="aexp-report-category-cell">{currency(row.categories[cat.key] || 0)}</td>
+                            <td key={cat.key} className="aexp-report-category-cell">{money(row.categories[cat.key] || 0)}</td>
                           ))}
                         </tr>
                       ))}

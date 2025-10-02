@@ -243,6 +243,10 @@ export default function AdminReports() {
 
   // Event handlers
   const handleExportCSV = useCallback(() => {
+    // CSV helpers
+    const csvEscape = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const num = (n) => Number(n || 0).toFixed(2); // emit raw numbers with 2 decimals
+
     const headers = period === PERIOD_OPTIONS.MONTHLY
       ? ['Period', 'Fees (KSh.)', 'Expenses (KSh.)', 'Fuel (KSh.)', 'Profit (KSh.)', 'Enquiries', 'Applications']
       : ['Year', 'Fees (KSh.)', 'Expenses (KSh.)', 'Fuel (KSh.)', 'Profit (KSh.)', 'Enquiries', 'Applications'];
@@ -251,30 +255,35 @@ export default function AdminReports() {
       headers.push(...CATEGORIES.map(category => `${category.label} (KSh.)`));
     }
 
-    const csvRows = displayedRows.map(row => {
-      const baseRow = [
-        row.label,
-        numberFmt(row.fees),
-        numberFmt(row.expenses),
-        numberFmt(row.fuel),
-        numberFmt(row.profit),
-        row.enquiries,
-        row.applications,
+    const bodyRows = displayedRows.map(row => {
+      const base = [
+        row.label,          // text column
+        num(row.fees),      // numeric columns
+        num(row.expenses),
+        num(row.fuel),
+        num(row.profit),
+        Number(row.enquiries || 0),
+        Number(row.applications || 0),
       ];
 
       if (includeCategories) {
-        baseRow.push(...CATEGORIES.map(category => numberFmt(row.categories?.[category.key] || 0)));
+        base.push(...CATEGORIES.map(category => num(row.categories?.[category.key] || 0)));
       }
 
-      return baseRow;
+      return base;
     });
 
-    const csvContent = [headers, ...csvRows].map(row => row.join(',')).join('\n');
+    const headerLine = headers.map(csvEscape).join(',');
+    const body = bodyRows
+      .map(r => r.map((val, idx) => (idx === 0 ? csvEscape(val) : String(val))).join(','))
+      .join('\n');
+    const BOM = '\uFEFF';
+    const csvContent = `${BOM}${headerLine}\n${body}`;
     downloadCSV(csvContent, `admin-reports-${period}-${Date.now()}.csv`);
   }, [displayedRows, period, includeCategories]);
 
   const downloadCSV = (content, filename) => {
-    const blob = new Blob([content], { type: 'text/csv' });
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;

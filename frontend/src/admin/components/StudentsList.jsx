@@ -75,6 +75,49 @@ const StudentsList = () => {
     });
   }, [rows, query, month]);
 
+  // Export helpers
+  const toDateOnly = (ts) => {
+    try {
+      const d = ts?.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
+      if (Number.isNaN(d.getTime())) return '';
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    } catch {
+      return '';
+    }
+  };
+
+  const exportStudentsCSV = () => {
+    const csvEscape = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const BOM = '\uFEFF';
+    const headers = ['Student Name', 'Admission No.', 'Course', 'Program Details', 'Registered (YYYY-MM-DD)'];
+    const bodyRows = filtered.map(r => {
+      const name = `${(r.firstName || '').trim()} ${(r.lastName || '').trim()}`.trim();
+      const program = r.course === 'Driving'
+        ? `${r.drivingType || '-'}${r.drivingType ? ' • ' : ''}${r.drivingType === 'Endorsement' ? (r.endorsementClass || '-') : (r.drivingClass || 'B1/B2')}`
+        : (r.computingLevel || '-');
+      return [
+        name,
+        r.admissionNumber || '-',
+        r.course || '-',
+        program,
+        toDateOnly(r.createdAt)
+      ];
+    });
+    const headerLine = headers.map(csvEscape).join(',');
+    const body = bodyRows.map(row => row.map(csvEscape).join(',')).join('\n');
+    const csv = `${BOM}${headerLine}\n${body}`;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `students-${month || 'all'}-${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="zds-students-container">
       <div className="zds-students-card">
@@ -110,6 +153,9 @@ const StudentsList = () => {
                 </button>
               )}
             </div>
+            <button className="zds-students-add-btn" style={{ padding: '6px 10px' }} onClick={exportStudentsCSV}>
+              Export CSV
+            </button>
             <Link className="zds-students-add-btn" to="/admin/register">
               <svg className="zds-students-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

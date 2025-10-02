@@ -15,6 +15,19 @@ import AdminPaymentHistory from './AdminPaymentHistory';
 
 const currency = (n) => `KSh ${Number(n || 0).toLocaleString()}`;
 
+// Lazy-load pdfmake (support both CJS and ESM build variants)
+let pdfMakeInstanceRef = null;
+const loadPdfMake = async () => {
+  if (!pdfMakeInstanceRef) {
+    const pdfMakeModule = await import('pdfmake/build/pdfmake');
+    const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
+    const pm = pdfMakeModule.default || pdfMakeModule;
+    pm.vfs = pdfFontsModule.default?.pdfMake?.vfs || pdfFontsModule.pdfMake?.vfs || {};
+    pdfMakeInstanceRef = pm;
+  }
+  return pdfMakeInstanceRef;
+};
+
 // Receipt helpers
 const buildReceiptHtml = ({ org = {}, student = {}, payment = {}, course = {}, totals = {} }) => {
   const paidAt = payment.paidAt ? new Date(payment.paidAt) : new Date();
@@ -474,6 +487,142 @@ const AdminFees = () => {
             <p className="admin-fees-page-subtitle">Manage course fees, record payments, and track student balances</p>
           </div>
           <div className="admin-fees-header-actions">
+            <button
+              className="admin-fees-btn"
+              onClick={async () => {
+                try {
+                  const confirmed = await modal.confirm({
+                    title: 'Generate Fees Structure PDF?',
+                    text: 'Create a Fees Structure PDF from the current Course Fees shown in this page?'
+                  });
+                  if (!confirmed) return;
+                  const pdfMake = await loadPdfMake();
+
+                  // Build fees rows from currently loaded structures
+                  const drivingRows = Object.entries(drivingFees || {}).flatMap(([dclass, types]) => {
+                    const order = ['New Student','Endorsement','Refresher'];
+                    return order
+                      .filter((t) => types && types[t] != null)
+                      .map((t) => ({ type: t, class: dclass, duration: '-', fees: Number(types[t] || 0), description: '-' }));
+                  });
+                  const computingRows = Object.entries(computingFees || {}).map(([level, fee]) => ({
+                    type: 'Computer',
+                    class: level,
+                    duration: '-',
+                    fees: Number(fee || 0),
+                    description: '-'
+                  }));
+                  const feesRows = [...drivingRows, ...computingRows];
+
+                  const now = new Date();
+                  const currentMonth = now.toLocaleString('default', { month: 'long' });
+                  const currentYear = now.getFullYear();
+
+                  // Load logo as base64
+                  let logoDataUrl = null;
+                  try {
+                    const resp = await fetch('/logo.png');
+                    const blob = await resp.blob();
+                    logoDataUrl = await new Promise((resolve) => {
+                      const r = new FileReader();
+                      r.onloadend = () => resolve(r.result);
+                      r.readAsDataURL(blob);
+                    });
+                  } catch (e) {
+                    // ignore logo errors
+                  }
+
+                  const tableBody = [
+                    [
+                      { text: 'COURSE TYPE', style: 'tableHeader' },
+                      { text: 'CLASS', style: 'tableHeader' },
+                      { text: 'DURATION', style: 'tableHeader' },
+                      { text: 'FEES (KES)', style: 'tableHeader' },
+                      { text: 'DESCRIPTION', style: 'tableHeader' }
+                    ],
+                    ...feesRows.map((row) => [
+                      { text: String(row.type || '-'), style: 'tableCell' },
+                      { text: String(row.class || '-'), style: 'tableCell' },
+                      { text: String(row.duration || '-'), style: 'tableCell' },
+                      { text: Number(row.fees || 0).toLocaleString(), style: 'tableCell', bold: true },
+                      { text: String(row.description || '-'), style: 'tableCell' },
+                    ])
+                  ];
+
+                  const docDefinition = {
+                    pageSize: 'A4',
+                    pageMargins: [40, 60, 40, 60],
+                    background: logoDataUrl ? function(currentPage, pageSize) {
+                      const imgWidth = 360;
+                      const imgHeight = 360;
+                      const x = (pageSize.width - imgWidth) / 2;
+                      const y = (pageSize.height - imgHeight) / 2;
+                      return [{ image: logoDataUrl, width: imgWidth, opacity: 0.06, absolutePosition: { x, y } }];
+                    } : undefined,
+                    footer: function(currentPage, pageCount) {
+                      return {
+                        margin: [40, 0, 40, 20],
+                        columns: [
+                          { text: 'Zane Driving School • Train with us, Drive with confidence', alignment: 'left', color: '#7f8c8d' },
+                          { text: `Page ${currentPage} of ${pageCount}`, alignment: 'right', color: '#7f8c8d' }
+                        ],
+                        fontSize: 9
+                      };
+                    },
+                    content: [
+                      logoDataUrl ? { image: logoDataUrl, width: 120, alignment: 'center', margin: [0, 0, 0, 20] } : {},
+                      { text: 'ZANE DRIVING SCHOOL', style: 'header', margin: [0, 0, 0, 5] },
+                      { text: 'Train with us, Drive with confidence', style: 'subtitle', alignment: 'center', margin: [0, 0, 0, 20] },
+                      { text: 'FEES STRUCTURE', style: 'title', margin: [0, 0, 0, 10] },
+                      { text: `As of ${currentMonth} ${currentYear}`, style: 'date', margin: [0, 0, 0, 20] },
+                      {
+                        layout: {
+                          hLineWidth: (i, node) => (i === 0 || i === node.table.body.length) ? 1.5 : 1,
+                          vLineWidth: () => 0,
+                          hLineColor: (i) => i === 0 ? '#2c3e50' : '#e0e0e0',
+                          paddingTop: () => 8,
+                          paddingBottom: () => 8,
+                          fillColor: (i) => i % 2 === 0 ? '#f8f9fa' : null
+                        },
+                        table: {
+                          headerRows: 1,
+                          widths: ['25%', '15%', '15%', '20%', '25%'],
+                          body: tableBody,
+                        },
+                      },
+                      { text: ' ', margin: [0, 10] },
+                      { text: 'Contact Information:', style: 'sectionHeader' },
+                      { text: 'Phone: 0115820508' },
+                      { text: 'Email: zanedrivingschool2022@gmail.com' },
+                      { text: 'Main Office: Mercy Njeri along Kabarak Road, Nakuru, Kenya', margin: [0, 0, 0, 20] },
+                      { text: 'Branch Office: Kericho', margin: [0, 0, 0, 20] },
+                      { text: 'Website: zanedrivingschool.co.ke', margin: [0, 0, 0, 20] },
+                      { text: 'Thank you for choosing Zane Driving School', style: 'footer' },
+                    ],
+                    styles: {
+                      header: { fontSize: 20, bold: true, alignment: 'center', color: '#2c3e50', margin: [0, 5, 0, 5] },
+                      title: { fontSize: 18, bold: true, alignment: 'center', color: '#2c3e50', margin: [0, 20, 0, 5] },
+                      subtitle: { fontSize: 12, color: '#7f8c8d', italics: true },
+                      date: { fontSize: 11, alignment: 'center', color: '#7f8c8d' },
+                      sectionHeader: { fontSize: 12, bold: true, margin: [0, 15, 0, 8], color: '#2c3e50' },
+                      footer: { fontSize: 10, italics: true, alignment: 'center', margin: [0, 20, 0, 0] },
+                      tableHeader: { bold: true, fontSize: 10, color: 'white', fillColor: '#2c3e50', alignment: 'center', margin: [0, 5, 0, 5], padding: [5, 0, 5, 0] },
+                      tableCell: { fontSize: 10, margin: [0, 5, 0, 5], padding: [5, 5, 5, 5] },
+                    },
+                    defaultStyle: { fontSize: 10, lineHeight: 1.3 },
+                  };
+
+                  pdfMake.createPdf(docDefinition).download(`Zane-Driving-Fees-${currentMonth}-${currentYear}.pdf`);
+                  await modal.toast({ icon: 'success', title: 'Download started' });
+                } catch (e) {
+                  // eslint-disable-next-line no-console
+                  console.error('Failed to generate Fees Structure PDF', e);
+                  await modal.error({ title: 'PDF generation failed', text: 'Please try again.' });
+                }
+              }}
+            >
+              Generate Fees Structure
+            </button>
             {activeTab === 'fees' && (
               <div style={{ display: 'flex', gap: 8 }}>
                 {!editMode ? (
