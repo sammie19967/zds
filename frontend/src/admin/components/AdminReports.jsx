@@ -9,6 +9,7 @@ import {
   getMonthlyExpensesTotal,
   listExpenses,
 } from '../../utils/firebase';
+import { dangerousWipeDemoData } from '../../utils/firebase';
 import '../styles/AdminReports.css';
 
 // Constants and utilities
@@ -492,6 +493,25 @@ export default function AdminReports() {
               disabled={loading}
             >
               Print
+            </button>
+            {/* Temporary: Data reset for onboarding */}
+            <button
+              className="areports-btn areports-btn-secondary"
+              onClick={async () => {
+                const ok = window.confirm('This will permanently delete all demo data (students, payments, expenses, fuel logs, enquiries, etc.) and reset counters. Continue?');
+                if (!ok) return;
+                try {
+                  await dangerousWipeDemoData();
+                  alert('Data reset complete. The page will reload to reflect zeros.');
+                  window.location.reload();
+                } catch (e) {
+                  alert(`Failed to reset data: ${e?.message || 'Unknown error'}`);
+                }
+              }}
+              disabled={loading}
+              title="Reset all demo data to zero"
+            >
+              Reset Data
             </button>
           </div>
         </div>

@@ -153,3 +153,50 @@
 
 .admin-auth-footer a { color: #2563eb; text-decoration: none; }
 .admin-auth-footer a:hover { text-decoration: underline; }
+
+/* Password instruction/help styling */
+.admin-auth-password-help {
+  margin-top: 6px;
+  background: #f9fafb;
+  border: 1px dashed #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: #6b7280;
+  font-size: 0.85rem; /* smaller font size */
+}
+
+.admin-auth-password-help ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.admin-auth-password-help li {
+  line-height: 1.35;
+  margin: 3px 0;
+  list-style: none;
+  position: relative;
+  padding-left: 18px;
+}
+
+.admin-auth-password-help li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d1d5db;
+}
+
+.admin-auth-password-help li.ok { color: #065f46; }
+.admin-auth-password-help li.ok::before { background: #10b981; }
+
+.admin-auth-password-help li.bad { color: #92400e; }
+.admin-auth-password-help li.bad::before { background: #f59e0b; }
+
+.admin-auth-hint {
+  margin-top: 6px;
+  color: #6b7280;
+  font-size: 0.85rem; /* smaller font size */
+}

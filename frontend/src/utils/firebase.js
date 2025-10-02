@@ -589,3 +589,46 @@ export async function getMonthlyFuelCost(month = '') {
   const snap = await getDocs(qRef);
   return snap.docs.reduce((sum, d) => sum + (Number(d.data()?.fuelCost) || 0), 0);
 }
+
+// ===== DANGEROUS: Demo Data Wipe =====
+// This function is meant for demo/onboarding reset only. It deletes documents in
+// common collections and orphaned payments (collection group), and resets counters.
+// Ensure Firestore security rules allow the authenticated admin to perform deletions.
+export async function dangerousWipeDemoData() {
+  // Helper to delete all docs in a collection (no subcollections)
+  const wipeCollection = async (colName) => {
+    const snap = await getDocs(collection(db, colName));
+    const deletions = snap.docs.map((d) => deleteDoc(doc(db, colName, d.id)));
+    await Promise.allSettled(deletions);
+  };
+
+  // 1) Delete expenses, employees, fuel_logs, submissions, admissions, admin_admissions
+  await wipeCollection('expenses').catch(() => {});
+  await wipeCollection('employees').catch(() => {});
+  await wipeCollection('fuel_logs').catch(() => {});
+  await wipeCollection('submissions').catch(() => {});
+  await wipeCollection('admissions').catch(() => {});
+
+  // admin_admissions (parent docs only); note: does not delete subcollections automatically
+  await wipeCollection('admin_admissions').catch(() => {});
+
+  // 2) Delete orphaned payments across all students via collection group
+  try {
+    const paySnap = await getDocs(collectionGroup(db, 'payments'));
+    const payDeletes = paySnap.docs.map((d) => deleteDoc(d.ref));
+    await Promise.allSettled(payDeletes);
+  } catch (_) {
+    // ignore if rules block collection group deletes
+  }
+
+  // 3) Reset counters
+  try {
+    const countersRef = doc(db, 'counters', 'admin_admissions');
+    const s = await getDoc(countersRef);
+    if (s.exists()) {
+      await updateDoc(countersRef, { lastAdmissionNumber: 0, updatedAt: serverTimestamp() });
+    }
+  } catch (_) {
+    // ignore
+  }
+}

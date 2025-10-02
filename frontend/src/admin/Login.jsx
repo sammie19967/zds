@@ -13,6 +13,13 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Non-blocking password policy guidance for existing accounts
+  const policy = { minLen: 8 };
+  const pwdChecks = {
+    length: password.length >= policy.minLen,
+    trimmed: password === password.trim() && password.length > 0,
+  };
+
   const from = location.state?.from?.pathname || '/admin';
 
   async function handleSubmit(e) {
@@ -20,14 +27,35 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      await signIn(email, password);
+      const cleanEmail = email.trim();
+      await signIn(cleanEmail, password);
       await modal.success('Signed in', 'You are now signed in.');
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err?.message || 'Login failed');
-      await modal.error('Login failed', err?.message || 'Please check your credentials.');
+      const code = err?.code || '';
+      const msg = mapFirebaseLoginError(code, err?.message);
+      setError(msg);
+      await modal.error('Login failed', msg);
     } finally {
       setLoading(false);
+    }
+  }
+
+  function mapFirebaseLoginError(code, fallback) {
+    switch (code) {
+      case 'auth/invalid-email':
+        return 'The email address is not valid.';
+      case 'auth/user-disabled':
+        return 'This account has been disabled. Contact support.';
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+        return 'Incorrect email or password. Please try again.';
+      case 'auth/network-request-failed':
+        return 'Network error. Please check your internet connection and try again.';
+      case 'auth/too-many-requests':
+        return 'Too many attempts. Please wait a moment and try again.';
+      default:
+        return fallback || 'Unable to sign in. Please try again later.';
     }
   }
 
@@ -50,6 +78,11 @@ export default function Login() {
             <div className="admin-auth-row">
               <label htmlFor="password" className="admin-auth-label">Password</label>
               <input id="password" type="password" className="admin-auth-input" value={password} onChange={e => setPassword(e.target.value)} required />
+              {password && (!pwdChecks.length || !pwdChecks.trimmed) && (
+                <div className="admin-auth-hint">
+                  For security, we recommend passwords of at least {policy.minLen} characters with no leading or trailing spaces.
+                </div>
+              )}
             </div>
             <div className="admin-auth-actions">
               <span></span>
