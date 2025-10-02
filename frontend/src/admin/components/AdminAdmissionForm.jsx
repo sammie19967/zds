@@ -27,6 +27,26 @@ const AdminAdmissionForm = () => {
   });
   const [errors, setErrors] = useState({});
 
+  // Max selectable DOB should be 18 years ago (deny under 18)
+  const eighteenYearsAgo = (() => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 18);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  })();
+
+  const isAtLeast18 = (dobStr) => {
+    const dob = new Date(dobStr);
+    if (Number.isNaN(dob.getTime())) return false;
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+    return age >= 18;
+  };
+
   const nextStep = () => {
     if (validateStep(step)) setStep((s) => s + 1);
   };
@@ -102,7 +122,11 @@ const AdminAdmissionForm = () => {
     if (current === 1) {
       if (!formData.firstName) newErrors.firstName = 'First name is required';
       if (!formData.lastName) newErrors.lastName = 'Last name is required';
-      if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
+      if (!formData.dateOfBirth) {
+        newErrors.dateOfBirth = 'Date of birth is required';
+      } else if (!isAtLeast18(formData.dateOfBirth)) {
+        newErrors.dateOfBirth = 'Student must be at least 18 years old';
+      }
       if (!formData.nationalIdOrPassport) newErrors.nationalIdOrPassport = 'ID/Passport is required';
       if (!formData.nationality) newErrors.nationality = 'Nationality is required';
       if (!formData.passportFile) newErrors.passportFile = 'Passport photo is required';
@@ -312,7 +336,7 @@ const AdminAdmissionForm = () => {
                 onChange={handleChange}
                 className={`admin-admission-input ${errors.dateOfBirth ? 'admin-admission-error' : ''}`}
                 required
-                max={new Date().toISOString().split('T')[0]}
+                max={eighteenYearsAgo}
               />
               {errors.dateOfBirth && <span className="admin-admission-error-text">{errors.dateOfBirth}</span>}
             </div>
