@@ -1,6 +1,7 @@
 // Firebase initialization and Firestore helpers
 // Ensure you set the env vars in your .env (see .env.example)
 import { initializeApp, getApps } from 'firebase/app';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 import { getFirestore, serverTimestamp, addDoc, collection, getDocs, query, orderBy, limit, doc, getDoc, updateDoc, deleteDoc, startAfter, where, runTransaction, collectionGroup, getCountFromServer, documentId } from 'firebase/firestore';
 import { 
   getAuth, 
@@ -37,7 +38,31 @@ function assertFirebaseConfig(cfg) {
 
 assertFirebaseConfig(config);
 
+// Enable App Check debug token in development so local/dev builds work while App Check is enforced
+if (typeof window !== 'undefined' && import.meta.env.DEV) {
+  // eslint-disable-next-line no-underscore-dangle
+  self.FIREBASE_APPCHECK_DEBUG_TOKEN = true; // or set a specific token string if you prefer
+}
+
 const app = getApps().length ? getApps()[0] : initializeApp(config);
+
+// Initialize App Check (reCAPTCHA v3). This automatically attaches App Check tokens
+// to Firestore/Storage requests so they are not blocked when App Check enforcement is on.
+try {
+  const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY || import.meta.env.VITE_FIREBASE_RECAPTCHA_KEY;
+  if (siteKey) {
+    initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider(siteKey),
+      isTokenAutoRefreshEnabled: true,
+    });
+  } else {
+    // eslint-disable-next-line no-console
+    console.warn('[AppCheck] Missing VITE_RECAPTCHA_SITE_KEY in environment. App Check may block client requests when enforced.');
+  }
+} catch (e) {
+  // eslint-disable-next-line no-console
+  console.warn('[AppCheck] Initialization failed:', e);
+}
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
