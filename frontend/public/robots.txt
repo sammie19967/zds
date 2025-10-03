@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://zanedrivingschool.vercel.app/sitemap.xml
+Sitemap: https://zanedriving.co.ke/sitemap.xml
 
 # Disallow any admin or private routes
 Disallow: /admin/
