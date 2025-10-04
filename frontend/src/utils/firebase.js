@@ -94,15 +94,20 @@ async function getNextAdmissionNumber() {
   const countersDocRef = doc(db, 'counters', 'admin_admissions');
   const next = await runTransaction(db, async (txn) => {
     const snap = await txn.get(countersDocRef);
+    // We had 94 students before migration; start new admissions at 95.
+    const BASE_START = 94; // so the first generated will be 95 -> '0095'
     let last = 0;
     if (snap.exists()) {
       const d = snap.data();
       last = Number(d.lastAdmissionNumber) || 0;
     } else {
-      // initialize the counters doc
-      txn.set(countersDocRef, { lastAdmissionNumber: 0, updatedAt: serverTimestamp() });
+      // Initialize the counters doc at 94 on first run
+      txn.set(countersDocRef, { lastAdmissionNumber: BASE_START, updatedAt: serverTimestamp() });
+      last = BASE_START;
     }
-    const newVal = last + 1;
+    // Ensure we never generate a number below 95 even if the counter was reset lower
+    const baseLast = Math.max(last, BASE_START);
+    const newVal = baseLast + 1;
     txn.update(countersDocRef, { lastAdmissionNumber: newVal, updatedAt: serverTimestamp() });
     return newVal;
   });
