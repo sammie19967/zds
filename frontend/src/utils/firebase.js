@@ -620,6 +620,108 @@ export async function getMonthlyFuelCost(month = '') {
   return snap.docs.reduce((sum, d) => sum + (Number(d.data()?.fuelCost) || 0), 0);
 }
 
+// ===== Date Range Helpers (for custom date range reports) =====
+export async function getDateRangePaymentsTotal(startDate, endDate) {
+  if (!startDate || !endDate) return 0;
+  const start = new Date(startDate);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+  const qRef = query(
+    collectionGroup(db, 'payments'),
+    where('createdAt', '>=', start),
+    where('createdAt', '<=', end)
+  );
+  const snap = await getDocs(qRef);
+  return snap.docs.reduce((sum, d) => sum + (Number(d.data()?.amount) || 0), 0);
+}
+
+export async function getDateRangeExpensesTotal(startDate, endDate) {
+  if (!startDate || !endDate) return 0;
+  const start = new Date(startDate);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+  const startMs = start.getTime();
+  const endMs = end.getTime();
+  const qRef = query(
+    collection(db, 'expenses'),
+    where('dateMs', '>=', startMs),
+    where('dateMs', '<=', endMs)
+  );
+  const snap = await getDocs(qRef);
+  return snap.docs.reduce((sum, d) => sum + (Number(d.data()?.amount) || 0), 0);
+}
+
+export async function getDateRangeFuelCost(startDate, endDate) {
+  if (!startDate || !endDate) return 0;
+  const start = new Date(startDate);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+  const startMs = start.getTime();
+  const endMs = end.getTime();
+  const qRef = query(
+    collection(db, 'fuel_logs'),
+    where('type', '==', 'fueling'),
+    where('dateMs', '>=', startMs),
+    where('dateMs', '<=', endMs),
+    orderBy('dateMs', 'desc'),
+    limit(1000)
+  );
+  const snap = await getDocs(qRef);
+  return snap.docs.reduce((sum, d) => sum + (Number(d.data()?.fuelCost) || 0), 0);
+}
+
+export async function getDateRangeEnquiriesCount(startDate, endDate) {
+  if (!startDate || !endDate) return 0;
+  const start = new Date(startDate);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+  const qRef = query(
+    collection(db, 'submissions'),
+    where('createdAt', '>=', start),
+    where('createdAt', '<=', end)
+  );
+  const snap = await getDocs(qRef);
+  return snap.size;
+}
+
+export async function getDateRangeApplicationsCount(startDate, endDate) {
+  if (!startDate || !endDate) return 0;
+  const start = new Date(startDate);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+  const qRef = query(
+    collection(db, 'admissions'),
+    where('createdAt', '>=', start),
+    where('createdAt', '<=', end)
+  );
+  const snap = await getDocs(qRef);
+  return snap.size;
+}
+
+export async function listDateRangeExpenses({ startDate, endDate, take = 5000 } = {}) {
+  if (!startDate || !endDate) return [];
+  const start = new Date(startDate);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+  const startMs = start.getTime();
+  const endMs = end.getTime();
+  const qRef = query(
+    collection(db, 'expenses'),
+    where('dateMs', '>=', startMs),
+    where('dateMs', '<=', endMs),
+    orderBy('dateMs', 'desc'),
+    limit(take)
+  );
+  const snap = await getDocs(qRef);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
 // ===== DANGEROUS: Demo Data Wipe =====
 // This function is meant for demo/onboarding reset only. It deletes documents in
 // common collections and orphaned payments (collection group), and resets counters.

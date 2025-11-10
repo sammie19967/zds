@@ -8,6 +8,12 @@ import {
   getMonthlyFuelCost,
   getMonthlyExpensesTotal,
   listExpenses,
+  getDateRangePaymentsTotal,
+  getDateRangeExpensesTotal,
+  getDateRangeFuelCost,
+  getDateRangeEnquiriesCount,
+  getDateRangeApplicationsCount,
+  listDateRangeExpenses,
 } from '../../utils/firebase';
 import { dangerousWipeDemoData } from '../../utils/firebase';
 import '../styles/AdminReports.css';
@@ -27,6 +33,7 @@ const CATEGORIES = [
 const PERIOD_OPTIONS = {
   MONTHLY: 'monthly',
   YEARLY: 'yearly',
+  CUSTOM: 'custom',
 };
 
 const YEARS_BACK_OPTIONS = [3, 5, 7, 10];
@@ -36,7 +43,7 @@ const monthName = (month) => new Date(2000, month - 1, 1).toLocaleString(undefin
 const numberFmt = (n) => Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
 
 // Custom hooks
-const useReportData = (period, year, yearsBack, includeCategories) => {
+const useReportData = (period, year, yearsBack, includeCategories, startDate, endDate) => {
   const [data, setData] = useState({ rows: [], loading: false, error: '' });
 
   useEffect(() => {
@@ -48,8 +55,10 @@ const useReportData = (period, year, yearsBack, includeCategories) => {
 
         if (period === PERIOD_OPTIONS.MONTHLY) {
           await loadMonthlyData(year, includeCategories, mounted);
-        } else {
+        } else if (period === PERIOD_OPTIONS.YEARLY) {
           await loadYearlyData(yearsBack, includeCategories, mounted);
+        } else if (period === PERIOD_OPTIONS.CUSTOM) {
+          await loadCustomDateRangeData(startDate, endDate, includeCategories, mounted);
         }
       } catch (error) {
         if (mounted) {
@@ -149,10 +158,52 @@ const useReportData = (period, year, yearsBack, includeCategories) => {
       });
     };
 
+    const loadCustomDateRangeData = async (start, end, includeCategories, mounted) => {
+      if (!start || !end) {
+        if (mounted) {
+          setData(prev => ({ ...prev, rows: [], error: 'Please select both start and end dates' }));
+        }
+        return;
+      }
+
+      const [fees, expenses, fuel, enquiries, applications, expensesList] = await Promise.all([
+        getDateRangePaymentsTotal(start, end),
+        getDateRangeExpensesTotal(start, end),
+        getDateRangeFuelCost(start, end),
+        getDateRangeEnquiriesCount(start, end),
+        getDateRangeApplicationsCount(start, end),
+        includeCategories ? listDateRangeExpenses({ startDate: start, endDate: end, take: 5000 }) : Promise.resolve([]),
+      ]);
+
+      if (!mounted) return;
+
+      const categories = includeCategories 
+        ? aggregateCategories(expensesList)
+        : {};
+
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      const label = `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+
+      const row = {
+        key: `custom-${start}-${end}`,
+        label,
+        fees: Number(fees || 0),
+        expenses: Number(expenses || 0),
+        fuel: Number(fuel || 0),
+        enquiries: Number(enquiries || 0),
+        applications: Number(applications || 0),
+        categories,
+        profit: calculateProfit(Number(fees || 0), Number(expenses || 0), Number(fuel || 0)),
+      };
+
+      setData(prev => ({ ...prev, rows: [row] }));
+    };
+
     loadData();
 
     return () => { mounted = false; };
-  }, [period, year, yearsBack, includeCategories]);
+  }, [period, year, yearsBack, includeCategories, startDate, endDate]);
 
   return data;
 };
@@ -217,13 +268,22 @@ export default function AdminReports() {
   const [includeCategories, setIncludeCategories] = useState(false);
   const [onlyThisMonth, setOnlyThisMonth] = useState(false);
   const [condensed, setCondensed] = useState(false);
+  const [startDate, setStartDate] = useState(() => {
+    const date = new Date();
+    date.setMonth(date.getMonth() - 1);
+    return date.toISOString().split('T')[0];
+  });
+  const [endDate, setEndDate] = useState(() => {
+    return new Date().toISOString().split('T')[0];
+  });
 
   // Data hooks
-  const { rows, loading, error } = useReportData(period, year, yearsBack, includeCategories);
+  const { rows, loading, error } = useReportData(period, year, yearsBack, includeCategories, startDate, endDate);
   const studentsTotal = useStudentsTotal();
 
   // Memoized computations
   const displayedRows = useMemo(() => {
+    if (period === PERIOD_OPTIONS.CUSTOM) return rows;
     if (period !== PERIOD_OPTIONS.MONTHLY || !onlyThisMonth) return rows;
     
     const currentMonthKey = monthKey(year, now.getMonth() + 1);
@@ -251,7 +311,9 @@ export default function AdminReports() {
 
     const headers = period === PERIOD_OPTIONS.MONTHLY
       ? ['Period', 'Fees (KSh.)', 'Expenses (KSh.)', 'Fuel (KSh.)', 'Profit (KSh.)', 'Enquiries', 'Applications']
-      : ['Year', 'Fees (KSh.)', 'Expenses (KSh.)', 'Fuel (KSh.)', 'Profit (KSh.)', 'Enquiries', 'Applications'];
+      : period === PERIOD_OPTIONS.YEARLY
+      ? ['Year', 'Fees (KSh.)', 'Expenses (KSh.)', 'Fuel (KSh.)', 'Profit (KSh.)', 'Enquiries', 'Applications']
+      : ['Date Range', 'Fees (KSh.)', 'Expenses (KSh.)', 'Fuel (KSh.)', 'Profit (KSh.)', 'Enquiries', 'Applications'];
 
     if (includeCategories) {
       headers.push(...CATEGORIES.map(category => `${category.label} (KSh.)`));
@@ -308,6 +370,7 @@ export default function AdminReports() {
         >
           <option value={PERIOD_OPTIONS.MONTHLY}>Monthly</option>
           <option value={PERIOD_OPTIONS.YEARLY}>Yearly</option>
+          <option value={PERIOD_OPTIONS.CUSTOM}>Custom Date Range</option>
         </select>
       </div>
 
@@ -341,6 +404,32 @@ export default function AdminReports() {
         </div>
       )}
 
+      {period === PERIOD_OPTIONS.CUSTOM && (
+        <>
+          <div className="areports-filter">
+            <label className="areports-label">Start Date</label>
+            <input
+              type="date"
+              className="areports-select"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              max={endDate}
+            />
+          </div>
+          <div className="areports-filter">
+            <label className="areports-label">End Date</label>
+            <input
+              type="date"
+              className="areports-select"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              min={startDate}
+              max={new Date().toISOString().split('T')[0]}
+            />
+          </div>
+        </>
+      )}
+
       <ToggleFilter
         id="toggle-cats"
         label="Category Breakdown"
@@ -362,6 +451,14 @@ export default function AdminReports() {
           checked={onlyThisMonth}
           onChange={setOnlyThisMonth}
         />
+      )}
+
+      {period === PERIOD_OPTIONS.CUSTOM && startDate && endDate && (
+        <div className="areports-filter areports-filter-info">
+          <span className="areports-label">
+            Report Period: {new Date(startDate).toLocaleDateString()} - {new Date(endDate).toLocaleDateString()}
+          </span>
+        </div>
       )}
     </div>
   );
@@ -426,7 +523,7 @@ export default function AdminReports() {
       <table className="areports-table">
         <thead>
           <tr>
-            <th>{period === PERIOD_OPTIONS.MONTHLY ? 'Month' : 'Year'}</th>
+            <th>{period === PERIOD_OPTIONS.MONTHLY ? 'Month' : period === PERIOD_OPTIONS.YEARLY ? 'Year' : 'Date Range'}</th>
             <th>Fees (KSh.)</th>
             <th>Expenses (KSh.)</th>
             <th>Fuel (KSh.)</th>
@@ -462,7 +559,7 @@ export default function AdminReports() {
     <div className="areports-container">
       <div className="areports-card">
         {/* Print Header */}
-        <PrintHeader period={period} year={year} yearsBack={yearsBack} />
+        <PrintHeader period={period} year={year} yearsBack={yearsBack} startDate={startDate} endDate={endDate} />
 
         {/* Main Header */}
         <div className="areports-header">
@@ -633,7 +730,7 @@ TableRow.propTypes = {
   includeCategories: PropTypes.bool.isRequired,
 };
 
-const PrintHeader = ({ period, year, yearsBack }) => (
+const PrintHeader = ({ period, year, yearsBack, startDate, endDate }) => (
   <div className="areports-print-header">
     <div className="areports-print-brand">
       <img src="/logo.png" alt="Zane Driving" />
@@ -647,7 +744,9 @@ const PrintHeader = ({ period, year, yearsBack }) => (
       <div>
         Period: {period === PERIOD_OPTIONS.MONTHLY 
           ? `Monthly (${year})` 
-          : `Yearly (Last ${yearsBack} years)`
+          : period === PERIOD_OPTIONS.YEARLY
+          ? `Yearly (Last ${yearsBack} years)`
+          : `Custom Range (${startDate ? new Date(startDate).toLocaleDateString() : ''} - ${endDate ? new Date(endDate).toLocaleDateString() : ''})`
         }
       </div>
     </div>
@@ -655,7 +754,9 @@ const PrintHeader = ({ period, year, yearsBack }) => (
 );
 
 PrintHeader.propTypes = {
-  period: PropTypes.oneOf(['monthly', 'yearly']).isRequired,
+  period: PropTypes.oneOf(['monthly', 'yearly', 'custom']).isRequired,
   year: PropTypes.number.isRequired,
   yearsBack: PropTypes.number.isRequired,
+  startDate: PropTypes.string,
+  endDate: PropTypes.string,
 };
