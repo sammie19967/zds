@@ -30,12 +30,14 @@ import AdminInquiries from './admin/components/AdminInquiries';
 import AdminFuel from './admin/components/AdminFuel';
 import AdminExpenses from './admin/components/AdminExpenses';
 import AdminReports from './admin/components/AdminReports';
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 const MainApp = () => {
   const location = useLocation();
   const hideChrome = ['/admin/login', '/admin/signup'].includes(location.pathname);
   return (
     <>
+      <SpeedInsights />
       {!hideChrome && <Navbar />}
       {!hideChrome && <WhatsAppIcon />}
       <Routes>

@@ -64,6 +64,23 @@ const modal = {
       ...cfg,
     });
   },
+
+  // Loading helper (blocks interaction, shows spinner)
+  loading: (titleOrOptions, text) => {
+    const cfg = normalizeArgs(titleOrOptions, text);
+    return base.fire({
+      title: cfg.title || 'Loading...',
+      text: cfg.text || '',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      showCancelButton: false,
+      didOpen: () => {
+        SweetModal.showLoading();
+      },
+      ...cfg,
+    });
+  },
 };
 
 export default modal;

@@ -16,6 +16,7 @@ import {
   listDateRangeExpenses,
 } from '../../utils/firebase';
 import { dangerousWipeDemoData } from '../../utils/firebase';
+import modal from '../../utils/modal';
 import '../styles/AdminReports.css';
 
 // Constants and utilities
@@ -595,14 +596,25 @@ export default function AdminReports() {
             <button
               className="areports-btn areports-btn-secondary"
               onClick={async () => {
-                const ok = window.confirm('This will permanently delete all demo data (students, payments, expenses, fuel logs, enquiries, etc.) and reset counters. Continue?');
+                const ok = await modal.confirm({
+                  title: 'Reset Demo Data',
+                  text: 'This will permanently delete all demo data (students, payments, expenses, fuel logs, enquiries, etc.) and reset counters. Continue?',
+                  confirmButtonText: 'Yes, Reset',
+                  cancelButtonText: 'Cancel',
+                });
                 if (!ok) return;
                 try {
                   await dangerousWipeDemoData();
-                  alert('Data reset complete. The page will reload to reflect zeros.');
+                  await modal.success({
+                    title: 'Data Reset Complete',
+                    text: 'All demo data has been deleted. The page will reload to reflect zeros.',
+                  });
                   window.location.reload();
                 } catch (e) {
-                  alert(`Failed to reset data: ${e?.message || 'Unknown error'}`);
+                  await modal.error({
+                    title: 'Reset Failed',
+                    text: e?.message || 'Unknown error occurred while resetting data.',
+                  });
                 }
               }}
               disabled={loading}
