@@ -27,10 +27,12 @@ const AdminFuel = () => {
   const [loadingSettings, setLoadingSettings] = useState(true);
 
   // Log entry (Daily Running)
+  const [dateDaily, setDateDaily] = useState(() => new Date().toISOString().split('T')[0]);
   const [vehicleId, setVehicleId] = useState('');
   const [startOdo, setStartOdo] = useState('');
   const [endOdo, setEndOdo] = useState('');
   // Fueling-only
+  const [dateFueling, setDateFueling] = useState(() => new Date().toISOString().split('T')[0]);
   const [fuelAmount, setFuelAmount] = useState(''); // total fuel cost in KSh (user inputs)
   const [overridePrice, setOverridePrice] = useState('');
   // Notes split
@@ -138,18 +140,18 @@ const AdminFuel = () => {
     }
   };
 
-  const todayISO = () => new Date().toISOString().slice(0, 10);
-
   const submitLog = async () => {
     const s = Number(startOdo) || 0;
     const e = Number(endOdo) || 0;
     const L = 0; // daily entry should not consider fueling litres
     if (e <= s) return modal.error({ title: 'Invalid odometer', text: 'End reading must be greater than start reading.' });
+    if (!dateDaily) return modal.error({ title: 'Date required', text: 'Please select a date for this log entry.' });
     try {
       setSavingDaily(true);
+      const selectedDate = dateDaily || new Date().toISOString().split('T')[0];
       await addFuelLog({
-        dateISO: todayISO(),
-        dateMs: new Date(`${todayISO()}T00:00:00`).getTime(),
+        dateISO: selectedDate,
+        dateMs: new Date(`${selectedDate}T00:00:00`).getTime(),
         vehicleId,
         startOdo: s,
         endOdo: e,
@@ -160,16 +162,15 @@ const AdminFuel = () => {
         type: 'daily',
       });
       await modal.success({ title: 'Saved', text: 'Fuel log recorded.' });
-      // Reset form (keep date)
+      // Reset form (keep date for convenience, but user can change it)
       setVehicleId('');
       setStartOdo('');
       setEndOdo('');
       setOverridePrice('');
       setNoteDaily('');
-      setNoteFuel('');
       setSelectedStudents([]);
-      // Refresh logs for that month
-      setMonth(toYYYYMM(new Date()));
+      // Refresh logs for the month of the selected date
+      setMonth(toYYYYMM(new Date(`${selectedDate}T00:00:00`)));
     } catch (e) {
       await modal.error({ title: 'Failed', text: e?.message || 'Could not save log.' });
     } finally {
@@ -180,11 +181,13 @@ const AdminFuel = () => {
   const submitFueling = async () => {
     const L = Number(computedLitres) || 0;
     if (L <= 0) return modal.error({ title: 'Invalid amount/price', text: 'Enter a valid fuel cost and price per litre (override or settings) to compute litres.' });
+    if (!dateFueling) return modal.error({ title: 'Date required', text: 'Please select a date for this fueling entry.' });
     try {
       setSavingFuel(true);
+      const selectedDate = dateFueling || new Date().toISOString().split('T')[0];
       await addFuelLog({
-        dateISO: todayISO(),
-        dateMs: new Date(`${todayISO()}T00:00:00`).getTime(),
+        dateISO: selectedDate,
+        dateMs: new Date(`${selectedDate}T00:00:00`).getTime(),
         vehicleId,
         startOdo: 0,
         endOdo: 0,
@@ -198,7 +201,8 @@ const AdminFuel = () => {
       setFuelAmount('');
       setOverridePrice('');
       setNoteFuel('');
-      setMonth(toYYYYMM(new Date()));
+      // Refresh logs for the month of the selected date
+      setMonth(toYYYYMM(new Date(`${selectedDate}T00:00:00`)));
     } catch (e) {
       await modal.error({ title: 'Failed', text: e?.message || 'Could not save fueling entry.' });
     } finally {
@@ -342,6 +346,16 @@ const AdminFuel = () => {
                   <div className="admin-fuel-section-card-header">Daily Running</div>
                   <div className="admin-fuel-grid">
                     <div>
+                      <label className="admin-fuel-label">Date</label>
+                      <input 
+                        type="date" 
+                        className="admin-fuel-input" 
+                        value={dateDaily} 
+                        onChange={(e) => setDateDaily(e.target.value)} 
+                        max={new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
+                    <div>
                       <label className="admin-fuel-label">Start Odometer</label>
                       <input 
                         type="number" 
@@ -439,7 +453,16 @@ const AdminFuel = () => {
                 <div className="admin-fuel-section-card">
                   <div className="admin-fuel-section-card-header">Fueling Entry</div>
                   <div className="admin-fuel-grid">
-                    
+                    <div>
+                      <label className="admin-fuel-label">Date</label>
+                      <input 
+                        type="date" 
+                        className="admin-fuel-input" 
+                        value={dateFueling} 
+                        onChange={(e) => setDateFueling(e.target.value)} 
+                        max={new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
                     <div>
                       <label className="admin-fuel-label">Fuel Cost (KSh)</label>
                       <input
