@@ -55,7 +55,7 @@ const AdminAdmissionForm = () => {
   const validateAndSetPassport = (file) => {
     if (!file) {
       setFormData((prev) => ({ ...prev, passportFile: null }));
-      setErrors((prev) => ({ ...prev, passportFile: 'Passport photo is required' }));
+      setErrors((prev) => ({ ...prev, passportFile: '' })); // No error, it's optional
       return;
     }
     const isImage = file.type && file.type.startsWith('image/');
@@ -129,7 +129,7 @@ const AdminAdmissionForm = () => {
       }
       if (!formData.nationalIdOrPassport) newErrors.nationalIdOrPassport = 'ID/Passport is required';
       if (!formData.nationality) newErrors.nationality = 'Nationality is required';
-      if (!formData.passportFile) newErrors.passportFile = 'Passport photo is required';
+      // Passport photo is now optional, no validation needed
     }
     if (current === 2) {
       if (!formData.course) newErrors.course = 'Course selection is required';
@@ -379,7 +379,7 @@ const AdminAdmissionForm = () => {
               {errors.nationalIdOrPassport && <span className="admin-admission-error-text">{errors.nationalIdOrPassport}</span>}
             </div>
             <div className="admin-admission-group">
-              <label htmlFor="passportFile">Passport Photo (JPEG/PNG, max 2MB) *</label>
+              <label htmlFor="passportFile">Passport Photo (JPEG/PNG, max 2MB) <span style={{ color: '#64748b', fontWeight: 'normal' }}>(Optional)</span></label>
               <div
                 className={`admin-admission-upload-area ${dragActive ? 'admin-admission-drag-active' : ''}`}
                 onDragOver={onDragOver}
