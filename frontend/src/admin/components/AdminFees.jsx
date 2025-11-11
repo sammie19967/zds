@@ -15,6 +15,45 @@ import AdminPaymentHistory from './AdminPaymentHistory';
 
 const currency = (n) => `KSh ${Number(n || 0).toLocaleString()}`;
 
+// Map endorsement class names to fee structure keys
+// Endorsement classes are stored as "B2 Manual", "B1 Automatic", etc.
+// But fee structure uses keys like "B1/B2", "A1/A2", etc.
+const mapEndorsementClassToFeeKey = (endorsementClass) => {
+  if (!endorsementClass) return 'B1/B2'; // default
+  
+  const normalized = endorsementClass.trim().toUpperCase();
+  
+  // Map specific endorsement classes to fee structure keys
+  const mapping = {
+    'B2 MANUAL': 'B1/B2',
+    'B1 AUTOMATIC': 'B1/B2',
+    'B1/B2': 'B1/B2', // in case it's already in the correct format
+    'A1 MOTORBIKE': 'A1/A2',
+    'A1/A2': 'A1/A2',
+    'CI - LORRY': 'C1/C2',
+    'C1/C2': 'C1/C2',
+    'C2 - COMMERCIAL': 'C1/C2',
+    'BUS': 'D1/D2',
+    'D1/D2': 'D1/D2',
+    'HEAVY TRUCK': 'D1/D2',
+  };
+  
+  // Try direct match first
+  if (mapping[normalized]) {
+    return mapping[normalized];
+  }
+  
+  // Try to extract pattern (e.g., "B2" from "B2 Manual")
+  if (normalized.includes('B2')) return 'B1/B2';
+  if (normalized.includes('B1')) return 'B1/B2';
+  if (normalized.includes('A1')) return 'A1/A2';
+  if (normalized.includes('C1') || normalized.includes('CI') || normalized.includes('C2')) return 'C1/C2';
+  if (normalized.includes('D1') || normalized.includes('D2') || normalized.includes('BUS') || normalized.includes('TRUCK')) return 'D1/D2';
+  
+  // Default fallback
+  return 'B1/B2';
+};
+
 // Lazy-load pdfmake (support both CJS and ESM build variants)
 let pdfMakeInstanceRef = null;
 const loadPdfMake = async () => {
@@ -231,8 +270,15 @@ const AdminFees = () => {
             let baseFee = 0;
             if (s.course === 'Driving') {
               const dtype = s.drivingType || 'New Student';
-              const clsRaw = (dtype === 'Endorsement' ? s.endorsementClass : s.drivingClass) || 'B1/B2';
-              const dclass = (clsRaw || '').toUpperCase();
+              let clsRaw;
+              if (dtype === 'Endorsement') {
+                // For Endorsement, map the endorsement class to the fee structure key
+                clsRaw = mapEndorsementClassToFeeKey(s.endorsementClass);
+              } else {
+                // For New Student/Refresher, use drivingClass or default to B1/B2
+                clsRaw = (s.drivingClass || 'B1/B2');
+              }
+              const dclass = (clsRaw || 'B1/B2').toUpperCase();
               const classMap = (driving || {})[dclass] || {};
               baseFee = Number(classMap[dtype] || 0);
             } else if (s.course === 'Computing') {
@@ -260,8 +306,14 @@ const AdminFees = () => {
     if (!s) { setPayDrivingType(''); setPayDrivingClass(''); setPayComputingLevel(''); return; }
     if (s.course === 'Driving') {
       setPayDrivingType(s.drivingType || 'New Student');
-      const cls = (s.drivingType === 'Endorsement' ? s.endorsementClass : s.drivingClass) || 'B1/B2';
-      setPayDrivingClass((cls || '').toUpperCase());
+      let cls;
+      if (s.drivingType === 'Endorsement') {
+        // Map endorsement class to fee structure key
+        cls = mapEndorsementClassToFeeKey(s.endorsementClass);
+      } else {
+        cls = (s.drivingClass || 'B1/B2');
+      }
+      setPayDrivingClass((cls || 'B1/B2').toUpperCase());
       setPayComputingLevel('');
     } else if (s.course === 'Computing') {
       setPayComputingLevel(s.computingLevel || 'Beginner');
