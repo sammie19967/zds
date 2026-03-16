@@ -73,7 +73,11 @@ const useReportData = (period, year, yearsBack, includeCategories, startDate, en
     };
 
     const loadMonthlyData = async (year, includeCategories, mounted) => {
-      const monthlyPromises = Array.from({ length: 12 }, (_, monthIndex) => {
+      const current = new Date();
+      const currentYear = current.getFullYear();
+      const currentMonth = current.getMonth() + 1;
+      const maxMonth = year === currentYear ? currentMonth : 12;
+      const monthlyPromises = Array.from({ length: maxMonth }, (_, monthIndex) => {
         const month = monthIndex + 1;
         const monthKeyVal = monthKey(year, month);
         return fetchMonthData(monthKeyVal, includeCategories);
@@ -137,7 +141,11 @@ const useReportData = (period, year, yearsBack, includeCategories, startDate, en
     };
 
     const fetchYearData = async (year, includeCategories) => {
-      const monthlyPromises = Array.from({ length: 12 }, (_, monthIndex) => {
+      const current = new Date();
+      const currentYear = current.getFullYear();
+      const currentMonth = current.getMonth() + 1;
+      const maxMonth = year === currentYear ? currentMonth : 12;
+      const monthlyPromises = Array.from({ length: maxMonth }, (_, monthIndex) => {
         const month = monthIndex + 1;
         const monthKeyVal = monthKey(year, month);
         return fetchMonthData(monthKeyVal, includeCategories);
@@ -452,7 +460,11 @@ export default function AdminReports() {
               type="date"
               className="areports-select"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(e) => {
+                const todayIso = new Date().toISOString().split('T')[0];
+                const nextVal = e.target.value;
+                setEndDate(nextVal > todayIso ? todayIso : nextVal);
+              }}
               min={startDate}
               max={new Date().toISOString().split('T')[0]}
             />
