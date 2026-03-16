@@ -29,14 +29,11 @@ export default function RequireAuth({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  console.log('Auth state:', { user, loading });
-
   if (loading) {
     return <Loader />;
   }
 
   if (!user) {
-    console.log('No user, redirecting to login');
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 

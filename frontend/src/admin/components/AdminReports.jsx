@@ -261,6 +261,7 @@ const calculateTotals = (rows) =>
 // Main component
 export default function AdminReports() {
   const now = useMemo(() => new Date(), []);
+  const allowDemoReset = import.meta.env.DEV;
   
   // State management
   const [period, setPeriod] = useState(PERIOD_OPTIONS.MONTHLY);
@@ -592,36 +593,37 @@ export default function AdminReports() {
             >
               Print
             </button>
-            {/* Temporary: Data reset for onboarding */}
-            <button
-              className="areports-btn areports-btn-secondary"
-              onClick={async () => {
-                const ok = await modal.confirm({
-                  title: 'Reset Demo Data',
-                  text: 'This will permanently delete all demo data (students, payments, expenses, fuel logs, enquiries, etc.) and reset counters. Continue?',
-                  confirmButtonText: 'Yes, Reset',
-                  cancelButtonText: 'Cancel',
-                });
-                if (!ok) return;
-                try {
-                  await dangerousWipeDemoData();
-                  await modal.success({
-                    title: 'Data Reset Complete',
-                    text: 'All demo data has been deleted. The page will reload to reflect zeros.',
+            {allowDemoReset && (
+              <button
+                className="areports-btn areports-btn-secondary"
+                onClick={async () => {
+                  const ok = await modal.confirm({
+                    title: 'Reset Demo Data',
+                    text: 'This will permanently delete all demo data (students, payments, expenses, fuel logs, enquiries, etc.) and reset counters. Continue?',
+                    confirmButtonText: 'Yes, Reset',
+                    cancelButtonText: 'Cancel',
                   });
-                  window.location.reload();
-                } catch (e) {
-                  await modal.error({
-                    title: 'Reset Failed',
-                    text: e?.message || 'Unknown error occurred while resetting data.',
-                  });
-                }
-              }}
-              disabled={loading}
-              title="Reset all demo data to zero"
-            >
-              Reset Data
-            </button>
+                  if (!ok) return;
+                  try {
+                    await dangerousWipeDemoData();
+                    await modal.success({
+                      title: 'Data Reset Complete',
+                      text: 'All demo data has been deleted. The page will reload to reflect zeros.',
+                    });
+                    window.location.reload();
+                  } catch (e) {
+                    await modal.error({
+                      title: 'Reset Failed',
+                      text: e?.message || 'Unknown error occurred while resetting data.',
+                    });
+                  }
+                }}
+                disabled={loading}
+                title="Reset all demo data to zero"
+              >
+                Reset Data
+              </button>
+            )}
           </div>
         </div>
 

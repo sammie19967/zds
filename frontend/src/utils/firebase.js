@@ -163,24 +163,26 @@ export async function listApplications({ take = 100 } = {}) {
 let sessionTimer;
 const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
 
+function resetSessionTimer() {
+  if (sessionTimer) {
+    clearTimeout(sessionTimer);
+  }
+  sessionTimer = setTimeout(() => {
+    signOut(auth).then(() => {
+      // Redirect to admin login page on timeout
+      window.location.href = '/admin/login';
+    });
+  }, SESSION_TIMEOUT);
+}
+
 export async function signInWithEmail(email, password) {
   // Set session persistence to SESSION
   await setPersistence(auth, browserSessionPersistence);
   
   const userCredential = await signInWithEmailAndPassword(auth, email, password);
   
-  // Reset any existing timer
-  if (sessionTimer) {
-    clearTimeout(sessionTimer);
-  }
-  
   // Set up the session timeout
-  sessionTimer = setTimeout(() => {
-    signOut(auth).then(() => {
-      // Redirect to login page on timeout
-      window.location.href = '/login';
-    });
-  }, SESSION_TIMEOUT);
+  resetSessionTimer();
   
   return userCredential.user;
 }
@@ -197,7 +199,15 @@ export async function signOutUser() {
 }
 
 export function subscribeAuth(callback) {
-  return onAuthStateChanged(auth, callback);
+  return onAuthStateChanged(auth, (user) => {
+    if (user) {
+      resetSessionTimer();
+    } else if (sessionTimer) {
+      clearTimeout(sessionTimer);
+      sessionTimer = null;
+    }
+    callback(user);
+  });
 }
 
 // Admin admissions CRUD helpers
@@ -727,6 +737,9 @@ export async function listDateRangeExpenses({ startDate, endDate, take = 5000 } 
 // common collections and orphaned payments (collection group), and resets counters.
 // Ensure Firestore security rules allow the authenticated admin to perform deletions.
 export async function dangerousWipeDemoData() {
+  if (!import.meta.env.DEV) {
+    throw new Error('Demo data reset is disabled in production.');
+  }
   // Helper to delete all docs in a collection (no subcollections)
   const wipeCollection = async (colName) => {
     const snap = await getDocs(collection(db, colName));

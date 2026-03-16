@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Navbar from './components/navbar';
@@ -135,8 +136,6 @@ const AdminApp = () => (
 
 const AppContent = () => {
   const location = useLocation();
-  console.log('Current path:', location.pathname);
-
   // Refined admin route check
   const isAdminRoute = location.pathname.startsWith('/admin') &&
     !['/admin/login', '/admin/signup'].includes(location.pathname);
@@ -144,10 +143,12 @@ const AppContent = () => {
   // Hide navbar offset on auth pages and all admin pages (admin has no public navbar)
   const isAuthPage = ['/admin/login', '/admin/signup'].includes(location.pathname);
   const hideOffset = isAuthPage || isAdminRoute;
-  if (typeof document !== 'undefined') {
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
     if (hideOffset) document.body.classList.add('no-navbar-offset');
     else document.body.classList.remove('no-navbar-offset');
-  }
+    return () => document.body.classList.remove('no-navbar-offset');
+  }, [hideOffset]);
 
   if (location.pathname === '/admin') {
     return <Navigate to="/admin/dashboard" replace />;

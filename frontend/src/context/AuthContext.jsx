@@ -22,11 +22,21 @@ export function AuthProvider({ children }) {
     error,
     async signIn(email, password) {
       setError('');
-      await signInWithEmail(email, password);
+      try {
+        await signInWithEmail(email, password);
+      } catch (err) {
+        setError(err?.message || 'Unable to sign in.');
+        throw err;
+      }
     },
     async signUp(email, password) {
       setError('');
-      await signUpWithEmail(email, password);
+      try {
+        await signUpWithEmail(email, password);
+      } catch (err) {
+        setError(err?.message || 'Unable to create account.');
+        throw err;
+      }
     },
     async signOut() {
       await signOutUser();
