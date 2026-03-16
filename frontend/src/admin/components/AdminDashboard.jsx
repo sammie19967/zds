@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaUsers, FaEnvelope, FaMoneyBillWave, FaGasPump, FaPlus, FaSearch } from 'react-icons/fa';
 import {
   getCountAdminAdmissions,
@@ -11,6 +11,14 @@ import {
   fetchRecentSubmissions,
   getPaymentByStudent,
 } from '../../utils/firebase';
+import modal from '../../utils/modal';
+import {
+  ensureDailyReminders,
+  getOpenRemindersForToday,
+  markNotificationsDoneByType,
+  getLastShownKey,
+  setLastShownKey,
+} from '../../utils/notifications';
 
 import '../styles/AdminDashboard.css';
 
@@ -18,6 +26,7 @@ const currency = (n) => `KSh ${Number(n || 0).toLocaleString()}`;
 const yyyymm = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [month, setMonth] = useState(yyyymm());
@@ -64,6 +73,46 @@ const AdminDashboard = () => {
     })();
     return () => { mounted = false; };
   }, [month]);
+
+  useEffect(() => {
+    const showReminderModal = async () => {
+      ensureDailyReminders();
+      const todayShown = getLastShownKey()?.lastShown;
+      const today = new Date().toISOString().slice(0, 10);
+      if (todayShown === today) return;
+      const reminders = getOpenRemindersForToday();
+      if (!reminders.length) return;
+
+      setLastShownKey();
+      const hasFuel = reminders.some((r) => r.type === 'fuel_price');
+      const hasExpenses = reminders.some((r) => r.type === 'expenses');
+      const lines = reminders.map((r) => `<li>${r.message}</li>`).join('');
+
+      const result = await modal.fire({
+        title: 'Admin Reminders',
+        html: `<div style="text-align:left">
+          <p style="margin:0 0 8px 0;">Please complete these items today:</p>
+          <ul style="margin:0 0 8px 16px; padding:0;">${lines}</ul>
+          <div style="font-size:12px;color:#64748b;">You can also view all reminders in the notification center.</div>
+        </div>`,
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: 'Record Fuel Price',
+        denyButtonText: 'Record Expenses',
+        cancelButtonText: 'Later',
+      });
+
+      if (result.isConfirmed && hasFuel) {
+        markNotificationsDoneByType(['fuel_price'], today);
+        navigate('/admin/fuel');
+      } else if (result.isDenied && hasExpenses) {
+        markNotificationsDoneByType(['expenses'], today);
+        navigate('/admin/expenses');
+      }
+    };
+
+    showReminderModal();
+  }, [navigate]);
 
   const cards = useMemo(() => ([
     { label: 'Total Students', value: stats.totalStudents, icon: <FaUsers />, tone: 'primary', to: '/admin/students' },

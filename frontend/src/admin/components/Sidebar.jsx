@@ -11,7 +11,8 @@ import {
   FaFileInvoiceDollar,
   FaChevronLeft,
   FaChevronRight,
-  FaChartBar
+  FaChartBar,
+  FaBell
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { signOutUser } from '../../utils/firebase';
@@ -117,6 +118,11 @@ const Sidebar = () => {
       name: 'Reports', 
       path: '/admin/reports', 
       icon: <FaChartBar /> 
+    },
+    { 
+      name: 'Notifications', 
+      path: '/admin/notifications', 
+      icon: <FaBell /> 
     }
   ];
 
