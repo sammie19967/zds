@@ -16,6 +16,7 @@ const AdminAdmissionForm = () => {
     firstName: '',
     lastName: '',
     dateOfBirth: '',
+    phone: '',
     nationalIdOrPassport: '',
     nationality: '',
     course: '', // Driving | Computing
@@ -127,6 +128,11 @@ const AdminAdmissionForm = () => {
       } else if (!isAtLeast18(formData.dateOfBirth)) {
         newErrors.dateOfBirth = 'Student must be at least 18 years old';
       }
+      if (!formData.phone) {
+        newErrors.phone = 'Phone number is required';
+      } else if (String(formData.phone).replace(/\D/g, '').length < 7) {
+        newErrors.phone = 'Phone number looks too short';
+      }
       if (!formData.nationalIdOrPassport) newErrors.nationalIdOrPassport = 'ID/Passport is required';
       if (!formData.nationality) newErrors.nationality = 'Nationality is required';
       // Passport photo is now optional, no validation needed
@@ -204,6 +210,7 @@ const AdminAdmissionForm = () => {
         firstName: formData.firstName,
         lastName: formData.lastName,
         dateOfBirth: formData.dateOfBirth,
+        phone: formData.phone,
         nationalIdOrPassport: formData.nationalIdOrPassport,
         nationality: formData.nationality,
         course: formData.course,
@@ -225,6 +232,7 @@ const AdminAdmissionForm = () => {
         firstName: '',
         lastName: '',
         dateOfBirth: '',
+        phone: '',
         nationalIdOrPassport: '',
         nationality: '',
         course: '',
@@ -341,6 +349,23 @@ const AdminAdmissionForm = () => {
               {errors.dateOfBirth && <span className="admin-admission-error-text">{errors.dateOfBirth}</span>}
             </div>
             <div className="admin-admission-group">
+              <label htmlFor="phone">Phone Number *</label>
+              <input
+                id="phone"
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange} 
+                placeholder="e.g. 07xx xxx xxx"
+                className={`admin-admission-input ${errors.phone ? 'admin-admission-error' : ''}`} 
+                required
+              />
+              {errors.phone && <span className="admin-admission-error-text">{errors.phone}</span>}
+            </div>
+          </div>
+
+          <div className="admin-admission-row">
+            <div className="admin-admission-group">
               <label htmlFor="nationality">Nationality *</label>
               <select 
                 id="nationality" 
@@ -361,9 +386,6 @@ const AdminAdmissionForm = () => {
               </select>
               {errors.nationality && <span className="admin-admission-error-text">{errors.nationality}</span>}
             </div>
-          </div>
-
-          <div className="admin-admission-row">
             <div className="admin-admission-group">
               <label htmlFor="nationalIdOrPassport">National ID / Passport *</label>
               <input 
@@ -378,6 +400,9 @@ const AdminAdmissionForm = () => {
               />
               {errors.nationalIdOrPassport && <span className="admin-admission-error-text">{errors.nationalIdOrPassport}</span>}
             </div>
+          </div>
+
+          <div className="admin-admission-row">
             <div className="admin-admission-group">
               <label htmlFor="passportFile">Passport Photo (JPEG/PNG, max 2MB) <span style={{ color: '#64748b', fontWeight: 'normal' }}>(Optional)</span></label>
               <div
@@ -401,6 +426,7 @@ const AdminAdmissionForm = () => {
                 )}
               </div>
             </div>
+            <div className="admin-admission-group"></div>
           </div>
 
           <div className="admin-admission-button-group">
@@ -537,6 +563,7 @@ const AdminAdmissionForm = () => {
             <div className="admin-admission-summary-grid">
               <div className="admin-admission-summary-item"><strong>Name:</strong> {formData.firstName} {formData.lastName}</div>
               <div className="admin-admission-summary-item"><strong>DOB:</strong> {formData.dateOfBirth}</div>
+              <div className="admin-admission-summary-item"><strong>Phone:</strong> {formData.phone}</div>
               <div className="admin-admission-summary-item"><strong>Nationality:</strong> {formData.nationality}</div>
               <div className="admin-admission-summary-item"><strong>ID/Passport:</strong> {formData.nationalIdOrPassport}</div>
               <div className="admin-admission-summary-item"><strong>Course:</strong> {formData.course}</div>
