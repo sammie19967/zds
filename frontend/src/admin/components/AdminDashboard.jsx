@@ -6,18 +6,20 @@ import {
   getMonthlyEnquiriesCount,
   getMonthlyApplicationsCount,
   getMonthlyPaymentsTotal,
+  getMonthlyExpensesTotal,
   getMonthlyFuelCost,
   listAdminAdmissions,
   fetchRecentSubmissions,
   getPaymentByStudent,
+  listFuelLogs,
+  listDateRangeExpenses,
 } from '../../utils/firebase';
 import modal from '../../utils/modal';
 import {
   ensureDailyReminders,
   getOpenRemindersForToday,
   markNotificationsDoneByType,
-  getLastShownKey,
-  setLastShownKey,
+  upsertNotification,
 } from '../../utils/notifications';
 
 import '../styles/AdminDashboard.css';
@@ -77,16 +79,13 @@ const AdminDashboard = () => {
   useEffect(() => {
     const showReminderModal = async () => {
       ensureDailyReminders();
-      const todayShown = getLastShownKey()?.lastShown;
-      const today = new Date().toISOString().slice(0, 10);
-      if (todayShown === today) return;
       const reminders = getOpenRemindersForToday();
       if (!reminders.length) return;
 
-      setLastShownKey();
       const hasFuel = reminders.some((r) => r.type === 'fuel_price');
       const hasExpenses = reminders.some((r) => r.type === 'expenses');
       const lines = reminders.map((r) => `<li>${r.message}</li>`).join('');
+      const today = new Date().toISOString().slice(0, 10);
 
       const result = await modal.fire({
         title: 'Admin Reminders',
@@ -96,15 +95,20 @@ const AdminDashboard = () => {
           <div style="font-size:12px;color:#64748b;">You can also view all reminders in the notification center.</div>
         </div>`,
         showCancelButton: true,
-        showDenyButton: true,
-        confirmButtonText: 'Record Fuel Price',
+        showDenyButton: hasFuel && hasExpenses,
+        confirmButtonText: hasFuel ? 'Record Fuel Price' : 'Record Expenses',
         denyButtonText: 'Record Expenses',
         cancelButtonText: 'Later',
       });
 
-      if (result.isConfirmed && hasFuel) {
-        markNotificationsDoneByType(['fuel_price'], today);
-        navigate('/admin/fuel');
+      if (result.isConfirmed) {
+        if (hasFuel) {
+          markNotificationsDoneByType(['fuel_price'], today);
+          navigate('/admin/fuel');
+        } else if (hasExpenses) {
+          markNotificationsDoneByType(['expenses'], today);
+          navigate('/admin/expenses');
+        }
       } else if (result.isDenied && hasExpenses) {
         markNotificationsDoneByType(['expenses'], today);
         navigate('/admin/expenses');
@@ -113,6 +117,104 @@ const AdminDashboard = () => {
 
     showReminderModal();
   }, [navigate]);
+
+  useEffect(() => {
+    const buildPeriodicNotifications = async () => {
+      const now = new Date();
+
+      const startOfWeek = (d) => {
+        const copy = new Date(d);
+        const day = (copy.getDay() + 6) % 7; // Monday = 0
+        copy.setDate(copy.getDate() - day);
+        copy.setHours(0, 0, 0, 0);
+        return copy;
+      };
+      const endOfWeek = (d) => {
+        const start = startOfWeek(d);
+        const end = new Date(start);
+        end.setDate(end.getDate() + 6);
+        end.setHours(23, 59, 59, 999);
+        return end;
+      };
+
+      const weekStart = startOfWeek(now);
+      const weekEnd = endOfWeek(now);
+      const weekKey = weekStart.toISOString().slice(0, 10);
+
+      try {
+        const logs = await listFuelLogs({ startMs: weekStart.getTime(), endMs: weekEnd.getTime(), take: 5000 });
+        const count = Array.isArray(logs) ? logs.length : 0;
+        const expected = 5;
+        if (count < expected) {
+          upsertNotification({
+            id: `weekly-fuel-${weekKey}`,
+            type: 'weekly_fuel_logs',
+            dateKey: weekKey,
+            title: 'Fuel Logs This Week',
+            message: `You have recorded fuel logs ${count} time${count === 1 ? '' : 's'} this week. Consider logging daily entries for accurate tracking.`,
+            ctaLabel: 'Open Fuel Log',
+            ctaRoute: '/admin/fuel',
+            status: 'open',
+            createdAt: new Date().toISOString(),
+          });
+        }
+      } catch (_) {
+        // Ignore periodic notification failures
+      }
+
+      try {
+        const yyyyMMdd = (d) => d.toISOString().slice(0, 10);
+        const expensesList = await listDateRangeExpenses({ startDate: yyyyMMdd(weekStart), endDate: yyyyMMdd(weekEnd), take: 5000 });
+        const count = Array.isArray(expensesList) ? expensesList.length : 0;
+        const expected = 3;
+        if (count < expected) {
+          upsertNotification({
+            id: `weekly-expenses-${weekKey}`,
+            type: 'weekly_expenses',
+            dateKey: weekKey,
+            title: 'Expenses Logged This Week',
+            message: `Only ${count} expense entr${count === 1 ? 'y' : 'ies'} logged this week. Keep expenses updated for accurate reporting.`,
+            ctaLabel: 'Open Expenses',
+            ctaRoute: '/admin/expenses',
+            status: 'open',
+            createdAt: new Date().toISOString(),
+          });
+        }
+      } catch (_) {
+        // Ignore periodic notification failures
+      }
+
+      try {
+        const today = new Date();
+        if (today.getDate() === 1) {
+          const prev = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+          const monthKey = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}`;
+          const [fees, expenses, fuel, enquiries, applications] = await Promise.all([
+            getMonthlyPaymentsTotal(monthKey),
+            getMonthlyExpensesTotal(monthKey),
+            getMonthlyFuelCost(monthKey),
+            getMonthlyEnquiriesCount(monthKey),
+            getMonthlyApplicationsCount(monthKey),
+          ]);
+          upsertNotification({
+            id: `monthly-summary-${monthKey}`,
+            type: 'monthly_summary',
+            dateKey: monthKey,
+            title: `Monthly Summary • ${monthKey}`,
+            message: `Fees: ${currency(fees)} | Expenses: ${currency(expenses)} | Fuel: ${currency(fuel)} | Enquiries: ${enquiries} | Applications: ${applications}`,
+            ctaLabel: 'View Reports',
+            ctaRoute: '/admin/reports',
+            status: 'open',
+            createdAt: new Date().toISOString(),
+          });
+        }
+      } catch (_) {
+        // Ignore periodic notification failures
+      }
+    };
+
+    buildPeriodicNotifications();
+  }, []);
 
   const cards = useMemo(() => ([
     { label: 'Total Students', value: stats.totalStudents, icon: <FaUsers />, tone: 'primary', to: '/admin/students' },

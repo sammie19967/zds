@@ -41,6 +41,26 @@ export const addNotification = (item) => {
   return next;
 };
 
+export const upsertNotification = (item) => {
+  const existing = getNotifications();
+  const idx = existing.findIndex((n) => n.id === item.id);
+  if (idx === -1) {
+    const next = [item, ...existing];
+    saveNotifications(next);
+    return next;
+  }
+  const prev = existing[idx];
+  const nextItem = {
+    ...prev,
+    ...item,
+    status: prev.status || item.status || 'open',
+    doneAt: prev.doneAt || item.doneAt || null,
+  };
+  const next = [...existing.slice(0, idx), nextItem, ...existing.slice(idx + 1)];
+  saveNotifications(next);
+  return next;
+};
+
 export const markNotificationDone = (id) => {
   const items = getNotifications();
   const next = items.map((n) => n.id === id ? { ...n, status: 'done', doneAt: new Date().toISOString() } : n);
