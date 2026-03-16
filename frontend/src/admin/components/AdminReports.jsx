@@ -269,7 +269,7 @@ export default function AdminReports() {
   const [yearsBack, setYearsBack] = useState(3);
   const [includeCategories, setIncludeCategories] = useState(false);
   const [onlyThisMonth, setOnlyThisMonth] = useState(false);
-  const [condensed, setCondensed] = useState(false);
+  const [showTable, setShowTable] = useState(false);
   const [startDate, setStartDate] = useState(() => {
     const date = new Date();
     date.setMonth(date.getMonth() - 1);
@@ -304,6 +304,34 @@ export default function AdminReports() {
     const maxValue = Math.max(1, ...Object.values(series).flat());
     return { series, maxValue };
   }, [displayedRows]);
+
+  const summaryText = useMemo(() => {
+    if (!displayedRows.length) {
+      return 'No data yet for the selected period.';
+    }
+
+    const fmtKsh = (n) => `KSh. ${numberFmt(n)}`;
+    const profit = displayTotals.fees - (displayTotals.expenses + displayTotals.fuel);
+    const baseSummary = `Total fees ${fmtKsh(displayTotals.fees)}, expenses ${fmtKsh(displayTotals.expenses)}, fuel ${fmtKsh(displayTotals.fuel)}, profit ${fmtKsh(profit)}.`;
+
+    if (period === PERIOD_OPTIONS.MONTHLY && displayedRows.length >= 2) {
+      const last = displayedRows[displayedRows.length - 1];
+      const prev = displayedRows[displayedRows.length - 2];
+      const pct = (curr, prevVal) => {
+        if (!prevVal) return null;
+        return ((curr - prevVal) / prevVal) * 100;
+      };
+      const feeDelta = pct(last.fees, prev.fees);
+      const expDelta = pct(last.expenses, prev.expenses);
+      const profitDelta = pct(last.profit, prev.profit);
+      const feeMsg = feeDelta === null ? 'Fees are starting from zero.' : `Fees are ${feeDelta >= 0 ? 'up' : 'down'} ${Math.abs(feeDelta).toFixed(1)}%.`;
+      const expMsg = expDelta === null ? 'Expenses are starting from zero.' : `Expenses are ${expDelta >= 0 ? 'up' : 'down'} ${Math.abs(expDelta).toFixed(1)}%.`;
+      const profitMsg = profitDelta === null ? 'Profit is starting from zero.' : `Profit is ${profitDelta >= 0 ? 'up' : 'down'} ${Math.abs(profitDelta).toFixed(1)}%.`;
+      return `${baseSummary} ${feeMsg} ${expMsg} ${profitMsg}`;
+    }
+
+    return baseSummary;
+  }, [displayTotals, displayedRows, period]);
 
   // Event handlers
   const handleExportCSV = useCallback(() => {
@@ -439,13 +467,6 @@ export default function AdminReports() {
         onChange={setIncludeCategories}
       />
 
-      <ToggleFilter
-        id="toggle-condensed"
-        label="Condensed Table"
-        checked={condensed}
-        onChange={setCondensed}
-      />
-
       {period === PERIOD_OPTIONS.MONTHLY && (
         <ToggleFilter
           id="toggle-this-month"
@@ -521,7 +542,7 @@ export default function AdminReports() {
   };
 
   const renderTable = () => (
-    <div className={`areports-table-wrap ${condensed ? 'areports-condensed' : ''}`}>
+    <div className="areports-table-wrap areports-table-print">
       <table className="areports-table">
         <thead>
           <tr>
@@ -557,6 +578,57 @@ export default function AdminReports() {
     </div>
   );
 
+  const renderPeriodCards = () => (
+    <div className="areports-periods">
+      {displayedRows.map((row) => (
+        <div key={row.key} className="areports-period-card">
+          <div className="areports-period-head">
+            <div className="areports-period-title">{row.label}</div>
+            <div className={`areports-period-profit ${row.profit >= 0 ? 'areports-profit' : 'areports-loss'}`}>
+              {numberFmt(row.profit)} KSh. profit
+            </div>
+          </div>
+          <div className="areports-period-primary">
+            <div className="areports-metric">
+              <div className="areports-metric-label">Fees</div>
+              <div className="areports-metric-value">{numberFmt(row.fees)} KSh.</div>
+            </div>
+            <div className="areports-metric">
+              <div className="areports-metric-label">Expenses</div>
+              <div className="areports-metric-value">{numberFmt(row.expenses)} KSh.</div>
+            </div>
+            <div className="areports-metric">
+              <div className="areports-metric-label">Fuel</div>
+              <div className="areports-metric-value">{numberFmt(row.fuel)} KSh.</div>
+            </div>
+          </div>
+          <div className="areports-period-secondary">
+            <div className="areports-chip">Enquiries: {row.enquiries}</div>
+            <div className="areports-chip">Applications: {row.applications}</div>
+            {includeCategories && (
+              <div className="areports-chip">
+                Expenses by category shown below
+              </div>
+            )}
+          </div>
+          {includeCategories && (
+            <div className="areports-category-grid">
+              {CATEGORIES.map((category) => (
+                <div key={category.key} className="areports-category">
+                  <div className="areports-category-label">{category.label}</div>
+                  <div className="areports-category-value">{numberFmt(row.categories?.[category.key] || 0)} KSh.</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+      {displayedRows.length === 0 && (
+        <div className="areports-empty-card">No data for the selected period.</div>
+      )}
+    </div>
+  );
+
   return (
     <div className="areports-container">
       <div className="areports-card">
@@ -585,6 +657,13 @@ export default function AdminReports() {
               disabled={loading}
             >
               Download PDF
+            </button>
+            <button
+              className="areports-btn areports-btn-secondary"
+              onClick={() => setShowTable(v => !v)}
+              disabled={loading}
+            >
+              {showTable ? 'Hide Table' : 'Show Table'}
             </button>
             <button 
               className="areports-btn" 
@@ -644,9 +723,14 @@ export default function AdminReports() {
         {/* Content */}
         {!loading && !error && (
           <>
+            <div className="areports-summary">
+              <div className="areports-summary-title">Summary</div>
+              <div className="areports-summary-text">{summaryText}</div>
+            </div>
             {renderStats()}
             {renderMiniCharts()}
-            {renderTable()}
+            {renderPeriodCards()}
+            {showTable && renderTable()}
           </>
         )}
       </div>
