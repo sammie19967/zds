@@ -1,4 +1,3 @@
-import React from "react";
 import "../styles/AboutZane.css";
 import carImage1 from "../assets/car1.png";
 import carImage2 from "../assets/car2.png";
@@ -10,9 +9,9 @@ const AboutZane = () => {
     <div className="about-zane-container">
       {/* Background Cars */}
       <div className="background-cars">
-        <img src={carImage1} alt="Car 1" className="car1" />
-        <img src={carImage2} alt="Car 2" className="car2" />
-        <img src={carImage3} alt="Car 3" className="car3" />
+        <img src={carImage1} alt="" className="car1" loading="lazy" decoding="async" />
+        <img src={carImage2} alt="" className="car2" loading="lazy" decoding="async" />
+        <img src={carImage3} alt="" className="car3" loading="lazy" decoding="async" />
       </div>
 
       {/* Content Section */}
@@ -28,7 +27,7 @@ const AboutZane = () => {
           </p>
         </div>
         <div className="about-zane-image">
-          <img src={logoImage} alt="About Zane" />
+          <img src={logoImage} alt="Zane Driving School logo" loading="lazy" decoding="async" />
         </div>
       </div>
     </div>

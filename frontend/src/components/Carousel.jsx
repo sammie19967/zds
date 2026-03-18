@@ -1,58 +1,55 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import '../styles/Carousel.css';
 
 import drivingCourseImage from '../assets/probox front.jpg';
 import computerCourseImage from '../assets/driving-course.png';
 import industryCertifiedImage from '../assets/industry.jpg';
 
+const slides = [
+  {
+    image: drivingCourseImage,
+    title: 'Driving Courses',
+    description: 'Learn to drive confidently with our certified instructors and practical training.',
+    bgColor: 'linear-gradient(135deg, #3498db, #2c3e50)',
+    textColor: '#ffffff'
+  },
+  {
+    image: computerCourseImage,
+    title: 'Computer Courses',
+    description: "Gain essential computer skills for today's digital world with our expert-led courses.",
+    bgColor: 'linear-gradient(135deg, #ff6b6b, #c0392b)',
+    textColor: '#ffffff'
+  },
+  {
+    image: industryCertifiedImage,
+    title: 'Industry Certified',
+    description: 'We provide the highest quality training for industry-recognized certifications.',
+    bgColor: 'linear-gradient(135deg, #2980b9, #1a237e)',
+    textColor: '#ffffff'
+  }
+];
+
 const Carousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  const slides = [
-    {
-      image: drivingCourseImage,
-      title: 'Driving Courses',
-      description: 'Learn to drive confidently with our certified instructors and practical training.',
-      bgColor: 'linear-gradient(135deg, #3498db, #2c3e50)',
-      textColor: '#ffffff'
-    },
-    {
-      image: computerCourseImage,
-      title: 'Computer Courses',
-      description: 'Gain essential computer skills for todays digital world with our expert-led courses.',
-      bgColor: 'linear-gradient(135deg, #ff6b6b, #c0392b)',
-      textColor: '#ffffff'
-    },
-    {
-      image: industryCertifiedImage,
-      title: 'Industry Certified',
-      description: 'We provide the highest quality training for industry-recognized certifications.',
-      bgColor: 'linear-gradient(135deg, #2980b9, #1a237e)',
-      textColor: '#ffffff'
-    }
-  ];
-
-  const buttonText = 'Join Now';
-
-  // Navigation functions
   const nextSlide = useCallback(() => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
-  }, [slides.length]);
+  }, []);
 
   const prevSlide = useCallback(() => {
-    setCurrentIndex((prevIndex) => 
+    setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? slides.length - 1 : prevIndex - 1
     );
-  }, [slides.length]);
+  }, []);
 
   const goToSlide = useCallback((index) => {
     setCurrentIndex(index);
   }, []);
 
-  // Auto-play functionality
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    if (!isAutoPlaying) return undefined;
 
     const interval = setInterval(() => {
       nextSlide();
@@ -61,7 +58,6 @@ const Carousel = () => {
     return () => clearInterval(interval);
   }, [nextSlide, isAutoPlaying]);
 
-  // Keyboard navigation
   useEffect(() => {
     const handleKeyPress = (e) => {
       if (e.key === 'ArrowLeft') {
@@ -77,12 +73,11 @@ const Carousel = () => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [nextSlide, prevSlide]);
 
-  // Handle mouse enter/leave for auto-play pause
   const handleMouseEnter = () => setIsAutoPlaying(false);
   const handleMouseLeave = () => setIsAutoPlaying(true);
 
   return (
-    <div 
+    <div
       className="carousel-container carousel-root"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -95,9 +90,7 @@ const Carousel = () => {
           <div
             key={index}
             className={`carousel-slide ${index === currentIndex ? 'active' : ''}`}
-            style={{ 
-              background: slide.bgColor
-            }}
+            style={{ background: slide.bgColor }}
           >
             <div className="slide-content">
               <div className="text-content">
@@ -107,16 +100,19 @@ const Carousel = () => {
                 <p className="slide-description" style={{ color: slide.textColor }}>
                   {slide.description}
                 </p>
-                <a href="/enroll" className="join-btn">
-                  {buttonText}
-                  <span className="btn-arrow" aria-hidden="true">➜</span>
-                </a>
+                <Link to="/enroll" className="join-btn">
+                  Join Now
+                  <span className="btn-arrow" aria-hidden="true">→</span>
+                </Link>
               </div>
               <div className="image-container">
                 <img
                   src={slide.image}
-                  alt={slide.title}
+                  alt={`${slide.title} at Zane Driving School`}
                   className="slide-image"
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={index === 0 ? 'high' : 'auto'}
+                  decoding="async"
                 />
               </div>
             </div>
@@ -124,7 +120,6 @@ const Carousel = () => {
         ))}
       </div>
 
-      {/* Navigation Buttons */}
       <button
         className="carousel-nav-button prev"
         onClick={() => {
@@ -135,7 +130,7 @@ const Carousel = () => {
       >
         &#8249;
       </button>
-      
+
       <button
         className="carousel-nav-button next"
         onClick={() => {
@@ -147,7 +142,6 @@ const Carousel = () => {
         &#8250;
       </button>
 
-      {/* Slide Indicators */}
       <div className="carousel-indicators">
         {slides.map((_, index) => (
           <button

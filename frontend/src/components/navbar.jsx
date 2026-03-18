@@ -2,16 +2,14 @@ import { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import '../styles/Navbar.css';
 import logo from '../assets/logo.png';
-// eslint-disable-next-line
+
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // Handle scroll detection for navbar styling
   useEffect(() => {
     const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 50);
+      setIsScrolled(window.scrollY > 50);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -22,20 +20,18 @@ const Navbar = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Close mobile menu when clicking on a link
   const handleLinkClick = () => setIsMenuOpen(false);
 
   return (
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
       <div className="navbar-container">
-        {/* Logo and Text */}
         <Link
           to="/"
           className="navbar-logo-container"
           onClick={handleLinkClick}
           aria-label="Go to home"
         >
-          <img src={logo} alt="Zane Driving School Logo" className="navbar-logo-img" />
+          <img src={logo} alt="Zane Driving School Logo" className="navbar-logo-img" decoding="async" />
           <span className="navbar-logo-text">Zane Driving School</span>
         </Link>
 
@@ -52,10 +48,9 @@ const Navbar = () => {
             Admission
           </NavLink>
 
-          {/* Courses Dropdown */}
           <div className="navbar-dropdown">
-            <NavLink 
-              to="/courses" 
+            <NavLink
+              to="/courses"
               onClick={handleLinkClick}
               className={({ isActive }) => `navbar-dropdown-link ${isActive ? 'active' : ''}`}
             >
@@ -77,8 +72,8 @@ const Navbar = () => {
           </NavLink>
         </div>
 
-        <button 
-          className={`menu-toggle ${isMenuOpen ? 'active' : ''}`} 
+        <button
+          className={`menu-toggle ${isMenuOpen ? 'active' : ''}`}
           onClick={toggleMenu}
           aria-label="Toggle navigation menu"
         >

@@ -70,8 +70,34 @@ const MainApp = () => {
         <Route path="/fees-structure" element={<FeesStructure />} />
         <Route path="/feesStructure" element={<Navigate to="/fees-structure" replace />} />
         <Route path="/verify-receipt/:studentId/:paymentId" element={<VerifyReceipt />} />
-        <Route path="/admin/login" element={<Login />} />
-        <Route path="/admin/signup" element={<Signup />} />
+        <Route
+          path="/admin/login"
+          element={
+            <>
+              <Seo
+                title="Admin Login"
+                description="Administrator sign-in for Zane Driving School."
+                path="/admin/login"
+                robots="noindex, nofollow"
+              />
+              <Login />
+            </>
+          }
+        />
+        <Route
+          path="/admin/signup"
+          element={
+            <>
+              <Seo
+                title="Admin Signup"
+                description="Administrator account creation for Zane Driving School."
+                path="/admin/signup"
+                robots="noindex, nofollow"
+              />
+              <Signup />
+            </>
+          }
+        />
         <Route path="/navbar" element={<Navbar />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

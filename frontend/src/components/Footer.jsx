@@ -7,7 +7,7 @@ const Footer = () => {
     <footer className="footer-container">
       <div className="footer-top">
         <div className="footer-section logo-section">
-          <img src={logo} alt="Zane Driving School Logo" className="footer-logo" />
+          <img src={logo} alt="Zane Driving School Logo" className="footer-logo" loading="lazy" decoding="async" />
           <p>
             At Zane Driving School and Computing, we aim to equip you with the skills and confidence you need to excel. Drive with us into the future!
           </p>
