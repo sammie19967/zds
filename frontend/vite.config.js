@@ -48,8 +48,43 @@ export default defineConfig({
     rollupOptions: {
       external: ['fs'],
       output: {
-        manualChunks: {
-          pdfmake: ['pdfmake/build/pdfmake', 'pdfmake/build/vfs_fonts']
+        manualChunks(id) {
+          if (id.includes('pdfmake/build/pdfmake') || id.includes('pdfmake/build/vfs_fonts')) {
+            return 'pdfmake';
+          }
+
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('scheduler')) {
+              return 'react-vendor';
+            }
+
+            if (id.includes('react-router')) {
+              return 'router-vendor';
+            }
+
+            if (id.includes('firebase')) {
+              return 'firebase-vendor';
+            }
+
+            if (id.includes('sweetalert2')) {
+              return 'modal-vendor';
+            }
+
+            if (
+              id.includes('lucide-react') ||
+              id.includes('react-icons') ||
+              id.includes('framer-motion')
+            ) {
+              return 'ui-vendor';
+            }
+
+            if (
+              id.includes('@vercel') ||
+              id.includes('prop-types')
+            ) {
+              return 'utility-vendor';
+            }
+          }
         }
       }
     }

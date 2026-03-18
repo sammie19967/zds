@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import '../styles/Carousel.css';
 
 import drivingCourseImage from '../assets/probox front.jpg';
-import computerCourseImage from '../assets/driving-course.png';
+import computerCourseImage from '../assets/computer.png';
 import industryCertifiedImage from '../assets/industry.jpg';
 
 const slides = [

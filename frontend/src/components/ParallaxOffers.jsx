@@ -5,7 +5,7 @@ import "../styles/ParallaxOffers.css";
 import newStudentImage from "../assets/newstudent.jpeg";
 import refresherImage from "../assets/probox back.jpg";
 import endorsementImage from "../assets/endorsement.jpeg";
-import computerImage from "../assets/computer.jpg";
+import computerImage from "../assets/computer.png";
 
 const ParallaxOffers = () => {
   const offers = [
