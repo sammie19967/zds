@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getPaymentByStudent } from '../utils/firebase';
+import Seo from '../components/Seo';
 
 const currency = (n) => `KSh ${Number(n || 0).toLocaleString()}`;
 
@@ -42,6 +43,12 @@ export default function VerifyReceipt() {
 
   return (
     <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
+      <Seo
+        title="Receipt Verification"
+        description="Verify a payment receipt issued by Zane Driving School."
+        path={`/verify-receipt/${studentId}/${paymentId}`}
+        robots="noindex, nofollow"
+      />
       <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 8 }}>Receipt Verification</h1>
       <div style={{ color: '#475569', marginBottom: 16 }}>Zane Driving School</div>
       <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 16 }}>

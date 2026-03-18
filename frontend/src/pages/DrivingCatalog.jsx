@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import modal from "../utils/modal";
 import ScrollToTop from "../components/ScrollToTop";
+import Seo from "../components/Seo";
 
 import "../styles/DrivingCatalog.css";
 
@@ -21,7 +22,7 @@ const vehicles = [
   { id: 6, name: "Bus", class: "Class D2", cost: "Coming Soon", image: busImage, requirement: "ID and DL", bgColor: "#c5cae9" },
 ];
 
-const Catalogue = () => {
+const Catalogue = ({ enableSeo = true }) => {
   const navigate = useNavigate();
 
   const handleClick = async () => {
@@ -47,6 +48,13 @@ const Catalogue = () => {
 
   return (
     <>
+      {enableSeo && (
+        <Seo
+          title="Driving Courses"
+          description="View driving course options at Zane Driving School, including motorbike, saloon car, PSV, and truck training with current fee guidance."
+          path="/driving"
+        />
+      )}
       <ScrollToTop />
       <div className="catalogue-container">
       <div className="catalog-header">

@@ -3,8 +3,9 @@ import "../styles/ComputingCatalog.css";
 import { useNavigate } from "react-router-dom";
 import modal from "../utils/modal";
 import ScrollToTop from "../components/ScrollToTop";
+import Seo from "../components/Seo";
 
-const ComputingCatalog = () => {
+const ComputingCatalog = ({ enableSeo = true }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("beginner");
   
@@ -133,6 +134,13 @@ const ComputingCatalog = () => {
 
   return (
     <>
+      {enableSeo && (
+        <Seo
+          title="Computing Courses"
+          description="Explore beginner and intermediate computing courses at Zane Driving School, including Word, Excel, programming, databases, and web development."
+          path="/computing"
+        />
+      )}
       <ScrollToTop />
     <div className="computing-catalog">
       {/* Header */}

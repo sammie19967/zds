@@ -3,6 +3,7 @@ import "../styles/FeesStructure.css";
 import { FaDownload, FaQuestionCircle, FaChevronDown, FaInfoCircle, FaMoneyBillWave, FaPercent, FaClock } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import modal from "../utils/modal";
+import Seo from "../components/Seo";
 
 // Import pdfmake with a dynamic import to handle both CJS and ESM
 let pdfMake;
@@ -267,6 +268,11 @@ const FeesStructure = () => {
 
   return (
     <div className="zane-fees-container">
+      <Seo
+        title="Fees Structure"
+        description="Check current driving and computer course fees at Zane Driving School, including class categories, durations, payment terms, and FAQs."
+        path="/feesStructure"
+      />
       <div className="zane-fees-hero">
         <div className="zane-hero-content">
           <h1>Transparent Pricing</h1>

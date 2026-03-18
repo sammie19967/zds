@@ -4,6 +4,7 @@ import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaClock, FaQuoteLeft, FaPaperPl
 import { FaTiktok } from 'react-icons/fa6';
 import { submitContactMessage } from '../utils/firebase';
 import CampusLocations from '../components/CampusLocations';
+import Seo from '../components/Seo';
 import '../styles/ContactUs.css';
 
 const ContactUs = () => {
@@ -79,6 +80,11 @@ const ContactUs = () => {
 
   return (
     <div className="contact-page">
+      <Seo
+        title="Contact Us"
+        description="Contact Zane Driving School in Nakuru for driving lessons, computer classes, enrollment help, fees, and campus location details."
+        path="/contact-us"
+      />
       {/* Header Section */}
       <div className="contact-hero">
         <div className="hero-content">

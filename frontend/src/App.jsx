@@ -34,6 +34,7 @@ import AdminReports from './admin/components/AdminReports';
 import AdminNotifications from './admin/components/AdminNotifications';
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { Analytics } from "@vercel/analytics/react"
+import Seo from './components/Seo';
 
 const MainApp = () => {
   const location = useLocation();
@@ -53,7 +54,19 @@ const MainApp = () => {
         <Route path="/enroll" element={<Enroll />} />
         <Route path="/computing" element={<ComputingCatalog />} />
         <Route path="/driving" element={<DrivingCatalog />} />
-        <Route path="/admission-form" element={<AdmissionForm />} />
+        <Route
+          path="/admission-form"
+          element={
+            <>
+              <Seo
+                title="Admission Form"
+                description="Complete the Zane Driving School admission form to register for driving or computer training."
+                path="/admission-form"
+              />
+              <AdmissionForm />
+            </>
+          }
+        />
         <Route path="/feesStructure" element={<FeesStructure />} />
         <Route path="/verify-receipt/:studentId/:paymentId" element={<VerifyReceipt />} />
         <Route path="/admin/login" element={<Login />} />
