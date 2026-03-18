@@ -67,7 +67,8 @@ const MainApp = () => {
             </>
           }
         />
-        <Route path="/feesStructure" element={<FeesStructure />} />
+        <Route path="/fees-structure" element={<FeesStructure />} />
+        <Route path="/feesStructure" element={<Navigate to="/fees-structure" replace />} />
         <Route path="/verify-receipt/:studentId/:paymentId" element={<VerifyReceipt />} />
         <Route path="/admin/login" element={<Login />} />
         <Route path="/admin/signup" element={<Signup />} />

@@ -1,4 +1,3 @@
-import React from 'react'
 import TeamGalleryComponent from '../components/TeamGallery'
 import Seo from '../components/Seo'
 

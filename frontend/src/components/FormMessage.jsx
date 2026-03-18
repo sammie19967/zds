@@ -42,7 +42,7 @@ const FormMessage = () => {
               <FaEye />
               View Fees Structure
             </button>
-            <button className="fees-btn download-btn" onClick={() => navigate('/feesStructure')}>
+            <button className="fees-btn download-btn" onClick={() => navigate('/fees-structure')}>
               <FaDownload />
               Download Fees Structure
             </button>

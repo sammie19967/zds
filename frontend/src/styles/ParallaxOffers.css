@@ -145,6 +145,8 @@
   box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
   min-width: 140px;
   letter-spacing: 0.5px;
+  text-decoration: none;
+  justify-content: center;
 }
 
 .join-us-button:hover {
@@ -166,6 +168,10 @@
   backdrop-filter: blur(10px);
   min-width: 140px;
   letter-spacing: 0.5px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .learn-more-button:hover {

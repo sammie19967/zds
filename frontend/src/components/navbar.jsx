@@ -64,7 +64,7 @@ const Navbar = () => {
             <div className="navbar-dropdown-content">
               <Link to="/computing" onClick={handleLinkClick}>Computing</Link>
               <Link to="/driving" onClick={handleLinkClick}>Driving Courses</Link>
-              <Link to="/feesStructure" onClick={handleLinkClick}>Fees Structure</Link>
+              <Link to="/fees-structure" onClick={handleLinkClick}>Fees Structure</Link>
             </div>
           </div>
 

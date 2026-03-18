@@ -1,19 +1,8 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "../styles/CatalogMessage.css";
 import { FaCar, FaLaptopCode, FaChevronRight } from "react-icons/fa";
 
 const CatalogMessage = () => {
-  const [activeCategory, setActiveCategory] = useState(null);
-
-  const navigate = useNavigate();
-
-  const handleCategorySelect = (category) => {
-    setActiveCategory(category);
-    // Navigate to the corresponding route
-    navigate(`/${category}`);
-  };
-
   return (
     <div className="catalog-container">
       <div className="content">
@@ -24,7 +13,7 @@ const CatalogMessage = () => {
               <FaLaptopCode className="icon computing-icon" />
             </div>
           </div>
-          <h2>Welcome to Zane Driving School's Course Catalog</h2>
+          <h2>Welcome to Zane Driving School&apos;s Course Catalog</h2>
           <p>
             Discover our comprehensive range of courses designed to enhance your skills. 
             Select a category below to explore our offerings in detail.
@@ -38,13 +27,10 @@ const CatalogMessage = () => {
             </div>
             <h3>Driving Courses</h3>
             <p>Professional driving lessons for all license categories</p>
-            <button 
-              className={`category-button driving-btn ${activeCategory === 'driving' ? 'active' : ''}`}
-              onClick={() => handleCategorySelect('driving')}
-            >
+            <Link className="category-button driving-btn" to="/driving">
               Explore Driving Courses
               <FaChevronRight className="button-arrow" />
-            </button>
+            </Link>
           </div>
 
           <div className="category-card computing-card">
@@ -53,13 +39,10 @@ const CatalogMessage = () => {
             </div>
             <h3>Computing Courses</h3>
             <p>Essential computer skills for the digital world</p>
-            <button 
-              className={`category-button computing-btn ${activeCategory === 'computing' ? 'active' : ''}`}
-              onClick={() => handleCategorySelect('computing')}
-            >
+            <Link className="category-button computing-btn" to="/computing">
               Explore Computing Courses
               <FaChevronRight className="button-arrow" />
-            </button>
+            </Link>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import  { useEffect, useState, useRef } from "react";
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import "../styles/ParallaxOffers.css";
 
 import newStudentImage from "../assets/newstudent.jpeg";
@@ -41,9 +41,8 @@ const ParallaxOffers = () => {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRefs = useRef([]);
-  const navigate = useNavigate();
-
   useEffect(() => {
+    const nodes = containerRefs.current;
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -58,10 +57,10 @@ const ParallaxOffers = () => {
       { threshold: 0.6 }
     );
 
-    containerRefs.current.forEach((ref) => ref && observer.observe(ref));
+    nodes.forEach((ref) => ref && observer.observe(ref));
 
     return () => {
-      containerRefs.current.forEach((ref) => ref && observer.unobserve(ref));
+      nodes.forEach((ref) => ref && observer.unobserve(ref));
     };
   }, []);
 
@@ -88,18 +87,12 @@ const ParallaxOffers = () => {
               </div>
               <p className="offer-description">{offer.description}</p>
               <div className="offer-buttons">
-                <button 
-                  className="join-us-button"
-                  onClick={() => navigate('/enroll')}
-                >
+                <Link className="join-us-button" to="/enroll">
                   Join Now
-                </button>
-                <button 
-                  className="learn-more-button"
-                  onClick={() => navigate('/courses')}
-                >
+                </Link>
+                <Link className="learn-more-button" to="/courses">
                   View Courses
-                </button>
+                </Link>
               </div>
             </div>
 

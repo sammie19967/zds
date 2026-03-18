@@ -195,6 +195,10 @@
   box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
   align-self: flex-start;
   letter-spacing: 0.5px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .visit-campus-btn:hover {

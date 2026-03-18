@@ -271,7 +271,7 @@ const FeesStructure = () => {
       <Seo
         title="Fees Structure"
         description="Check current driving and computer course fees at Zane Driving School, including class categories, durations, payment terms, and FAQs."
-        path="/feesStructure"
+        path="/fees-structure"
       />
       <div className="zane-fees-hero">
         <div className="zane-hero-content">

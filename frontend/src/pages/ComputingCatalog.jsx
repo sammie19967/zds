@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import "../styles/ComputingCatalog.css";
 import { useNavigate } from "react-router-dom";
 import modal from "../utils/modal";
@@ -236,6 +237,10 @@ const ComputingCatalog = ({ enableSeo = true }) => {
     </div>
     </>
   );
+};
+
+ComputingCatalog.propTypes = {
+  enableSeo: PropTypes.bool
 };
 
 export default ComputingCatalog;

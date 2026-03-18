@@ -1,4 +1,5 @@
-import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import modal from "../utils/modal";
 import ScrollToTop from "../components/ScrollToTop";
@@ -107,11 +108,15 @@ const Catalogue = ({ enableSeo = true }) => {
       </div>
 
       <div className="catalog-footer">
-        <p>Not sure which vehicle is right for you? <span className="contact-link href='/contact-us'">Contact us for guidance</span></p>
+        <p>Not sure which vehicle is right for you? <Link to="/contact-us" className="contact-link">Contact us for guidance</Link></p>
       </div>
     </div>
     </>
   );
+};
+
+Catalogue.propTypes = {
+  enableSeo: PropTypes.bool
 };
 
 export default Catalogue;
