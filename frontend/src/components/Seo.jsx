@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const SITE_NAME = 'Zane Driving School';
-const SITE_URL = 'https://zanedriving.co.ke';
+const SITE_URL = 'https://zanedrivingschool.co.ke';
 const DEFAULT_IMAGE = `${SITE_URL}/logo.png`;
 
 const setMetaTag = (selector, attributes) => {
