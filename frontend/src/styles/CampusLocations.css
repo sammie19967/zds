@@ -21,13 +21,9 @@
 .campus-header h2 {
   font-family: 'Poppins', sans-serif;
   font-size: clamp(1.8rem, 5vw, 2.8rem);
-  font-weight: 800;
-  color: #2c3e50;
+  font-weight: 900;
+  color: #111;
   margin-bottom: 1rem;
-  background: linear-gradient(135deg, #3498db, #2c3e50);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   letter-spacing: -0.02em;
 }
 
@@ -112,6 +108,7 @@
 }
 
 .campus-info-card {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1.2fr;
   gap: 3rem;
@@ -142,18 +139,19 @@
 
 .campus-address {
   font-family: 'Inter', sans-serif;
-  font-size: clamp(1rem, 2.5vw, 1.2rem);
-  color: #7f8c8d;
-  margin-bottom: 1.5rem;
-  font-weight: 500;
+  font-size: clamp(1rem, 2.5vw, 1.15rem);
+  color: #111;
+  margin-bottom: 0.9rem;
+  font-weight: 800;
 }
 
 .campus-description {
   font-family: 'Inter', sans-serif;
-  font-size: clamp(1rem, 2.5vw, 1.1rem);
-  color: #34495e;
+  font-size: clamp(1rem, 2.4vw, 1.04rem);
+  color: #222;
   line-height: 1.7;
-  margin-bottom: 2rem;
+  margin-bottom: 1.4rem;
+  font-weight: 500;
 }
 
 .campus-contact-info {
@@ -183,27 +181,44 @@
 
 .visit-campus-btn {
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #3498db, #2c3e50);
-  color: white;
-  border: none;
-  padding: 14px 32px;
-  border-radius: 50px;
-  font-weight: 600;
-  font-size: clamp(0.9rem, 2vw, 1.1rem);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
-  align-self: flex-start;
-  letter-spacing: 0.5px;
-  text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.55rem;
+  width: auto;
+  max-width: fit-content;
+  min-width: 0;
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(135deg, #1769aa, #2c3e50);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: clamp(0.95rem, 2vw, 1.06rem);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 18px 30px rgba(23, 105, 170, 0.2);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+  align-self: flex-start;
+  backface-visibility: hidden;
+}
+
+.visit-campus-btn::after {
+  content: '→';
+  display: inline-block;
+  transition: transform 0.2s ease;
 }
 
 .visit-campus-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 25px rgba(52, 152, 219, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 42px rgba(23, 105, 170, 0.28);
+  background: linear-gradient(135deg, #0f2a44, #1b3b5e);
+}
+
+.visit-campus-btn:hover::after {
+  transform: translateX(4px);
 }
 
 /* Map Container */
@@ -239,11 +254,14 @@
     padding: 6px;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 8px;
   }
 
   .campus-menu-item {
-    padding: 10px 20px;
-    min-width: auto;
+    padding: 10px 18px;
+    min-width: 120px;
+    flex: 1 1 auto;
+    white-space: nowrap;
   }
 }
 
@@ -263,13 +281,18 @@
 
   .campus-menu {
     flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
     background: rgba(255, 255, 255, 0.05);
     padding: 4px;
+    gap: 8px;
   }
 
   .campus-menu-item {
-    padding: 8px 16px;
+    padding: 8px 14px;
     font-size: clamp(0.8rem, 2.2vw, 0.95rem);
+    min-width: 110px;
+    flex: 1 1 auto;
   }
 
   .campus-map-container {
@@ -281,8 +304,9 @@
   }
 
   .visit-campus-btn {
-    width: 100%;
-    text-align: center;
+    width: auto;
+    max-width: fit-content;
+    padding: 12px 22px;
   }
 }
 
@@ -292,16 +316,22 @@
   }
 
   .campus-menu {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
+    justify-content: center;
     border-radius: 16px;
     padding: 8px;
+    gap: 8px;
   }
 
   .campus-menu-item {
-    width: 100%;
+    width: auto;
+    flex: 1 1 110px;
+    max-width: 160px;
     text-align: center;
     border-radius: 12px;
+    padding: 8px 12px;
   }
 
   .campus-map-container {
@@ -314,6 +344,12 @@
 
   .campus-description {
     font-size: clamp(0.9rem, 2.5vw, 1rem);
+  }
+
+  .visit-campus-btn {
+    width: auto;
+    max-width: fit-content;
+    padding: 10px 18px;
   }
 }
 

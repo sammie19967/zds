@@ -2,27 +2,23 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/Carousel.css';
 
-import drivingCourseImage from '../assets/probox front.jpg';
-import computerCourseImage from '../assets/computer.png';
-import industryCertifiedImage from '../assets/industry.jpg';
-
 const slides = [
   {
-    image: drivingCourseImage,
+    image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&h=800&fit=crop',
     title: 'Driving Courses',
     description: 'Learn to drive confidently with our certified instructors and practical training.',
     bgColor: 'linear-gradient(135deg, #3498db, #2c3e50)',
     textColor: '#ffffff'
   },
   {
-    image: computerCourseImage,
+    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&h=800&fit=crop',
     title: 'Computer Courses',
     description: "Gain essential computer skills for today's digital world with our expert-led courses.",
     bgColor: 'linear-gradient(135deg, #ff6b6b, #c0392b)',
     textColor: '#ffffff'
   },
   {
-    image: industryCertifiedImage,
+    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&h=800&fit=crop',
     title: 'Industry Certified',
     description: 'We provide the highest quality training for industry-recognized certifications.',
     bgColor: 'linear-gradient(135deg, #2980b9, #1a237e)',

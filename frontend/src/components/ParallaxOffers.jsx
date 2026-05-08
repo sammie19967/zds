@@ -4,37 +4,37 @@ import "../styles/ParallaxOffers.css";
 
 import newStudentImage from "../assets/newstudent.jpeg";
 import refresherImage from "../assets/probox back.jpg";
-import endorsementImage from "../assets/endorsement.jpeg";
-import computerImage from "../assets/computer.png";
+// import endorsementImage from "../assets/endorsement.jpeg";
+// import computerImage from "../assets/computer.png";
 
 const ParallaxOffers = () => {
   const offers = [
     {
       title: "New Student Offer",
       price: "Ksh. 15,000",
-      description: "Join as a new student and receive professional driving lessons at an unbeatable price and highly qualified trainers, Get Free Computer Training.",
+      description: "Join as a new student and receive professional driving lessons at an unbeatable price and highly qualified trainers.",
       image: newStudentImage,
       bgGradient: "linear-gradient(135deg, #3498db, #2c3e50)",
     },
     {
       title: "Refresher Course",
       price: "Ksh. 9,000 ",
-      description: "Enhance your driving skills and confidence with a specially designed refresher course.",
+      description: "Know how to drive but no license? Or have a license but it's been years since you hit the road? We've got you covered with our refresher course at just Ksh 500 daily.",
       image: refresherImage,
       bgGradient: "linear-gradient(135deg, #ff6b6b, #c0392b)",
     },
     {
       title: "Endorsement Training",
       price: "Ksh 9,000 ",
-      description: "Boost your qualifications with specialized endorsement training tailored for professionals.",
-      image: endorsementImage,
+      description: "Upgrade your driving license with additional vehicle classes. Add C1, D1, D2, and more to expand your professional driving capabilities and career opportunities.",
+      image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&h=800&fit=crop",
       bgGradient: "linear-gradient(135deg, #2980b9, #1a237e)",
     },
     {
       title: "Computer Packages",
       price: "Ksh. 3,000",
       description: "Learn essential computer skills to thrive in today's digital world with affordable courses.",
-      image: computerImage,
+      image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&h=800&fit=crop",
       bgGradient: "linear-gradient(135deg, #9b59b6, #8e44ad)",
     },
   ];

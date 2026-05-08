@@ -1,0 +1,140 @@
+.student-testimonials {
+  width: 100%;
+  margin: 3rem auto 2.5rem;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+.student-testimonials__inner {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.student-testimonials__header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.student-testimonials__header h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 900;
+  color: #111;
+  margin: 0 0 0.75rem 0;
+}
+
+.student-testimonials__header p {
+  font-family: 'Inter', sans-serif;
+  color: #333;
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  line-height: 1.6;
+  margin: 0 auto;
+  max-width: 720px;
+}
+
+.student-testimonials__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.testimonial-card {
+  background: #fff;
+  border: 3px solid #111;
+  border-radius: 18px;
+  padding: 1.25rem 1.25rem 1.1rem;
+  box-shadow: 0 12px 0 rgba(0, 0, 0, 0.06);
+}
+
+.testimonial-card__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 0.85rem;
+}
+
+.testimonial-card__rating {
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  color: #111;
+  letter-spacing: 1px;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.testimonial-card__rating--empty {
+  opacity: 0.25;
+  margin-left: 0.25rem;
+  letter-spacing: 0;
+}
+
+.testimonial-card__meta {
+  text-align: right;
+}
+
+.testimonial-card__name {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 900;
+  font-size: 1.05rem;
+  color: #111;
+  margin-bottom: 0.15rem;
+}
+
+.testimonial-card__course {
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.testimonial-card__quote {
+  font-family: 'Inter', sans-serif;
+  color: #222;
+  font-size: 1rem;
+  line-height: 1.7;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .student-testimonials {
+    margin-top: 2.5rem;
+  }
+  .student-testimonials__grid {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+  .testimonial-card {
+    padding: 1.15rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .student-testimonials {
+    padding: 0 0.85rem;
+  }
+
+  .testimonial-card {
+    border-width: 2px;
+    border-radius: 14px;
+    box-shadow: 0 10px 0 rgba(0, 0, 0, 0.06);
+    padding: 1rem;
+  }
+
+  .testimonial-card__top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .testimonial-card__meta {
+    text-align: left;
+    width: 100%;
+  }
+
+  .testimonial-card__quote {
+    font-size: 0.96rem;
+  }
+}

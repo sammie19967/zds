@@ -58,19 +58,6 @@ const MainApp = () => {
           <Route path="/enroll" element={<Enroll />} />
           <Route path="/computing" element={<ComputingCatalog />} />
           <Route path="/driving" element={<DrivingCatalog />} />
-          <Route
-            path="/admission-form"
-            element={
-              <>
-                <Seo
-                  title="Admission Form"
-                  description="Complete the Zane Driving School admission form to register for driving or computer training."
-                  path="/admission-form"
-                />
-                <AdmissionForm />
-              </>
-            }
-          />
           <Route path="/fees-structure" element={<FeesStructure />} />
           <Route path="/feesStructure" element={<Navigate to="/fees-structure" replace />} />
           <Route path="/verify-receipt/:studentId/:paymentId" element={<VerifyReceipt />} />
