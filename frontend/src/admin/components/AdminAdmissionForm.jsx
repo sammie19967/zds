@@ -24,6 +24,8 @@ const AdminAdmissionForm = () => {
     endorsementClass: '',
     drivingClass: '', // For New Student/Refresher, defaults to B1/B2
     computingLevel: '', // Beginner | Intermediate
+    discountType: '', // percentage | fixed
+    discountValue: '',
     passportFile: null,
   });
   const [errors, setErrors] = useState({});
@@ -154,6 +156,8 @@ const AdminAdmissionForm = () => {
       if (formData.course === 'Computing' && !formData.computingLevel) {
         newErrors.computingLevel = 'Experience level is required';
       }
+      if (formData.discountType && (!formData.discountValue || Number(formData.discountValue) <= 0)) newErrors.discountValue = 'Enter a discount greater than zero';
+      if (formData.discountType === 'percentage' && Number(formData.discountValue) > 100) newErrors.discountValue = 'Percentage discount cannot exceed 100%';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -218,6 +222,8 @@ const AdminAdmissionForm = () => {
         endorsementClass: formData.endorsementClass,
         drivingClass: formData.drivingType === 'Endorsement' ? '' : (formData.drivingClass || 'B1/B2'),
         computingLevel: formData.computingLevel,
+        discountType: formData.discountType || '',
+        discountValue: formData.discountType ? Number(formData.discountValue) : 0,
         passportUrl,
       };
 
@@ -240,6 +246,8 @@ const AdminAdmissionForm = () => {
         endorsementClass: '',
         drivingClass: '',
         computingLevel: '',
+        discountType: '',
+        discountValue: '',
         passportFile: null,
       });
       if (passportPreview) {
@@ -543,6 +551,22 @@ const AdminAdmissionForm = () => {
             </>
           )}
 
+          <div className="admin-admission-row">
+            <div className="admin-admission-group">
+              <label htmlFor="discountType">Student Discount <span style={{ color: '#64748b', fontWeight: 'normal' }}>(optional, set at registration only)</span></label>
+              <select id="discountType" name="discountType" value={formData.discountType} onChange={handleChange} className="admin-admission-select">
+                <option value="">No discount</option>
+                <option value="percentage">Percentage (%)</option>
+                <option value="fixed">Fixed amount (KSh)</option>
+              </select>
+            </div>
+            {formData.discountType && <div className="admin-admission-group">
+              <label htmlFor="discountValue">Discount value * {formData.discountType === 'percentage' ? '(%)' : '(KSh)'}</label>
+              <input id="discountValue" type="number" min="0" max={formData.discountType === 'percentage' ? '100' : undefined} step="0.01" name="discountValue" value={formData.discountValue} onChange={handleChange} placeholder={formData.discountType === 'percentage' ? 'e.g. 10' : 'e.g. 1,000'} className={`admin-admission-input ${errors.discountValue ? 'admin-admission-error' : ''}`} />
+              {errors.discountValue && <span className="admin-admission-error-text">{errors.discountValue}</span>}
+            </div>}
+          </div>
+
           <div className="admin-admission-button-group">
             <motion.button className="admin-admission-button admin-admission-button-secondary" onClick={prevStep} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               Back
@@ -581,6 +605,7 @@ const AdminAdmissionForm = () => {
               {formData.course === 'Computing' && (
                 <div className="admin-admission-summary-item"><strong>Experience Level:</strong> {formData.computingLevel}</div>
               )}
+              <div className="admin-admission-summary-item"><strong>Discount:</strong> {formData.discountType === 'percentage' ? `${formData.discountValue}%` : formData.discountType === 'fixed' ? `KSh ${Number(formData.discountValue || 0).toLocaleString()}` : 'None'}</div>
             </div>
           </div>
 

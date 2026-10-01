@@ -11,6 +11,7 @@ import {
 } from '../../utils/firebase';
 
 import '../styles/AdminFees.css';
+import { getDiscountedCourseFee, getStudentDiscount, formatStudentDiscount } from '../../utils/discount';
 import AdminPaymentHistory from './AdminPaymentHistory';
 
 const currency = (n) => `KSh ${Number(n || 0).toLocaleString()}`;
@@ -285,8 +286,10 @@ const AdminFees = () => {
               const level = s.computingLevel || 'Beginner';
               baseFee = Number((computing || {})[level] || 0);
             }
-            const balance = Math.max(0, Number(baseFee) - Number(paymentsTotal || 0));
-            return { ...s, paymentsTotal, baseFee, balance };
+            const discountedFee = getDiscountedCourseFee(s, baseFee);
+            const discountAmount = getStudentDiscount(s, baseFee);
+            const balance = Math.max(0, discountedFee - Number(paymentsTotal || 0));
+            return { ...s, paymentsTotal, baseFee, discountedFee, discountAmount, balance };
           })
         );
         if (mounted) setStudents(withTotals);
@@ -368,9 +371,10 @@ const AdminFees = () => {
       // Build receipt data before state resets
       const paidAtIso = new Date().toISOString();
       const baseFee = displayBaseFee;
+      const discountedFee = getDiscountedCourseFee(selectedStudent, baseFee);
       const paidBefore = Number(selectedStudent.paymentsTotal || 0);
-      const balanceBefore = Math.max(0, baseFee - paidBefore);
-      const balanceAfter = Math.max(0, baseFee - (paidBefore + amt));
+      const balanceBefore = Math.max(0, discountedFee - paidBefore);
+      const balanceAfter = Math.max(0, discountedFee - (paidBefore + amt));
 
       const paymentId = await addStudentPayment(selectedStudentId, {
         amount: amt,
@@ -424,7 +428,7 @@ const AdminFees = () => {
             verificationUrl,
           },
           totals: {
-            totalFeeFmt: currency(baseFee),
+            totalFeeFmt: currency(discountedFee),
             paidBeforeFmt: currency(paidBefore),
             balanceBeforeFmt: currency(balanceBefore),
             balanceAfterFmt: currency(balanceAfter),
@@ -901,16 +905,18 @@ const AdminFees = () => {
                       <span className="admin-fees-selected-student-detail-value">{selectedStudent.course || '-'}</span>
                     </div>
                     <div className="admin-fees-selected-student-detail">
-                      <span className="admin-fees-selected-student-detail-label">Total Fees</span>
+                      <span className="admin-fees-selected-student-detail-label">Course Fee</span>
                       <span className="admin-fees-selected-student-detail-value">KSh {selectedStudent.baseFee?.toLocaleString()}</span>
                     </div>
+                    <div className="admin-fees-selected-student-detail"><span className="admin-fees-selected-student-detail-label">Discount ({formatStudentDiscount(selectedStudent)})</span><span className="admin-fees-selected-student-detail-value">− KSh {selectedStudent.discountAmount?.toLocaleString()}</span></div>
+                    <div className="admin-fees-selected-student-detail"><span className="admin-fees-selected-student-detail-label">Amount Owed</span><span className="admin-fees-selected-student-detail-value">KSh {selectedStudent.discountedFee?.toLocaleString()}</span></div>
                     <div className="admin-fees-selected-student-detail">
                       <span className="admin-fees-selected-student-detail-label">Paid Amount</span>
                       <span className="admin-fees-selected-student-detail-value">KSh {selectedStudent.paymentsTotal?.toLocaleString()}</span>
                     </div>
                     <div className="admin-fees-selected-student-detail">
                       <span className="admin-fees-selected-student-detail-label">Balance</span>
-                      <span className="admin-fees-selected-student-detail-value">KSh {(selectedStudent.baseFee - selectedStudent.paymentsTotal)?.toLocaleString()}</span>
+                      <span className="admin-fees-selected-student-detail-value">KSh {selectedStudent.balance?.toLocaleString()}</span>
                     </div>
                   </div>
                   <p className="admin-fees-selected-student-note">
@@ -933,7 +939,7 @@ const AdminFees = () => {
                           value={payment.amount}
                           onChange={(e) => setPayment((p) => ({ ...p, amount: e.target.value }))}
                           placeholder="Enter amount"
-                          max={displayBaseFee - selectedStudent.paymentsTotal}
+                          max={Math.max(0, getDiscountedCourseFee(selectedStudent, displayBaseFee) - selectedStudent.paymentsTotal)}
                         />
                       </div>
                       <div>
@@ -1002,7 +1008,7 @@ const AdminFees = () => {
                         <th>Student</th>
                         <th>Admission No.</th>
                         <th>Course</th>
-                        <th>Course Fee</th>
+                        <th>Amount Owed</th>
                         <th>Total Payments</th>
                         <th>Balance</th>
                       </tr>
@@ -1013,7 +1019,7 @@ const AdminFees = () => {
                           <td>{s.firstName} {s.lastName}</td>
                           <td>{s.admissionNumber || '-'}</td>
                           <td>{s.course || '-'}</td>
-                          <td>{currency(s.baseFee || 0)}</td>
+                          <td>{currency(s.discountedFee || 0)}</td>
                           <td>{currency(s.paymentsTotal || 0)}</td>
                           <td><strong>{currency(s.balance || 0)}</strong></td>
                         </tr>

@@ -243,7 +243,9 @@ export async function getAdminAdmissionById(id) {
 
 export async function updateAdminAdmission(id, data) {
   const ref = doc(db, 'admin_admissions', id);
-  await updateDoc(ref, { ...data, updatedAt: serverTimestamp() });
+  // A discount is a registration-time agreement and must not be changed later.
+  const { discountType, discountValue, ...editableData } = data;
+  await updateDoc(ref, { ...editableData, updatedAt: serverTimestamp() });
 }
 
 export async function deleteAdminAdmission(id) {

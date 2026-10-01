@@ -4,6 +4,7 @@ import modal from '../../utils/modal';
 import { getAdminAdmissionById, updateAdminAdmission, deleteAdminAdmission } from '../../utils/firebase';
 import { uploadAdminPassportToCloudinary } from '../../utils/cloudinary';
 import '../styles/StudentDetail.css';
+import { formatStudentDiscount } from '../../utils/discount';
 
 const DetailRow = ({ label, children, icon }) => (
   <div className="student-detail-row">
@@ -537,6 +538,10 @@ const StudentDetail = () => {
                 )}
               </DetailRow>
             ) : null}
+
+            <DetailRow label="Registration Discount">
+              <span className="student-detail-text">{formatStudentDiscount(data)} <span style={{ color: '#64748b' }}>(set at registration)</span></span>
+            </DetailRow>
 
             <DetailRow 
               label="Amount Paid"

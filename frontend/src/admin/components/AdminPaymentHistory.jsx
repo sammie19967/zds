@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { listAdminAdmissions, listStudentPayments, getStructuredFees } from '../../utils/firebase';
+import { getDiscountedCourseFee } from '../../utils/discount';
 import modal from '../../utils/modal';
 import '../styles/AdminPaymentHistory.css';
 
@@ -303,7 +304,7 @@ const AdminPaymentHistory = () => {
   const handlePrint = (p) => {
     const student = selectedStudent;
     if (!student) return;
-    const baseFee = computeBaseFee(student);
+    const baseFee = getDiscountedCourseFee(student, computeBaseFee(student));
     // Determine timestamp for ordering (createdAt seconds or paidAt ISO)
     const thisTs = p.createdAt?.seconds ? p.createdAt.seconds * 1000 : (p.paidAt ? new Date(p.paidAt).getTime() : 0);
     const paidBefore = payments
